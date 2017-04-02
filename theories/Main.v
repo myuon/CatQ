@@ -1,1 +1,0 @@
-From CatQ Require Export Setoids Category.

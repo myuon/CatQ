@@ -65,3 +65,17 @@ Next Obligation.
 Defined.
 
 Notation "S ** S'" := (Setoid_product S S') (at level 40).
+
+Definition Spair (S S' : Setoid) : S → S' → S ** S' := pair.
+
+Notation "( x , y , .. , z )" := (Spair .. (Spair x y) .. z).
+
+Instance Spair_proper (S S' : Setoid) :
+  Proper (@equality S ==> @equality S' ==> @equality (S ** S')) (fun x y => (x , y)).
+Proof.
+  unfold Proper, respectful, Setoid_product. simpl.
+  intros.
+  split.
+  exact H. exact H0.
+Qed.
+
