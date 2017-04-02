@@ -1,1 +1,1 @@
-#CS-and-CAT theories
+#CatQ
