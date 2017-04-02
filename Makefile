@@ -102,7 +102,10 @@ endif
 ######################
 
 VFILES:=theories/Category.v\
-  theories/Setoids.v
+  theories/Setoids.v\
+  theories/Functor.v\
+  theories/Nat.v\
+  theories/Yoneda.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
 -include $(addsuffix .d,$(VFILES))
