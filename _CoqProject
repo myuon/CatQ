@@ -1,0 +1,7 @@
+-Q theories CatQ
+
+theories/Category.v
+theories/Setoids.v
+theories/Functor.v
+theories/Nat.v
+theories/Yoneda.v
