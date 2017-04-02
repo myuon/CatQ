@@ -1,0 +1,5 @@
+-Q . CatQ
+
+theories/Category.v
+theories/Setoids.v
+theories/Main.v
