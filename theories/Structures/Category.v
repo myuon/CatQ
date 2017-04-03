@@ -4,6 +4,7 @@ Require Import Utf8.
 Require Program.Basics.
 Module Func := Basics.
 
+Add LoadPath "../../theories" as CatQ.
 Require Export CatQ.Structures.Setoids.
 
 Set Implicit Arguments.

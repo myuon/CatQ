@@ -1,5 +1,6 @@
 Require Import Morphisms Setoid.
 Require Import Utf8.
+Add LoadPath "../../theories" as CatQ.
 Require Import CatQ.Structures.Category.
 
 Set Implicit Arguments.

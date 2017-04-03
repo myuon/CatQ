@@ -6,6 +6,8 @@ Set Universe Polymorphism.
 
 Require Import Morphisms Setoid.
 Require Import Utf8.
+
+Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Category Functor.
 
 (* Nat *)
