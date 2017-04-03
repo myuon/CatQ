@@ -1,6 +1,6 @@
 Require Import Morphisms Setoid.
 Require Import Utf8.
-Require Import CatQ.Category.
+Require Import CatQ.Structures.Category.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

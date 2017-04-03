@@ -4,7 +4,7 @@ Require Import Utf8.
 Require Program.Basics.
 Module Func := Basics.
 
-Require Export CatQ.Setoids.
+Require Export CatQ.Structures.Setoids.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

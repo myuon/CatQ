@@ -1,13 +1,12 @@
-Require Import Morphisms Setoid.
-Require Import Utf8.
-Require Import CatQ.Category.
-Require Import CatQ.Functor.
-
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
+
+Require Import Morphisms Setoid.
+Require Import Utf8.
+From CatQ.Structures Require Import Category Functor.
 
 (* Nat *)
 Class Is_Nat
