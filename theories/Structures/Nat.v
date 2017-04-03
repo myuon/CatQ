@@ -45,29 +45,6 @@ Next Obligation.
   - destruct D. simpl. auto.
 Defined.
 
-Lemma assoc_of (C : Category) :
-  forall {a b c d : C} {f : a ⟶ b} {g : b ⟶ c} {h : c ⟶ d},
-    (h ∘ g) ∘ f == h ∘ (g ∘ f).
-Proof.
-  intros.
-  setoid_rewrite associativity.
-  reflexivity.
-Qed.
-
-Lemma left_id_of (C : Category) :
-  forall {a b : C} {f : a ⟶ b}, identity ∘ f == f.
-Proof.
-  intros.
-  apply left_identity.
-Qed.
-
-Lemma right_id_of (C : Category) :
-  forall {a b : C} {f : a ⟶ b}, f ∘ identity == f.
-Proof.
-  intros.
-  apply right_identity.
-Qed.
-
 Program Definition compNat {C D : Category} {F G H : Functor C D} (β : Nat G H) (α : Nat F G) : Nat F H :=
   {|
     component := fun a => component β a ∘ component α a;

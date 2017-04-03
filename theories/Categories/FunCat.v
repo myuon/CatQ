@@ -10,7 +10,6 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-(* FunCat *)
 Program Definition FunCat (C D : Category) : Category :=
   Build_Category_from_Type
     {|

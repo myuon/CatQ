@@ -18,6 +18,10 @@ Structure isomorphic {C : Category} (x y : C) :=
     iso_on_right : iso_right ∘ iso_left == identity;
   }.
 
+Notation "A ≃ B" := (isomorphic A B) (at level 50).
 Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
-Notation "A ≃ B" := (isomorphic A B) (at level 60).
+
+Definition exist_isomorphism {C : Category} (x y : C) : Prop
+  := exists (f : x ⟶ y) (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
+
 

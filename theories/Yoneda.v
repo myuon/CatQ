@@ -3,7 +3,8 @@ Require Import Utf8.
 
 Add LoadPath "../theories" as CatQ.
 From CatQ.Structures Require Import Category Morphism Functor Nat.
-From CatQ.Categories Require Import FunCat.
+Require Import CatQ.Categories.FunCat.
+Require Import CatQ.Functors.Bifunctor.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -11,7 +12,33 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-(* contravariant Hom functor *)
+Program Definition covariantHomFunctor {C : Category} (a : C) : Functor C Setoids :=
+  Build_Functor_from_Type
+    {|
+      funct_obj := fun (y : C) => (morphism a y : object Setoids);
+      funct_map :=
+        fun x y (f : hom x y) =>
+          {|
+            mapping := fun (ax : hom a x) => f ∘ ax;
+          |};
+    |}.
+Next Obligation.
+  solve_proper.
+Defined.
+Next Obligation.
+  unfold Proper, respectful. simpl.
+  intros.
+  rewrite H.
+  reflexivity.
+Defined.
+Next Obligation.
+  apply left_identity.
+Defined.
+Next Obligation.
+  rewrite assoc_of.
+  reflexivity.
+Defined.
+
 Program Definition contraHomFunctor {C : Category} (a : C) : Functor (opposite C) Setoids :=
   Build_Functor_from_Type
     {|
@@ -161,5 +188,89 @@ Proof.
         x
        `end).
 Qed.
-    
+
+Program Definition yF {C : Category} {F : PSh[C]} : Functor (opposite C) Setoids :=
+  @Build_Functor_from_Type (opposite C) Setoids
+    {|
+      funct_obj := fun a => (morphism (yoneda (opposite_obj a)) F : object Setoids);
+      funct_map :=
+        fun a b (f : @hom (opposite C) a b) =>
+          {|
+            mapping := fun yaF => yaF ∘ fmap yoneda (opposite_hom f);
+            is_mapoid := _;
+          |};
+    |}.
+Next Obligation.
+  unfold opposite_obj, opposite_hom.
+  solve_proper.
+Defined.
+Next Obligation.
+  unfold opposite_obj, opposite_hom.
+  unfold Proper, respectful.
+  simpl.
+  intros.
+  rewrite H.
+  reflexivity.
+Defined.
+Next Obligation.
+  unfold opposite_hom.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+Next Obligation.
+  unfold opposite_hom, comp.
+  destruct x.
+  simpl.
+  unfold Func.flip.
+  rewrite associativity.
+  reflexivity.
+Defined.
+
+Program Definition yoneda_lemma_nat {C : Category} {F : PSh[C]} : Nat yF F :=
+  {|
+    component := fun a => @YonedaLemma_right C a F;
+  |}.
+Next Obligation.
+  apply Build_Is_Nat.
+  unfold YonedaLemma_right.
+  simpl.
+  intros.
+
+  refine
+    (`begin
+      fmap F f (x a identity)
+     =⟨ ltac: (apply Setoids_comp_apply) ⟩
+      (fmap F f ∘ x a) identity
+     =⟨ ltac: (apply mapoid_apply; apply naturality_of) ⟩
+      (x b ∘ (fmap (contraHomFunctor (opposite_obj a)) f)) identity
+     =⟨ _ ⟩
+      (x b) (identity ∘{C} f)
+     =⟨ mapoid_cong (x b) _ ⟩
+      (x b) (opposite_hom f ∘{C} identity)
+      `end).
+
+  unfold contraHomFunctor. simpl.
+  reflexivity.
+
+  rewrite right_id_of.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+
+Theorem yoneda_ff {C : Category} : ff (@yoneda C).
+Proof.
+  unfold ff, exist_isomorphism.
+  intros.
+
+  generalize (@Yoneda C a (yoneda b)).
+  intro.
+  destruct X.
+
+  exists (iso_left).
+  exists (iso_right).
+  split.
+  - apply iso_on_left.
+  - apply iso_on_right.
+Qed.
+
 

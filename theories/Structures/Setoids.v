@@ -28,6 +28,14 @@ Existing Instance is_mapoid.
 
 Notation "S -⇒ S'" := (Mapoid S S') (at level 60, right associativity).
 
+Program Definition idMapoid (S : Setoid) : S -⇒ S :=
+  {|
+    mapping := fun x => x;
+  |}.
+Next Obligation.
+  solve_proper.
+Defined.
+
 Program Definition Mapoid_space (S S' : Setoid) : Setoid :=
   {|
     carrier := Mapoid S S';
@@ -78,4 +86,18 @@ Proof.
   split.
   exact H. exact H0.
 Qed.
+
+(* Mapoid morphisms *)
+Definition surj {S S'} (f : Mapoid S S') : Prop :=
+  forall (s' : S'), exists s, f s == s'.
+
+Definition inj {S S'} (f : Mapoid S S') : Prop :=
+  forall (s₁ s₂ : S), f s₁ == f s₂ → s₁ == s₂.
+
+(* Reasoning *)
+Notation "`begin p" := p (at level 20, right associativity).
+Notation "a =⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ p pr) (at level 30, right associativity).
+Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
+Notation "a ↑⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ (@Equivalence_Symmetric p) pr) (at level 30, right associativity).
+Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).
 

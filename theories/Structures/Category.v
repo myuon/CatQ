@@ -56,6 +56,7 @@ Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom
 
 Notation "A ⟶ B" := (hom A B) (at level 60, right associativity).
 Notation "g ∘ f" := (comp g f) (at level 30).
+Notation "g ∘{ C } f" := (@comp C _ _ _ g f) (at level 30).
 
 Instance comp_proper {C : Category} {a b c : C} :
   Proper (@equality (morphism b c) ==> @equality (morphism a b) ==> @equality (morphism a c)) (fun g f => g ∘ f).
@@ -66,12 +67,30 @@ Proof.
   reflexivity.
 Qed.
 
-Notation "`begin p" := p (at level 20, right associativity).
 Notation "a =⟨ p 'at' C ⟩ pr" := (@Equivalence_Transitive (@morphism C _ _) _ _ a _ _ p pr) (at level 30, right associativity).
-Notation "a =⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ p pr) (at level 30, right associativity).
-Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
-Notation "a ↑⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ (@Equivalence_Symmetric p) pr) (at level 30, right associativity).
-Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).
+
+Lemma assoc_of (C : Category) :
+  forall {a b c d : C} {f : a ⟶ b} {g : b ⟶ c} {h : c ⟶ d},
+    (h ∘ g) ∘ f == h ∘ (g ∘ f).
+Proof.
+  intros.
+  setoid_rewrite associativity.
+  reflexivity.
+Qed.
+
+Lemma left_id_of (C : Category) :
+  forall {a b : C} {f : a ⟶ b}, identity ∘ f == f.
+Proof.
+  intros.
+  apply left_identity.
+Qed.
+
+Lemma right_id_of (C : Category) :
+  forall {a b : C} {f : a ⟶ b}, f ∘ identity == f.
+Proof.
+  intros.
+  apply right_identity.
+Qed.
 
 Structure Category_Type :=
   {
@@ -177,6 +196,12 @@ Next Obligation.
   unfold Func.flip.
   apply left_identity.
 Defined.
+
+Definition opposite_obj {C : Category} : object (opposite C) → object C := fun x => x .
+Definition opposite_hom {C : Category} {a b : opposite C} : @hom (opposite C) a b → @hom C b a := fun f => f.
+
+Definition opposite_obj_to {C : Category} : object C → object (opposite C) := fun x => x .
+Definition opposite_hom_to {C : Category} {a b : opposite C} : @hom C a b → @hom (opposite C) b a := fun f => f.
 
 Program Definition Setoids : Category :=
   Build_Category_from_Type {|
