@@ -1,8 +1,12 @@
 -Q theories "CatQ"
 
-theories/Structures/Category.v
 theories/Structures/Setoids.v
+theories/Structures/Category.v
+theories/Structures/Morphism.v
 theories/Structures/Functor.v
 theories/Structures/Nat.v
+
+theories/Categories/FunCat.v
+
 theories/Yoneda.v
 

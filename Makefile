@@ -101,10 +101,12 @@ endif
 #                    #
 ######################
 
-VFILES:=theories/Structures/Category.v\
-  theories/Structures/Setoids.v\
+VFILES:=theories/Structures/Setoids.v\
+  theories/Structures/Category.v\
+  theories/Structures/Morphism.v\
   theories/Structures/Functor.v\
   theories/Structures/Nat.v\
+  theories/Categories/FunCat.v\
   theories/Yoneda.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
