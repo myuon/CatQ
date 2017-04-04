@@ -18,12 +18,16 @@ Structure isomorphic {C : Category} (x y : C) :=
     iso_on_right : iso_right ∘ iso_left == identity;
   }.
 
-Notation "A ≃ B" := (isomorphic A B) (at level 50).
+Notation "A ≃ B" := (isomorphic A B) (at level 60).
 Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
 
-Definition exist_isomorphism {C : Category} (x y : C) : Prop
-  := exists (f : x ⟶ y) (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
+Definition sig_isomorphism {C : Category} (x y : C) : Type
+  := { fg: (x ⟶ y) * (y ⟶ x) | let (f,g) := fg in f ∘ g == identity /\ g ∘ f == identity }.
 
-Definition iso {C : Category} {x y : C} (f : x ⟶ y) : Prop :=
-  exists (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
+Definition sig_iso {C : Category} {x y : C} (f : x ⟶ y) : Type
+  := { g : y ⟶ x | f ∘ g == identity /\ g ∘ f == identity }.
+
+Definition iso_inv {C : Category} {x y : C} {f : x ⟶ y} : sig_iso f → (y ⟶ x) := fun sf => proj1_sig sf.
+
+Notation "f ⁻¹" := (iso_inv f) (at level 30).
 

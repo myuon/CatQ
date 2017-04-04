@@ -259,19 +259,21 @@ Defined.
 
 Theorem yoneda_ff {C : Category} : ff (@yoneda C).
 Proof.
-  unfold ff, exist_isomorphism.
+  unfold ff, sig_isomorphism.
   intros.
 
   generalize (@Yoneda C a (yoneda b)).
   intro.
   destruct X.
 
-  exists (iso_left).
-  exists (iso_right).
+  apply (exist _ (iso_left, iso_right)).
+
   split.
   - apply iso_on_left.
   - apply iso_on_right.
 Qed.
 
-
+(*
+Corollary yoneda_ff_on_hom {C : Category} {a b : C} : (natiso : yoneda a x -≃→ yoneda b x) → isomorphic a b  
+*)  
 
