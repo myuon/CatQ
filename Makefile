@@ -106,6 +106,7 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Structures/Morphism.v\
   theories/Structures/Functor.v\
   theories/Structures/Nat.v\
+  theories/Structures/Structures.v\
   theories/Categories/Product.v\
   theories/Categories/FunCat.v\
   theories/Functors/Bifunctor.v\
