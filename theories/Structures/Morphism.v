@@ -24,4 +24,6 @@ Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
 Definition exist_isomorphism {C : Category} (x y : C) : Prop
   := exists (f : x ⟶ y) (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
 
+Definition iso {C : Category} {x y : C} (f : x ⟶ y) : Prop :=
+  exists (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
 

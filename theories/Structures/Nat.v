@@ -8,9 +8,8 @@ Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category Functor.
+From CatQ.Structures Require Import Category Functor Morphism.
 
-(* Nat *)
 Class Is_Nat
       {C D : Category} (F G : Functor C D)
       (component : forall a, morphism (F a) (G a)) :=
@@ -30,6 +29,9 @@ Definition naturality_of {C D} {F G : Functor C D} (α : Nat F G) :
   forall {a b} {f : a ⟶ b},
     fmap G f ∘ α a == α b ∘ fmap F f
   := @naturality C D F G (component α) (is_nat α).
+
+Definition natiso {C D} {F G : Functor C D} (α β : Nat F G)
+  := forall {a}, iso (component α a).
 
 Program Definition idNat {C D : Category} (F : Functor C D) : Nat F F :=
   {|
