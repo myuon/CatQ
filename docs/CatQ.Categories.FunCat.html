@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>CatQ.Categories.FunCat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library CatQ.Categories.FunCat</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.Morphisms.html#"><span class="id" title="library">Morphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Unicode.Utf8.html#"><span class="id" title="library">Utf8</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">LoadPath</span> "../../theories" <span class="id" title="keyword">as</span> <span class="id" title="var">CatQ</span>.<br/>
+<span class="id" title="var">From</span> <span class="id" title="var">CatQ.Structures</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="CatQ.Structures.Structures.html#"><span class="id" title="library">Structures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="CatQ.Functors.Concrete.html#"><span class="id" title="library">CatQ.Functors.Concrete</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Strict</span> <span class="id" title="keyword">Implicit</span>.<br/>
+<span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Printing</span> <span class="id" title="keyword">Implicit</span> <span class="id" title="var">Defensive</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Universe</span> <span class="id" title="var">Polymorphism</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Program Definition</span> <a name="FunCat"><span class="id" title="definition">FunCat</span></a> (<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <a class="idref" href="CatQ.Structures.Category.html#Category"><span class="id" title="record">Category</span></a>) : <a class="idref" href="CatQ.Structures.Category.html#Category"><span class="id" title="record">Category</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_from_Type"><span class="id" title="definition">Build_Category_from_Type</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_object</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">Functor</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">C</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">D</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_hom</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">Nat</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_hom_equal</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <span class="id" title="keyword">fun</span> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">_</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">_</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">α</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">β</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">⇒</span></a> <span class="id" title="keyword">∀</span> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">A</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">,</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">component</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">α</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">A</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">==</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">component</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">β</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">A</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_identity</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">idNat</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_comp</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <span class="id" title="keyword">fun</span> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">_</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">_</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">_</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">⇒</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">compNat</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;|}.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.RelationClasses.html#Build_Equivalence"><span class="id" title="constructor">Build_Equivalence</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.RelationClasses.html#Reflexive"><span class="id" title="class">Reflexive</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.RelationClasses.html#Symmetric"><span class="id" title="class">Symmetric</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">symmetry</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.RelationClasses.html#Transitive"><span class="id" title="class">Transitive</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>. <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>, <span class="id" title="var">H0</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.Morphisms.html#Proper"><span class="id" title="class">Proper</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.Morphisms.html#respectful"><span class="id" title="definition">respectful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Setoids.html#equality"><span class="id" title="projection">equality</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>, <span class="id" title="var">H0</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="CatQ.Structures.Category.html#assoc_of"><span class="id" title="lemma">assoc_of</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="CatQ.Structures.Category.html#left_identity"><span class="id" title="method">left_identity</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="CatQ.Structures.Category.html#right_identity"><span class="id" title="method">right_identity</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a name="189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">&quot;</span></a>[ C , D ]" := (<a class="idref" href="CatQ.Categories.FunCat.html#FunCat"><span class="id" title="definition">FunCat</span></a> <span class="id" title="var">C</span> <span class="id" title="var">D</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 50).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a name="59ba26662321e9d226907de4d92af9ba"><span class="id" title="notation">&quot;</span></a>PSh[ C ]" := (<a class="idref" href="CatQ.Categories.FunCat.html#FunCat"><span class="id" title="definition">FunCat</span></a> (<a class="idref" href="CatQ.Structures.Category.html#opposite"><span class="id" title="definition">opposite</span></a> <span class="id" title="var">C</span>) <a class="idref" href="CatQ.Structures.Category.html#Setoids"><span class="id" title="definition">Setoids</span></a>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 50).<br/>
+
+<br/>
+<span class="id" title="keyword">Program Definition</span> <a name="const_lift"><span class="id" title="definition">const_lift</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">J</span> : <a class="idref" href="CatQ.Structures.Category.html#Category"><span class="id" title="record">Category</span></a>} : <a class="idref" href="CatQ.Structures.Functor.html#Functor"><span class="id" title="record">Functor</span></a> <a class="idref" href="CatQ.Categories.FunCat.html#C"><span class="id" title="variable">C</span></a> (<a class="idref" href="CatQ.Categories.FunCat.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">[</span></a><a class="idref" href="CatQ.Categories.FunCat.html#J"><span class="id" title="variable">J</span></a><a class="idref" href="CatQ.Categories.FunCat.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">,</span></a><a class="idref" href="CatQ.Categories.FunCat.html#C"><span class="id" title="variable">C</span></a><a class="idref" href="CatQ.Categories.FunCat.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">]</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_from_Type"><span class="id" title="definition">Build_Functor_from_Type</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">funct_obj</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">:=</span></a> <span class="id" title="keyword">fun</span> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">a</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">⇒</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">(</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">Δ</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">[</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">J</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">](</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">a</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">)</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">:</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">object</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">([</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">J</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">,</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">C</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">]));</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">funct_map</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">:=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">fun</span> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">a</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">b</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">f</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">⇒</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">{|</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">component</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">:=</span></a> <span class="id" title="keyword">fun</span> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">x</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">⇒</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">(</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">f</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">:</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">hom</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">(</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">Δ</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">[</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">J</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">](</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">a</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">)</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">x</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">)</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">(</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">Δ</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">[</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">J</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">](</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">b</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">)</span></a> <a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">x</span></a><a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">));</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#Build_Functor_Type"><span class="id" title="constructor">|};</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;|}.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="CatQ.Structures.Setoids.html#fd63f73fd8734e33bbb1d1479941e88f"><span class="id" title="notation">`</span></a><a class="idref" href="CatQ.Structures.Setoids.html#fd63f73fd8734e33bbb1d1479941e88f"><span class="id" title="notation">begin</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">Δ</span></a><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">[</span></a><span class="id" title="var">J</span><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">](</span></a><span class="id" title="var">b</span><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">)</span></a> <span class="id" title="var">f0</span> <a class="idref" href="CatQ.Structures.Category.html#28309b4b31fc061cea0bf998329431b2"><span class="id" title="notation">∘</span></a> <span class="id" title="var">f</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">=⟨</span></a> <span class="id" title="var">_</span> <a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">⟩</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#identity"><span class="id" title="projection">identity</span></a> <a class="idref" href="CatQ.Structures.Category.html#28309b4b31fc061cea0bf998329431b2"><span class="id" title="notation">∘</span></a> <span class="id" title="var">f</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">=⟨</span></a> <span class="id" title="var">_</span> <a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">⟩</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">f</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">=⟨</span></a> <span class="id" title="var">_</span> <a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">⟩</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">f</span> <a class="idref" href="CatQ.Structures.Category.html#28309b4b31fc061cea0bf998329431b2"><span class="id" title="notation">∘</span></a> <a class="idref" href="CatQ.Structures.Category.html#identity"><span class="id" title="projection">identity</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">=⟨</span></a> <span class="id" title="var">_</span> <a class="idref" href="CatQ.Structures.Setoids.html#01a3acc488e3883d060005f48b65c961"><span class="id" title="notation">⟩</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">f</span> <a class="idref" href="CatQ.Structures.Category.html#28309b4b31fc061cea0bf998329431b2"><span class="id" title="notation">∘</span></a> <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">Δ</span></a><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">[</span></a><span class="id" title="var">J</span><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">](</span></a><span class="id" title="var">a</span><a class="idref" href="CatQ.Functors.Concrete.html#f8bdb06ccd44dc5c7363e8b199e8fd83"><span class="id" title="notation">)</span></a> <span class="id" title="var">f0</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Setoids.html#22abded69a9ead4e9b9a51c3f7c41d4e"><span class="id" title="notation">`</span></a><span class="id" title="keyword">end</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Functors.Concrete.html#const"><span class="id" title="definition">const</span></a>, <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="CatQ.Structures.Category.html#left_id_of"><span class="id" title="lemma">left_id_of</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="CatQ.Structures.Category.html#right_id_of"><span class="id" title="lemma">right_id_of</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">solve_proper</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
