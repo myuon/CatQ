@@ -10,6 +10,14 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
+Definition unique_hom {C : Category} {a b : C} (P : hom a b → Prop) (f : hom a b)
+  := P f /\ forall (g : hom a b), P g → f == g.
+
+Notation "∃ ! f .. g , p" :=
+  (ex (unique_hom (fun f => .. (ex (unique_hom (fun g => p))) ..)))
+    (at level 200, f binder, right associativity,
+    format "'[' ∃ ! '/ ' f .. g , '/ ' p ']'").
+
 Structure isomorphic {C : Category} (x y : C) :=
   {
     iso_right : hom x y;

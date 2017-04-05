@@ -15,11 +15,10 @@ Program Definition Cat : Category :=
     {|
       cat_object := Category;
       cat_hom := Functor;
-      cat_hom_equal :=
-        fun C _ F G => forall (fobj_eq : fobj F = fobj G),
-          let shift := fun f => eq_subst fobj_eq (fmap F f) == fmap G f in
-          (fobj F = fobj G) /\ (forall (fobj_eq : fobj F = fobj G), forall {a b : C} (f : a ⟶ b), fmap F f == fmap G f);
+      cat_hom_equal := fun _ _ => eqFunctor;
       cat_identity := @idFunctor;
       cat_comp := @compFunctor;
     |}.
+Admit Obligations.
+
 

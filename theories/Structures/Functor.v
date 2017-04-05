@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid Coq.Program.Equality.
 Require Import Utf8.
 Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Category Morphism.
@@ -125,15 +125,14 @@ Defined.
 
 Notation "F ∘f G" := (compFunctor F G) (at level 40).
 
-Program Definition eqFmap {C D : Category} (F G : Functor C D) : (fobj F = fobj G) → Prop.
-intro fobj_eq.
+(* この定義ではEquivalenceにならない？ *)
+(* eq_rectをsetoidで書き直す必要がある？ *)
+Program Definition eqFunctor {C D : Category} (F G : Functor C D) : Prop.
+refine (exists (fobj_eq : fobj F = fobj G), _).
 refine (forall {a b} (f : a ⟶ b), fmap F f == _).
 rewrite fobj_eq.
-exact (fmap G f).
+refine (fmap G f).
 Defined.
-
-Definition eqFunctor {C D : Category} (F G : Functor C D) : Prop :=
-  exists (fobj_eq : fobj F = fobj G), eqFmap fobj_eq.
 
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
 Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).
