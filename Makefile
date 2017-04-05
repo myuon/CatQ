@@ -165,6 +165,10 @@ html: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d html $(VFILES)
 
+docs: $(GLOBFILES) $(VFILES)
+	- mkdir -p docs
+	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d docs $(VFILES)
+
 gallinahtml: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
 	$(COQDOC) -toc $(COQDOCFLAGS) -html -g $(COQDOCLIBS) -d html $(VFILES)
