@@ -44,7 +44,41 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_identity</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">@</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">idFunctor</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">cat_comp</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">:=</span></a> <a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">@</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">compFunctor</span></a><a class="idref" href="CatQ.Structures.Category.html#Build_Category_Type"><span class="id" title="constructor">;</span></a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;|}.<br/>
-<span class="id" title="var">Admit</span> <span class="id" title="keyword">Obligations</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.Morphisms.html#Proper"><span class="id" title="class">Proper</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Classes.Morphisms.html#respectful"><span class="id" title="definition">respectful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#eqFunctor"><span class="id" title="definition">eqFunctor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#compFunctor"><span class="id" title="definition">compFunctor</span></a>, <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fold</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">x0</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fold</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">y0</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fold</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">x</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">x0</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fold</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">y</span> (<a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a> <span class="id" title="var">y0</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<span class="id" title="var">H0</span> <span class="id" title="var">a0</span> <span class="id" title="var">b0</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<span class="id" title="var">H</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H1</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H2</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>, <a class="idref" href="CatQ.Structures.Functor.html#compFunctor"><span class="id" title="definition">compFunctor</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#idFunctor"><span class="id" title="definition">idFunctor</span></a>, <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="CatQ.Structures.Functor.html#idFunctor"><span class="id" title="definition">idFunctor</span></a>, <a class="idref" href="CatQ.Structures.Functor.html#fmap"><span class="id" title="definition">fmap</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
 </div>
