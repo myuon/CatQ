@@ -12,27 +12,28 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-Definition comma_pair {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
-  := @sigT (object D₁ * object D₂) (fun d => hom (K (fst d)) (L (snd d))).
+Structure comma_pair {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :=
+  {
+    csrc : object D₁;
+    ctgt : object D₂;
+    cedge : hom (K csrc) (L ctgt);
+  }.
 
-Definition csrc {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (p : comma_pair K L) : object D₁
-  := fst (projT1 p).
-Definition ctgt {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (p : comma_pair K L) : object D₂
-  := snd (projT1 p).
-Definition cedge {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (p : comma_pair K L) : hom (K (csrc p)) (L (ctgt p))
-  := projT2 p.
+Notation "[comma_pair: e 'from' src 'to' tgt ]" := (@Build_comma_pair _ _ _ _ _ src tgt e).
+Notation "[comma_pair: e ]" := [comma_pair: e from _ to _].
 
-Definition comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b : comma_pair K L)
-  := { h : hom (csrc a) (csrc b) * hom (ctgt a) (ctgt b)
-     | fmap L (snd h) ∘ (cedge a) == (cedge b) ∘ fmap K (fst h) }.
+Structure comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b : comma_pair K L) :=
+  {
+    esrc : hom (csrc a) (csrc b);
+    etgt : hom (ctgt a) (ctgt b);
+    is_comma_morphism : fmap L etgt ∘ (cedge a) == (cedge b) ∘ fmap K esrc;
+  }.
 
-Definition esrc {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : hom (csrc a) (csrc b)
-  := fst (proj1_sig p).
-Definition etgt {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : hom (ctgt a) (ctgt b)
-  := snd (proj1_sig p).
+Notation "[comma_map: f , g 'from' src 'to' tgt ]" := (@Build_comma_morphism _ _ _ _ _ src tgt f g _).
+Notation "[comma_map: f , g ]" := [comma_map: f , g from _ to _].
 
 Program Definition comma_id {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a : comma_pair K L) : comma_morphism a a
-  := @exist _ _ (@identity D₁ _, @identity D₂ _) _.
+  := [comma_map: identity, identity].
 Next Obligation.
   rewrite fmap_identity.
   rewrite fmap_identity.
@@ -42,7 +43,7 @@ Next Obligation.
 Defined.
 
 Program Definition comma_comp {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b c : comma_pair K L) (g : comma_morphism b c) (f : comma_morphism a b) : comma_morphism a c
-  := @exist _ _ (esrc g ∘ esrc f, etgt g ∘ etgt f) _.
+  := [comma_map: esrc g ∘ esrc f , etgt g ∘ etgt f ].
 Next Obligation.
   exact
     (`begin
@@ -51,11 +52,11 @@ Next Obligation.
       fmap L (etgt g) ∘ fmap L (etgt f) ∘ cedge a
      =⟨ ltac: (rewrite assoc_of; reflexivity) ⟩
       fmap L (etgt g) ∘ (fmap L (etgt f) ∘ cedge a)
-     =⟨ ltac: (rewrite (proj2_sig f); reflexivity) ⟩
+     =⟨ ltac: (rewrite (is_comma_morphism f); reflexivity) ⟩
       fmap L (etgt g) ∘ (cedge b ∘ fmap K (esrc f))
      =⟨ ltac: (rewrite <- assoc_of; reflexivity) ⟩
       (fmap L (etgt g) ∘ cedge b) ∘ fmap K (esrc f)
-     =⟨ ltac: (rewrite (proj2_sig g); reflexivity) ⟩
+     =⟨ ltac: (rewrite (is_comma_morphism g); reflexivity) ⟩
       (cedge c ∘ fmap K (esrc g)) ∘ fmap K (esrc f)
      =⟨ ltac: (rewrite assoc_of; reflexivity) ⟩
       cedge c ∘ (fmap K (esrc g) ∘ fmap K (esrc f))
@@ -74,7 +75,7 @@ Defined.
 Definition comma_morphism_eq {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (f g : comma_morphism a b)
   := esrc f == esrc g /\ etgt f == etgt g.
 
-Instance esrc_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) esrc.
+Instance esrc_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => esrc f).
 Proof.
   unfold Proper, respectful, comma_morphism_eq.
   intros.
@@ -82,7 +83,7 @@ Proof.
   exact H.
 Qed.
 
-Instance etgt_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) etgt.
+Instance etgt_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => etgt f).
 Proof.
   unfold Proper, respectful, comma_morphism_eq.
   intros.
@@ -212,13 +213,9 @@ Next Obligation.
   exact H.
 Defined.
 Next Obligation.
-  rewrite esrc_id.
   reflexivity.
 Defined.
 Next Obligation.
-  unfold esrc.
-  simpl.
-  unfold esrc.
   reflexivity.
 Defined.
 
@@ -235,13 +232,9 @@ Next Obligation.
   exact H0.
 Defined.
 Next Obligation.
-  rewrite etgt_id.
   reflexivity.
 Defined.
 Next Obligation.
-  unfold etgt.
-  simpl.
-  unfold etgt.
   reflexivity.
 Defined.
 
@@ -260,7 +253,7 @@ Next Obligation.
       (fmap L (fmap (comma_π₂ K L) f)) ∘ cedge a
      =⟨ _ ⟩
       fmap L (etgt f) ∘ cedge a
-     =⟨ proj2_sig f ⟩
+     =⟨ is_comma_morphism f ⟩
       cedge b ∘ fmap K (esrc f)
      =⟨ _ ⟩
       cedge b ∘ fmap (K ∘f comma_π₁ K L) f
@@ -274,25 +267,21 @@ Defined.
 Program Definition comma_nat_universal_map {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')) : Functor E (K ↓ L) :=
   Build_Functor_from_Type
     {|
-      funct_obj := fun e => (@existT _ _ (P e , P' e) (η e) : object (K ↓ L));
-      funct_map := fun _ _ f => @exist _ _ (fmap P f , fmap P' f) _;
+      funct_obj := fun e => [comma_pair: η e] : object (K ↓ L);
+      funct_map := fun _ _ f => [comma_map: fmap P f , fmap P' f];
     |}.
 Next Obligation.
   apply (naturality_of η).
 Defined.
 Next Obligation.
-  unfold csrc, ctgt.
-  simpl.
   unfold Proper, respectful.
   intros.
 
   constructor.
   - unfold esrc.
-    simpl.
     rewrite H.
     reflexivity.
   - unfold etgt.
-    simpl.
     rewrite H.
     reflexivity.
 Defined.
@@ -308,13 +297,9 @@ Defined.
 Next Obligation.
   constructor.
   - unfold esrc.
-    simpl.
-    unfold esrc.
     simpl.
     apply fmap_compose.
   - unfold etgt.
-    simpl.
-    unfold etgt.
     simpl.
     apply fmap_compose.
 Defined.

@@ -17,6 +17,8 @@ Structure Setoid :=
   }.
 Existing Instance is_setoid.
 
+Program Definition to_setoid (X: Type) := @Build_Setoid X eq _.
+
 Notation "p == q" := (equality p q) (at level 55).
 
 Structure Mapoid (S S' : Setoid) :=

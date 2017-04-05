@@ -95,4 +95,6 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Definition Δ {C J : Category} : Functor C ([J,C]) := const_lift.
+
   

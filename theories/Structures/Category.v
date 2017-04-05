@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid Vectors.Fin.
 Require Import Utf8.
 
 Require Program.Basics.
@@ -270,5 +270,7 @@ Proof.
   intro.
   reflexivity.
 Qed.
+
+Definition SOne : object Setoids := to_setoid (t 1).
 
   
