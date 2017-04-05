@@ -19,6 +19,40 @@ Program Definition Cat : Category :=
       cat_identity := @idFunctor;
       cat_comp := @compFunctor;
     |}.
-Admit Obligations.
-
+Next Obligation.
+  unfold Proper, respectful.
+  intros.
+  unfold eqFunctor.
+  intros.
+  unfold compFunctor, fmap.
+  simpl.
+  fold (fmap x0 f).
+  fold (fmap y0 f).
+  fold (fmap x (fmap x0 f)).
+  fold (fmap y (fmap y0 f)).
+  destruct (H0 a0 b0 f).
+  destruct (H _ _ g).
+  constructor.
+  rewrite H1.
+  exact H2.
+Defined.
+Next Obligation.
+  constructor.
+  unfold fmap, compFunctor. simpl.
+  unfold fmap. simpl.
+  reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  unfold fmap. simpl.
+  unfold idFunctor, fmap. simpl.
+  reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  unfold fmap; simpl.
+  unfold idFunctor, fmap; simpl.
+  reflexivity.
+Defined.
+  
 

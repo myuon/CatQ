@@ -1,1 +1,1 @@
-From CatQ.Structures Require Export Category Functor Nat Morphism Object.
+From CatQ.Structures Require Export Setoids Category Functor Nat Morphism Object.

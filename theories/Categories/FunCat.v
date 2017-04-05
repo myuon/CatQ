@@ -1,4 +1,4 @@
-Require Import Morphisms.
+Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
@@ -75,7 +75,7 @@ Next Obligation.
       f ∘ identity
      =⟨ _ ⟩
       f ∘ fmap Δ[J](a) f0
-      `end).
+     `end).
 
   - unfold const, fmap.
     simpl.
@@ -94,5 +94,7 @@ Defined.
 Next Obligation.
   reflexivity.
 Defined.
+
+Definition Δ {C J : Category} : Functor C ([J,C]) := const_lift.
 
   

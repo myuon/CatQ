@@ -1,11 +1,11 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid Vectors.Fin.
 Require Import Utf8.
 
 Require Program.Basics.
 Module Func := Basics.
 
 Add LoadPath "../../theories" as CatQ.
-Require Export CatQ.Structures.Setoids.
+Require Import CatQ.Structures.Setoids.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -50,6 +50,25 @@ Qed.
 
 Definition hom (C : Category) : object C → object C → Type :=
   fun a b => carrier (morphism a b).
+
+Notation "f == g 'of' C" := (@equality (@hom C _ _) f g) (at level 70, g at next level).
+Infix "==" := equality (at level 70, only parsing).
+
+Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d → Prop :=
+| mk_Heq_hom : forall {g : hom a b}, f == g → Heq_hom f g.
+
+Notation "f ≈ g 'in' C" := (@Heq_hom C _ _ f _ _ g) (at level 70, g at next level).
+Infix "≈" := Heq_hom (at level 70, only parsing).
+
+Instance Heq_hom_sym {C : Category} {a b : C} : Symmetric (fun f g => Heq_hom (a:=a) (b:=b) f g).
+Proof.
+  unfold Symmetric.
+  intros.
+  destruct H.
+  constructor.
+  rewrite H.
+  reflexivity.
+Qed.
 
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
   fun _ _ _ g f => compose (| g , f |).
@@ -270,5 +289,7 @@ Proof.
   intro.
   reflexivity.
 Qed.
+
+Definition SOne : object Setoids := to_setoid (t 1).
 
   

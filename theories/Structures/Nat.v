@@ -1,14 +1,14 @@
+Require Import Morphisms Setoid.
+Require Import Utf8.
+
+Add LoadPath "../../theories" as CatQ.
+From CatQ.Structures Require Import Setoids Category Functor Morphism.
+
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
-
-Require Import Morphisms Setoid.
-Require Import Utf8.
-
-Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category Functor Morphism.
 
 Class Is_Nat
       {C D : Category} (F G : Functor C D)
