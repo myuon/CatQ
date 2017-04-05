@@ -28,6 +28,14 @@ Existing Instance is_mapoid.
 
 Notation "S -⇒ S'" := (Mapoid S S') (at level 60, right associativity).
 
+Program Definition idMapoid (S : Setoid) : S -⇒ S :=
+  {|
+    mapping := fun x => x;
+  |}.
+Next Obligation.
+  solve_proper.
+Defined.
+
 Program Definition Mapoid_space (S S' : Setoid) : Setoid :=
   {|
     carrier := Mapoid S S';
@@ -68,14 +76,28 @@ Notation "S ** S'" := (Setoid_product S S') (at level 40).
 
 Definition Spair (S S' : Setoid) : S → S' → S ** S' := pair.
 
-Notation "( x , y , .. , z )" := (Spair .. (Spair x y) .. z).
+Notation "(| x , y , .. , z |)" := (Spair .. (Spair x y) .. z).
 
 Instance Spair_proper (S S' : Setoid) :
-  Proper (@equality S ==> @equality S' ==> @equality (S ** S')) (fun x y => (x , y)).
+  Proper (@equality S ==> @equality S' ==> @equality (S ** S')) (fun x y => Spair x y).
 Proof.
   unfold Proper, respectful, Setoid_product. simpl.
   intros.
   split.
   exact H. exact H0.
 Qed.
+
+(* Mapoid morphisms *)
+Definition surj {S S'} (f : Mapoid S S') : Prop :=
+  forall (s' : S'), exists s, f s == s'.
+
+Definition inj {S S'} (f : Mapoid S S') : Prop :=
+  forall (s₁ s₂ : S), f s₁ == f s₂ → s₁ == s₂.
+
+(* Reasoning *)
+Notation "`begin p" := p (at level 20, right associativity).
+Notation "a =⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ p pr) (at level 30, right associativity).
+Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
+Notation "a ↑⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ (@Equivalence_Symmetric p) pr) (at level 30, right associativity).
+Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).
 

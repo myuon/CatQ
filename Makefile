@@ -101,11 +101,22 @@ endif
 #                    #
 ######################
 
-VFILES:=theories/Category.v\
-  theories/Setoids.v\
-  theories/Functor.v\
-  theories/Nat.v\
-  theories/Yoneda.v
+VFILES:=theories/Structures/Setoids.v\
+  theories/Structures/Category.v\
+  theories/Structures/Functor.v\
+  theories/Structures/Nat.v\
+  theories/Structures/Object.v\
+  theories/Structures/Morphism.v\
+  theories/Structures/Structures.v\
+  theories/Categories/Concrete.v\
+  theories/Functors/Concrete.v\
+  theories/Categories/Product.v\
+  theories/Categories/FunCat.v\
+  theories/Categories/Cat.v\
+  theories/Yoneda.v\
+  theories/Functors/Bifunctor.v\
+  theories/Categories/Comma.v\
+  theories/Limit.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
 -include $(addsuffix .d,$(VFILES))

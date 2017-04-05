@@ -1,6 +1,7 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid Coq.Program.Equality.
 Require Import Utf8.
-Require Import CatQ.Category.
+Add LoadPath "../../theories" as CatQ.
+From CatQ.Structures Require Import Category Morphism.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -8,7 +9,6 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-(* Functor *)
 Class Is_Functor
       (fdom fcod : Category)
       (fobj : fdom → fcod)
@@ -84,7 +84,23 @@ Next Obligation.
   apply fmorphism_compose.
 Defined.
 
-Program Definition compFunctor {C D E : Category} (F : Functor C D) (G : Functor D E) : Functor C E :=
+Program Definition idFunctor {C : Category} : Functor C C :=
+  Build_Functor_from_Type
+    {|
+      funct_obj := fun a => a;
+      funct_map := fun _ _ f => f;
+    |}.
+Next Obligation.
+  solve_proper.
+Defined.
+Next Obligation.
+  reflexivity.
+Defined.
+Next Obligation.
+  reflexivity.
+Defined.
+
+Program Definition compFunctor {C D E : Category} (G : Functor D E) (F : Functor C D) : Functor C E :=
   Build_Functor_from_Type
     {|
       funct_obj := fun a => fobj G (fobj F a);
@@ -107,3 +123,20 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Notation "F ∘f G" := (compFunctor F G) (at level 40).
+
+(* この定義ではEquivalenceにならない？ *)
+(* eq_rectをsetoidで書き直す必要がある？ *)
+Program Definition eqFunctor {C D : Category} (F G : Functor C D) : Prop.
+refine (exists (fobj_eq : fobj F = fobj G), _).
+refine (forall {a b} (f : a ⟶ b), fmap F f == _).
+rewrite fobj_eq.
+refine (fmap G f).
+Defined.
+
+Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
+Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).
+
+(* ff = iso on hom *)
+Definition ff {C D : Category} (F : Functor C D) : Type
+  := forall {a b}, @sig_isomorphism Setoids (morphism a b) (morphism (F a) (F b)).

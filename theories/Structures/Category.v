@@ -4,7 +4,8 @@ Require Import Utf8.
 Require Program.Basics.
 Module Func := Basics.
 
-Require Export CatQ.Setoids.
+Add LoadPath "../../theories" as CatQ.
+Require Export CatQ.Structures.Setoids.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -21,11 +22,11 @@ Class Is_Category
   {
     associativity:
       forall a b c d (f: morphism a b) (g: morphism b c) (h: morphism c d),
-        compose ((compose (h , g)) , f) == compose (h , (compose (g , f)));
+        compose (| compose (| h , g |) , f |) == compose (| h , compose (| g , f |) |);
     left_identity:
-      forall a b (f: morphism a b), compose (identity , f) == f;
+      forall a b (f: morphism a b), compose (| identity , f |) == f;
     right_identity:
-      forall a b (f: morphism a b), compose (f , identity) == f;
+      forall a b (f: morphism a b), compose (| f , identity |) == f;
   }.
 
 Structure Category :=
@@ -51,10 +52,11 @@ Definition hom (C : Category) : object C → object C → Type :=
   fun a b => carrier (morphism a b).
 
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
-  fun _ _ _ g f => compose (g , f).
+  fun _ _ _ g f => compose (| g , f |).
 
 Notation "A ⟶ B" := (hom A B) (at level 60, right associativity).
 Notation "g ∘ f" := (comp g f) (at level 30).
+Notation "g ∘{ C } f" := (@comp C _ _ _ g f) (at level 30).
 
 Instance comp_proper {C : Category} {a b c : C} :
   Proper (@equality (morphism b c) ==> @equality (morphism a b) ==> @equality (morphism a c)) (fun g f => g ∘ f).
@@ -65,12 +67,30 @@ Proof.
   reflexivity.
 Qed.
 
-Notation "`begin p" := p (at level 20, right associativity).
 Notation "a =⟨ p 'at' C ⟩ pr" := (@Equivalence_Transitive (@morphism C _ _) _ _ a _ _ p pr) (at level 30, right associativity).
-Notation "a =⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ p pr) (at level 30, right associativity).
-Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
-Notation "a ↑⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ (@Equivalence_Symmetric p) pr) (at level 30, right associativity).
-Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).
+
+Lemma assoc_of (C : Category) :
+  forall {a b c d : C} {f : a ⟶ b} {g : b ⟶ c} {h : c ⟶ d},
+    (h ∘ g) ∘ f == h ∘ (g ∘ f).
+Proof.
+  intros.
+  setoid_rewrite associativity.
+  reflexivity.
+Qed.
+
+Lemma left_id_of (C : Category) :
+  forall {a b : C} {f : a ⟶ b}, identity ∘ f == f.
+Proof.
+  intros.
+  apply left_identity.
+Qed.
+
+Lemma right_id_of (C : Category) :
+  forall {a b : C} {f : a ⟶ b}, f ∘ identity == f.
+Proof.
+  intros.
+  apply right_identity.
+Qed.
 
 Structure Category_Type :=
   {
@@ -134,7 +154,7 @@ Program Definition Destruct_to_Category_Type : Category → Category_Type :=
       cat_hom := fun a b => carrier (@morphism C a b);
       cat_hom_equal := fun a b => @equality (@morphism C a b);
       cat_hom_equal_equiv := fun a b => is_setoid (@morphism C a b);
-      cat_comp := fun _ _ _ g f => @compose C _ _ _ (g,f);
+      cat_comp := fun _ _ _ g f => @compose C _ _ _ (| g , f |);
     |}.
 Next Obligation.
   apply associativity.
@@ -176,6 +196,12 @@ Next Obligation.
   unfold Func.flip.
   apply left_identity.
 Defined.
+
+Definition opposite_obj {C : Category} : object (opposite C) → object C := fun x => x .
+Definition opposite_hom {C : Category} {a b : opposite C} : @hom (opposite C) a b → @hom C b a := fun f => f.
+
+Definition opposite_obj_to {C : Category} : object C → object (opposite C) := fun x => x .
+Definition opposite_hom_to {C : Category} {a b : opposite C} : @hom C a b → @hom (opposite C) b a := fun f => f.
 
 Program Definition Setoids : Category :=
   Build_Category_from_Type {|

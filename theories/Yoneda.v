@@ -1,8 +1,10 @@
 Require Import Morphisms Setoid.
 Require Import Utf8.
-Require Import CatQ.Category.
-Require Import CatQ.Functor.
-Require Import CatQ.Nat.
+
+Add LoadPath "../theories" as CatQ.
+From CatQ.Structures Require Import Category Morphism Functor Nat.
+Require Import CatQ.Categories.FunCat.
+Require Import CatQ.Functors.Bifunctor.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -10,47 +12,33 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-(* FunCat *)
-Program Definition FunCat (C D : Category) : Category :=
-  Build_Category_from_Type
+Program Definition covariantHomFunctor {C : Category} (a : C) : Functor C Setoids :=
+  Build_Functor_from_Type
     {|
-      cat_object := Functor C D;
-      cat_hom := Nat;
-      cat_hom_equal := fun _ _ α β => forall A, component α A == component β A;
-      cat_identity := idNat;
-      cat_comp := fun _ _ _ => compNat;
+      funct_obj := fun (y : C) => (morphism a y : object Setoids);
+      funct_map :=
+        fun x y (f : hom x y) =>
+          {|
+            mapping := fun (ax : hom a x) => f ∘ ax;
+          |};
     |}.
 Next Obligation.
-  apply Build_Equivalence.
-  - unfold Reflexive.
-    reflexivity.
-  - unfold Symmetric.
-    symmetry. apply H.
-  - unfold Transitive.
-    intros. rewrite H, H0. reflexivity.
+  solve_proper.
 Defined.
 Next Obligation.
-  unfold Proper, respectful.
+  unfold Proper, respectful. simpl.
   intros.
-  unfold equality. simpl.
-  rewrite H, H0.
+  rewrite H.
   reflexivity.
-Defined.
-Next Obligation.
-  apply assoc_of.
 Defined.
 Next Obligation.
   apply left_identity.
 Defined.
 Next Obligation.
-  apply right_identity.
+  rewrite assoc_of.
+  reflexivity.
 Defined.
 
-Notation "[ C , D ]" := (FunCat C D) (at level 50).
-
-Notation "PSh[ C ]" := (FunCat (opposite C) Setoids) (at level 50).
-
-(* contravariant Hom functor *)
 Program Definition contraHomFunctor {C : Category} (a : C) : Functor (opposite C) Setoids :=
   Build_Functor_from_Type
     {|
@@ -119,17 +107,6 @@ Defined.
 Next Obligation.
   apply associativity.
 Defined.
-
-Structure isomorphic {C : Category} (x y : C) :=
-  {
-    iso_right : hom x y;
-    iso_left : hom y x;
-    iso_on_left : iso_left ∘ iso_right == identity;
-    iso_on_right : iso_right ∘ iso_left == identity;
-  }.
-
-Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
-Notation "A ≃ B" := (isomorphic A B) (at level 60).
 
 Program Definition YonedaLemma_right {C : Category} {a : C} {F : PSh[C]} : @morphism (PSh[C]) (yoneda a) F -⇒ F a :=
   {|
@@ -211,5 +188,92 @@ Proof.
         x
        `end).
 Qed.
-    
+
+Program Definition yF {C : Category} {F : PSh[C]} : Functor (opposite C) Setoids :=
+  @Build_Functor_from_Type (opposite C) Setoids
+    {|
+      funct_obj := fun a => (morphism (yoneda (opposite_obj a)) F : object Setoids);
+      funct_map :=
+        fun a b (f : @hom (opposite C) a b) =>
+          {|
+            mapping := fun yaF => yaF ∘ fmap yoneda (opposite_hom f);
+            is_mapoid := _;
+          |};
+    |}.
+Next Obligation.
+  unfold opposite_obj, opposite_hom.
+  solve_proper.
+Defined.
+Next Obligation.
+  unfold opposite_obj, opposite_hom.
+  unfold Proper, respectful.
+  simpl.
+  intros.
+  rewrite H.
+  reflexivity.
+Defined.
+Next Obligation.
+  unfold opposite_hom.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+Next Obligation.
+  unfold opposite_hom, comp.
+  destruct x.
+  simpl.
+  unfold Func.flip.
+  rewrite associativity.
+  reflexivity.
+Defined.
+
+Program Definition yoneda_lemma_nat {C : Category} {F : PSh[C]} : Nat yF F :=
+  {|
+    component := fun a => @YonedaLemma_right C a F;
+  |}.
+Next Obligation.
+  apply Build_Is_Nat.
+  unfold YonedaLemma_right.
+  simpl.
+  intros.
+
+  refine
+    (`begin
+      fmap F f (x a identity)
+     =⟨ ltac: (apply Setoids_comp_apply) ⟩
+      (fmap F f ∘ x a) identity
+     =⟨ ltac: (apply mapoid_apply; apply naturality_of) ⟩
+      (x b ∘ (fmap (contraHomFunctor (opposite_obj a)) f)) identity
+     =⟨ _ ⟩
+      (x b) (identity ∘{C} f)
+     =⟨ mapoid_cong (x b) _ ⟩
+      (x b) (opposite_hom f ∘{C} identity)
+      `end).
+
+  unfold contraHomFunctor. simpl.
+  reflexivity.
+
+  rewrite right_id_of.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+
+Theorem yoneda_ff {C : Category} : ff (@yoneda C).
+Proof.
+  unfold ff, sig_isomorphism.
+  intros.
+
+  generalize (@Yoneda C a (yoneda b)).
+  intro.
+  destruct X.
+
+  apply (exist _ (iso_left, iso_right)).
+
+  split.
+  - apply iso_on_left.
+  - apply iso_on_right.
+Qed.
+
+(*
+Corollary yoneda_ff_on_hom {C : Category} {a b : C} : (natiso : yoneda a x -≃→ yoneda b x) → isomorphic a b  
+*)  
 
