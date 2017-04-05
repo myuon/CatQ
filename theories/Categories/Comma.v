@@ -1,9 +1,9 @@
-Require Import Morphisms Setoid Coq.Program.Equality.
+Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
-Require Import CatQ.Categories.FunCat.
+From CatQ.Categories Require Import FunCat Cat.
 Require Import CatQ.Yoneda.
 
 Set Implicit Arguments.
@@ -65,17 +65,10 @@ Next Obligation.
      `end).
 Defined.
 
-Program Definition comma_pair_eq {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) (f g : comma_pair K L) : Prop.
-refine (exists (src_eq: csrc f = csrc g), exists (tgt_eq: ctgt f = ctgt g), _).
-refine (cedge f == _).
-rewrite src_eq, tgt_eq.
-exact (cedge g).
-Defined.
-
-Definition comma_morphism_eq {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (f g : comma_morphism a b)
+Definition comma_morphism_eq {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (f g : comma_morphism a b) : Prop
   := esrc f == esrc g /\ etgt f == etgt g.
 
-Instance esrc_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => esrc f).
+Instance esrc_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => esrc f).
 Proof.
   unfold Proper, respectful, comma_morphism_eq.
   intros.
@@ -83,7 +76,7 @@ Proof.
   exact H.
 Qed.
 
-Instance etgt_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} (p : comma_morphism a b) : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => etgt f).
+Instance etgt_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : comma_pair K L} : Proper (comma_morphism_eq (a:=a) (b:=b) ==> @equality _) (fun f => etgt f).
 Proof.
   unfold Proper, respectful, comma_morphism_eq.
   intros.
@@ -157,13 +150,13 @@ Next Obligation.
   constructor.
   - rewrite esrc_comp.
     rewrite esrc_comp.
-    rewrite (esrc_proper x x y H).
-    rewrite (esrc_proper x0 x0 y0 H0).
+    rewrite (esrc_proper x y H).
+    rewrite (esrc_proper x0 y0 H0).
     reflexivity.
   - rewrite etgt_comp.
     rewrite etgt_comp.
-    rewrite (etgt_proper x x y H).
-    rewrite (etgt_proper x0 x0 y0 H0).
+    rewrite (etgt_proper x y H).
+    rewrite (etgt_proper x0 y0 H0).
     reflexivity.
 Defined.
 Next Obligation.
@@ -207,12 +200,6 @@ Program Definition comma_π₁ {C D₁ D₂} (K : Functor D₁ C) (L : Functor D
       funct_map := fun _ _ f => esrc f;
     |}.
 Next Obligation.
-  unfold Proper, respectful.
-  intros.
-  destruct H.
-  exact H.
-Defined.
-Next Obligation.
   reflexivity.
 Defined.
 Next Obligation.
@@ -225,12 +212,6 @@ Program Definition comma_π₂ {C D₁ D₂} (K : Functor D₁ C) (L : Functor D
       funct_obj := fun (a : object (K ↓ L)) => ctgt a;
       funct_map := fun _ _ f => etgt f;
     |}.
-Next Obligation.
-  unfold Proper, respectful.
-  intros.
-  destruct H.
-  exact H0.
-Defined.
 Next Obligation.
   reflexivity.
 Defined.
@@ -305,12 +286,9 @@ Next Obligation.
 Defined.
 
 (*
-setoid上の∃!を定義する.
-eqFunctorの定義も見直す？
-
 Theorem comma_nat_universality {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :
   forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-    exists ! (H : Functor E (K ↓ L)), eqFunctor (comma_π₁ K L ∘f H) P /\ eqFunctor (comma_π₂ K L ∘f H) P'.
+    exists! (H : Functor E (K ↓ L)), (eqFunctor (comma_π₁ K L ∘f H) P) /\ (eqFunctor (comma_π₂ K L ∘f H) P').
 Proof.
   intros.
 
@@ -318,55 +296,12 @@ Proof.
   constructor.
 
   - split.
-    + unfold eqFunctor.
-      assert (fobj (comma_π₁ K L ∘f comma_nat_universal_map η) = fobj P).
-      * reflexivity.
-      * exists H.
-        unfold eqFmap.
-        intros.
-
-        refine
-          (`begin
-            fmap (comma_π₁ K L ∘f comma_nat_universal_map η) f
-           =⟨ _ ⟩
-            fmap (comma_π₁ K L) (fmap (comma_nat_universal_map η) f)
-           =⟨ _ ⟩
-            fmap P f
-           =⟨ _ ⟩
-            eq_rect_r (fun t => morphism (t a) (t b)) (fmap P f) H
-           `end).
-
-        reflexivity.
-        reflexivity.
-
-        unfold eq_rect_r.
-        simpl_eqs.
-        reflexivity.
-    + assert (fobj (comma_π₂ K L ∘f comma_nat_universal_map η) = fobj P').
-      * reflexivity.
-      * exists H.
-        unfold eqFmap.
-        intros.
-
-        refine
-          (`begin
-            fmap (comma_π₂ K L ∘f comma_nat_universal_map η) f
-           =⟨ _ ⟩
-            fmap (comma_π₂ K L) (fmap (comma_nat_universal_map η) f)
-           =⟨ _ ⟩
-            fmap P' f
-           =⟨ _ ⟩
-            eq_rect_r (fun t => morphism (t a) (t b)) (fmap P' f) H
-           `end).
-
-        reflexivity.
-        reflexivity.
-
-        unfold eq_rect_r.
-        simpl_eqs.
-        reflexivity.
+    + constructor.
+      reflexivity.
+    + constructor.
+      reflexivity.
   - intros.
     destruct H.
-*)    
-  
+    unfold comma_nat_universal_map; simpl.
+*)  
 

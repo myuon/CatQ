@@ -1,7 +1,7 @@
-Require Import Morphisms Setoid Coq.Program.Equality.
+Require Import Morphisms Setoid RelationClasses.
 Require Import Utf8.
 Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category Morphism.
+From CatQ.Structures Require Import Setoids Category Morphism.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -125,13 +125,34 @@ Defined.
 
 Notation "F ∘f G" := (compFunctor F G) (at level 40).
 
-(* この定義ではEquivalenceにならない？ *)
-(* eq_rectをsetoidで書き直す必要がある？ *)
-Program Definition eqFunctor {C D : Category} (F G : Functor C D) : Prop.
-refine (exists (fobj_eq : fobj F = fobj G), _).
-refine (forall {a b} (f : a ⟶ b), fmap F f == _).
-rewrite fobj_eq.
-refine (fmap G f).
+Definition eqFunctor {C D} (F G : Functor C D) :=
+  ∀ {a b} (f : a ⟶ b), fmap F f ≈ fmap G f.
+
+Instance eqFunctor_equiv {C D} : Equivalence (@eqFunctor C D).
+Proof.
+  constructor.
+  - unfold Reflexive.
+    intro.
+    constructor.
+    reflexivity.
+  - unfold Symmetric.
+    intros.
+    unfold eqFunctor.
+    intros.
+    unfold eqFunctor in H.
+    destruct (H a b f).
+    constructor.
+    symmetry.
+    exact H0.
+  - unfold Transitive.
+    intros.
+    unfold eqFunctor.
+    intros.
+    destruct (H0 a b f).
+    destruct (H a b f).
+    constructor.
+    rewrite H2, H1.
+    reflexivity.
 Defined.
 
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).

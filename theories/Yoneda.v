@@ -2,7 +2,7 @@ Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../theories" as CatQ.
-From CatQ.Structures Require Import Category Morphism Functor Nat.
+From CatQ.Structures Require Import Structures.
 Require Import CatQ.Categories.FunCat.
 Require Import CatQ.Functors.Bifunctor.
 

@@ -2,7 +2,7 @@ Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category Morphism.
+From CatQ.Structures Require Import Setoids Category Morphism.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
