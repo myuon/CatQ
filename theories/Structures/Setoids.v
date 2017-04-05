@@ -76,10 +76,10 @@ Notation "S ** S'" := (Setoid_product S S') (at level 40).
 
 Definition Spair (S S' : Setoid) : S → S' → S ** S' := pair.
 
-Notation "( x , y , .. , z )" := (Spair .. (Spair x y) .. z).
+Notation "(| x , y , .. , z |)" := (Spair .. (Spair x y) .. z).
 
 Instance Spair_proper (S S' : Setoid) :
-  Proper (@equality S ==> @equality S' ==> @equality (S ** S')) (fun x y => (x , y)).
+  Proper (@equality S ==> @equality S' ==> @equality (S ** S')) (fun x y => Spair x y).
 Proof.
   unfold Proper, respectful, Setoid_product. simpl.
   intros.

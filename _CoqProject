@@ -11,7 +11,7 @@ theories/Structures/Structures.v
 theories/Categories/Product.v
 theories/Categories/FunCat.v
 
-theories/Functors/Bifunctor.v
-
 theories/Yoneda.v
 
+theories/Functors/Bifunctor.v
+theories/Categories/Comma.v

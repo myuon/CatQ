@@ -109,8 +109,9 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Structures/Structures.v\
   theories/Categories/Product.v\
   theories/Categories/FunCat.v\
+  theories/Yoneda.v\
   theories/Functors/Bifunctor.v\
-  theories/Yoneda.v
+  theories/Categories/Comma.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
 -include $(addsuffix .d,$(VFILES))

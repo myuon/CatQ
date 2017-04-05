@@ -22,11 +22,11 @@ Class Is_Category
   {
     associativity:
       forall a b c d (f: morphism a b) (g: morphism b c) (h: morphism c d),
-        compose ((compose (h , g)) , f) == compose (h , (compose (g , f)));
+        compose (| compose (| h , g |) , f |) == compose (| h , compose (| g , f |) |);
     left_identity:
-      forall a b (f: morphism a b), compose (identity , f) == f;
+      forall a b (f: morphism a b), compose (| identity , f |) == f;
     right_identity:
-      forall a b (f: morphism a b), compose (f , identity) == f;
+      forall a b (f: morphism a b), compose (| f , identity |) == f;
   }.
 
 Structure Category :=
@@ -52,7 +52,7 @@ Definition hom (C : Category) : object C → object C → Type :=
   fun a b => carrier (morphism a b).
 
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
-  fun _ _ _ g f => compose (g , f).
+  fun _ _ _ g f => compose (| g , f |).
 
 Notation "A ⟶ B" := (hom A B) (at level 60, right associativity).
 Notation "g ∘ f" := (comp g f) (at level 30).
@@ -154,7 +154,7 @@ Program Definition Destruct_to_Category_Type : Category → Category_Type :=
       cat_hom := fun a b => carrier (@morphism C a b);
       cat_hom_equal := fun a b => @equality (@morphism C a b);
       cat_hom_equal_equiv := fun a b => is_setoid (@morphism C a b);
-      cat_comp := fun _ _ _ g f => @compose C _ _ _ (g,f);
+      cat_comp := fun _ _ _ g f => @compose C _ _ _ (| g , f |);
     |}.
 Next Obligation.
   apply associativity.

@@ -123,6 +123,8 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Notation "F ∘f G" := (compFunctor F G) (at level 40).
+
 Program Definition eqFmap {C D : Category} (F G : Functor C D) : (fobj F = fobj G) → Prop.
 intro fobj_eq.
 refine (forall {a b} (f : a ⟶ b), fmap F f == _).
