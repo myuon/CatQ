@@ -91,7 +91,7 @@ Program Definition lim_Sets_is {J : Category} {T : Functor J Setoids} : Limit T 
     {|
       ua_object := (morphism (Δ SOne) T : Setoids);
     |}.
-Admitted.
+Admit Obligations.
 
 Theorem Setoids_complete : is_complete Setoids.
 Admitted.
