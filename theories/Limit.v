@@ -81,16 +81,95 @@ Next Obligation.
       reflexivity.
 Defined.
 
-Definition Limit {C J : Category} (T : [ J , C ]) := UniversalArrow T (const_lift).
+Definition CouniversalArrow {C D : Category} (c : C) (G : Functor D C) := @Terminal (G ↓ Δ(c)).
+
+Structure CouniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) :=
+  {
+    coua_object : D;
+    coua_map : G coua_object ⟶ c;
+    coua_UMP : forall {d : D} {f : G d ⟶ c}, ∃! (g : d ⟶ coua_object) in D, coua_map ∘ fmap G g == f;
+  }.
+
+Program Definition Build_CouniversalArrow_from_Type {C D : Category} (c : C) (G : Functor D C) (UA : CouniversalArrow_Type c G) : CouniversalArrow c G :=
+  {|
+    terminal := [comma_pair: (coua_map UA) from (coua_object UA) to F1];
+  |}.
+Next Obligation.
+  destruct (coua_UMP UA (d:=csrc x) (f:=cedge x)).
+  destruct H.
+  destruct x as [xs xt xe].
+
+  unfold hom, morphism.
+  simpl.
+  refine (ex_intro _ [comma_map: x0, F1 from [comma_pair: xe] to [comma_pair: (coua_map UA : G _ ⟶ Δ(c) _)]] _).
+  { constructor.
+  - trivial.
+  - intros.
+    constructor.
+    + simpl.
+      destruct g as [gs gt prop].
+      simpl in prop.
+      simpl.
+      apply H0.
+      rewrite <- prop.
+      simpl.
+      apply left_id_of.
+    + simpl.
+      trivial. }
+
+  Unshelve.
+  simpl.
+  simpl in H, H0.
+  rewrite H.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+
+Definition Limit {C J : Category} (T : [ J , C ]) := CouniversalArrow T Δ.
 
 Definition is_complete (C : Category) :=
   forall {J} (F : Functor J C), Limit F.
 
-Program Definition lim_Sets_is {J : Category} {T : Functor J Setoids} : Limit T :=
-  Build_UniversalArrow_from_Type
+Program Definition lim_Sets_is {J : Category} {T : [J,Setoids]} : Limit T :=
+  Build_CouniversalArrow_from_Type
     {|
-      ua_object := (morphism (Δ SOne) T : Setoids);
+      coua_object := (morphism (Δ SOne) T : Setoids);
+      coua_map := {| component := fun j => {| mapping := fun α => α j F1 |}; |} : Δ (@morphism [J,Setoids] (Δ SOne) T : Setoids) ⟶ T;
     |}.
+(*
+Next Obligation.
+  unfold Proper, respectful; simpl.
+  intros.
+  apply (H j F1).
+Defined.
+Next Obligation.
+  constructor; simpl.
+  intros.
+  refine
+    (`begin
+      fmap T f (x a F1)
+     =⟨ _ ⟩
+      ((fmap T f) ∘ (x a)) F1
+     =⟨ mapoid_apply (F1 : SOne) (naturality_of x) ⟩
+      ((x b) ∘ (fmap (Δ[J](SOne)) f)) F1
+     =⟨ _ ⟩
+      x b F1
+      `end).
+  reflexivity.
+  reflexivity.
+Defined.
+Next Obligation.
+  destruct f as [compf propf].
+  simpl.
+  simpl in compf.
+  refine (ex_intro _ ({| mapping := fun d => {| component := fun j => {| mapping := fun k => compf j d |} : Δ SOne j ⟶ T j |} : Δ SOne ⟶ T |}) _).
+  constructor.
+  - simpl.
+    reflexivity.
+  - simpl.
+    intros.
+    rewrite <- (H A x).
+*)
 Admit Obligations.
 
 Theorem Setoids_complete : is_complete Setoids.

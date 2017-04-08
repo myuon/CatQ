@@ -16,11 +16,11 @@ Definition unique_hom {C : Category} {a b : C} (P : hom a b → Prop) (f : hom a
 Notation "∃ ! f .. g 'from' a 'to' b 'in' C , p" :=
   (ex (unique_hom (C:=C) (a:=a) (b:=b) (fun f => .. (ex (unique_hom (C:=C) (a:=a) (b:=b) (fun g => p))) ..)))
     (at level 200, f binder, right associativity,
-     format "'[' ∃ ! '/ ' f .. g 'from' a 'to' b 'in' C , '/ ' p ']'").
+     format "'[' ∃ ! '/ ' f .. g 'from' a 'to' b '/ ' 'in' '/ ' C , '/ ' p ']'").
 Notation "∃ ! f .. g 'in' C , p" :=
   (ex (unique_hom (C:=C) (fun f => .. (ex (unique_hom (C:=C) (fun g => p))) ..)))
     (at level 200, f binder, right associativity,
-     format "'[' ∃ ! '/ ' f .. g 'in' C , '/ ' p ']'").
+     format "'[' ∃ ! '/ ' f .. g '/ ' 'in' '/ ' C , '/ ' p ']'").
 
 Structure isomorphic {C : Category} (x y : C) :=
   {
