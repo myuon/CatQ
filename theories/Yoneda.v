@@ -197,13 +197,9 @@ Program Definition yF {C : Category} {F : PSh[C]} : Functor (opposite C) Setoids
         fun a b (f : @hom (opposite C) a b) =>
           {|
             mapping := fun yaF => yaF ∘ fmap yoneda (opposite_hom f);
-            is_mapoid := _;
+            is_mapoid := ltac: (unfold opposite_obj, opposite_hom; solve_proper);
           |};
     |}.
-Next Obligation.
-  unfold opposite_obj, opposite_hom.
-  solve_proper.
-Defined.
 Next Obligation.
   unfold opposite_obj, opposite_hom.
   unfold Proper, respectful.

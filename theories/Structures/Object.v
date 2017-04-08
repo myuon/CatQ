@@ -13,12 +13,12 @@ Set Universe Polymorphism.
 Structure Terminal {C : Category} :=
   {
     terminal : object C;
-    is_terminal : forall x, ∃! (f : x ⟶ terminal), True;
+    is_terminal : forall x, ∃! (f : x ⟶ terminal) in C, True;
   }.
 
 Structure Initial {C : Category} :=
   {
     initial : object C;
-    is_initial : forall x, ∃! (f : initial ⟶ x), True;
+    is_initial : forall x, ∃! (f : initial ⟶ x) in C, True;
   }.
 

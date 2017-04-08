@@ -29,7 +29,9 @@ Structure comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C}
     is_comma_morphism : fmap L etgt ∘ (cedge a) == (cedge b) ∘ fmap K esrc;
   }.
 
-Notation "[comma_map: f , g 'from' src 'to' tgt ]" := (@Build_comma_morphism _ _ _ _ _ src tgt f g _).
+Notation "[comma_map: f , g 'from' src 'to' tgt 'natural' 'by' prf ]" := (@Build_comma_morphism _ _ _ _ _ src tgt f g prf).
+Notation "[comma_map: f , g 'from' src 'to' tgt ]" := [comma_map: f , g from src to tgt natural by _].
+Notation "[comma_map: f , g 'natural' 'by' prf ]" := [comma_map: f , g from _ to _ natural by prf].
 Notation "[comma_map: f , g ]" := [comma_map: f , g from _ to _].
 
 Program Definition comma_id {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a : comma_pair K L) : comma_morphism a a
@@ -193,6 +195,17 @@ Defined.
 
 Notation "K ↓ L" := (Comma K L) (at level 50).
 
+Instance comma_map_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {prf : forall f g, fmap L g ∘ cedge a == cedge b ∘ fmap K f} : Proper (@equality _ ==> @equality _ ==> comma_morphism_eq) (fun (f : csrc a ⟶ csrc b) g => [comma_map: f,g natural by prf f g]).
+Proof.
+  unfold Proper, respectful.
+  intros.
+  constructor.
+  - simpl.
+    exact H.
+  - simpl.
+    exact H0.
+Qed.
+
 Program Definition comma_π₁ {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Functor (K ↓ L) D₁ :=
   Build_Functor_from_Type
     {|
@@ -218,6 +231,25 @@ Defined.
 Next Obligation.
   reflexivity.
 Defined.
+
+Program Definition comma_pairmap_π_morphism {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) {a b : K ↓ L} (f : a ⟶ b) := [comma_map: fmap (comma_π₁ K L) f, fmap (comma_π₂ K L) f].
+Next Obligation.
+  destruct f as [esrc etgt prop].
+  rewrite prop.
+  reflexivity.
+Defined.
+
+Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
+  comma_pairmap_π_morphism f ≈ f in K ↓ L.
+Proof.
+  destruct f.
+  unfold comma_pairmap_π_morphism.
+  unfold comma_π₁, fmap; simpl.
+  constructor.
+  constructor.
+  - reflexivity.
+  - reflexivity.
+Qed.
 
 Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Nat (K ∘f comma_π₁ K L) (L ∘f comma_π₂ K L) :=
   {|
@@ -288,7 +320,7 @@ Defined.
 (*
 Theorem comma_nat_universality {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :
   forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-    exists! (H : Functor E (K ↓ L)), (eqFunctor (comma_π₁ K L ∘f H) P) /\ (eqFunctor (comma_π₂ K L ∘f H) P').
+  ∃! H from E to (K ↓ L) in Cat, (eqFunctor (comma_π₁ K L ∘f H) P) /\ (eqFunctor (comma_π₂ K L ∘f H) P').
 Proof.
   intros.
 
@@ -302,6 +334,21 @@ Proof.
       reflexivity.
   - intros.
     destruct H.
-    unfold comma_nat_universal_map; simpl.
-*)  
+    unfold equality; simpl.
+    unfold eqFunctor.
+    intros.
+    unfold comma_nat_universal_map, fmap; simpl.
+    destruct (comma_pairmap_π (f:=fmorphism g f)).
+
+    unfold comma_pairmap_π_morphism in H1.
+    rewrite <- H1.
+
+*)
+    
+    
+    
+
+
+    
+
 
