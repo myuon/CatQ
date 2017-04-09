@@ -46,11 +46,11 @@ Next Obligation.
   apply right_identity.
 Defined.
 
-Notation "[ C , D ]" := (FunCat C D) (at level 50).
+Notation "[ C , D ]" := (FunCat C D).
 
-Notation "PSh[ C ]" := (FunCat (opposite C) Setoids) (at level 50).
+Notation "PSh[ C ]" := (FunCat (opposite C) Setoids).
 
-Program Definition const_lift {C J : Category} : Functor C ([J,C]) :=
+Program Definition const_lift {C J : Category} : Functor C [J,C] :=
   Build_Functor_from_Type
     {|
       funct_obj := fun a => (Δ[J](a) : object ([J,C]));

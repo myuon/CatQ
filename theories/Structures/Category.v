@@ -73,7 +73,8 @@ Qed.
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
   fun _ _ _ g f => compose (| g , f |).
 
-Notation "A ⟶ B" := (hom A B) (at level 60, right associativity).
+Notation "A ⟶ B 'in' C" := (@hom C A B) (at level 60, B at next level, right associativity).
+Infix "⟶" := hom (at level 60, only parsing).
 Notation "g ∘ f" := (comp g f) (at level 30).
 Notation "g ∘{ C } f" := (@comp C _ _ _ g f) (at level 30).
 
@@ -290,6 +291,6 @@ Proof.
   reflexivity.
 Qed.
 
-Definition SOne : object Setoids := to_setoid (t 1).
+Definition SOne : object Setoids := to_setoid unit.
 
   
