@@ -39,6 +39,21 @@ Structure Category :=
   }.
 Existing Instance is_category.
 
+Inductive arrow {C : Category} : Type :=
+| an_arrow: forall {a b : C} (f : morphism a b), arrow.
+
+Definition domarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ a _ _) => a
+    end.
+
+Definition codarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ _ b _) => b
+    end.
+
 Instance compose_proper (C : Category) :
   forall a b c, Proper ((@equality _) ==> (@equality _)) (@compose C a b c).
 Proof.
