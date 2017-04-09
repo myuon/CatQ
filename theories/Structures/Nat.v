@@ -25,6 +25,11 @@ Structure Nat {C D : Category} (F G : Functor C D) :=
   }.
 Existing Instance is_nat.
 
+Notation "[Nat: comp 'as' F 'to' G 'by' prf ]" := (@Build_Nat _ _ F G comp prf).
+Notation "[Nat: comp 'as' F 'to' G ]" := [Nat: comp as F to G by _].
+Notation "[Nat: comp 'by' prf ]" := [Nat: comp as _ to _ by _].
+Notation "[Nat: comp ]" := [Nat: comp by _].
+
 Definition naturality_of {C D} {F G : Functor C D} (α : Nat F G) :
   forall {a b} {f : a ⟶ b},
     fmap G f ∘ α a == α b ∘ fmap F f
