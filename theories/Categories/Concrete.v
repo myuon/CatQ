@@ -13,11 +13,11 @@ Set Universe Polymorphism.
 Program Definition One : Category :=
   Build_Category_from_Type
     {|
-      cat_object := t 1;
-      cat_hom := fun _ _ => t 1;
+      cat_object := unit;
+      cat_hom := fun _ _ => unit;
       cat_hom_equal := fun _ _ _ _ => True;
-      cat_identity := fun _ => @F1 0;
-      cat_comp := fun _ _ _ _ _ => @F1 0;
+      cat_identity := fun _ => tt;
+      cat_comp := fun _ _ _ _ _ => tt;
     |}.
 Next Obligation.
   constructor.

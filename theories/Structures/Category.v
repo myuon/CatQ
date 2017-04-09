@@ -291,6 +291,6 @@ Proof.
   reflexivity.
 Qed.
 
-Definition SOne : object Setoids := to_setoid (t 1).
+Definition SOne : object Setoids := to_setoid unit.
 
   

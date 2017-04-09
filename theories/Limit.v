@@ -23,7 +23,7 @@ Structure UniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) :=
  
 Program Definition Build_UniversalArrow_from_Type {C D : Category} (c : C) (G : Functor D C) (UA : UniversalArrow_Type c G) : UniversalArrow c G :=
   {|
-    initial := [comma_pair: (ua_map UA) from F1 to (ua_object UA)];
+    initial := [comma_pair: (ua_map UA) from tt to (ua_object UA)];
   |}.
 Next Obligation.
   destruct (ua_UMP UA (d:=ctgt x) (f:=cedge x)).
@@ -32,7 +32,7 @@ Next Obligation.
 
   unfold hom, morphism.
   simpl.
-  refine (ex_intro _ [comma_map: F1, x0 from [comma_pair: (ua_map UA : Δ(c) _ ⟶ G _)] to [comma_pair: xe]] _).
+  refine (ex_intro _ [comma_map: tt, x0 from [comma_pair: (ua_map UA : Δ(c) _ ⟶ G _)] to [comma_pair: xe]] _).
   { constructor.
   - trivial.
   - intros.
@@ -61,7 +61,7 @@ Program Definition Destruct_UniversalArrow_Type {C D : Category} (c : C) (G : Fu
     ua_map := cedge (initial UA);
   |}.
 Next Obligation.
-  destruct (is_initial UA ([comma_pair: (f : Δ(c) F1 ⟶ _)])).
+  destruct (is_initial UA ([comma_pair: (f : Δ(c) tt ⟶ _)])).
   exists (etgt x).
   constructor.
   - rewrite (is_comma_morphism x).
@@ -75,7 +75,7 @@ Next Obligation.
       rewrite H0.
       rewrite right_id_of.
       reflexivity.
-    + generalize (H1 [comma_map: (identity : csrc (initial UA) ⟶ csrc _), g from (initial UA) to [comma_pair: (f : Δ(c) F1 ⟶ _)] natural by H2] ltac:(trivial)).
+    + generalize (H1 [comma_map: (identity : csrc (initial UA) ⟶ csrc _), g from (initial UA) to [comma_pair: (f : Δ(c) tt ⟶ _)] natural by H2] ltac:(trivial)).
       intro.
       rewrite H3.
       reflexivity.
@@ -92,7 +92,7 @@ Structure CouniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) :=
 
 Program Definition Build_CouniversalArrow_from_Type {C D : Category} (c : C) (G : Functor D C) (UA : CouniversalArrow_Type c G) : CouniversalArrow c G :=
   {|
-    terminal := [comma_pair: (coua_map UA) from (coua_object UA) to F1];
+    terminal := [comma_pair: (coua_map UA) from (coua_object UA) to tt];
   |}.
 Next Obligation.
   destruct (coua_UMP UA (d:=csrc x) (f:=cedge x)).
@@ -101,7 +101,7 @@ Next Obligation.
 
   unfold hom, morphism.
   simpl.
-  refine (ex_intro _ [comma_map: x0, F1 from [comma_pair: xe] to [comma_pair: (coua_map UA : G _ ⟶ Δ(c) _)]] _).
+  refine (ex_intro _ [comma_map: x0, tt from [comma_pair: xe] to [comma_pair: (coua_map UA : G _ ⟶ Δ(c) _)]] _).
   { constructor.
   - trivial.
   - intros.
@@ -134,26 +134,25 @@ Program Definition lim_Sets_is {J : Category} {T : [J,Setoids]} : Limit T :=
   Build_CouniversalArrow_from_Type
     {|
       coua_object := (morphism (Δ SOne) T : Setoids);
-      coua_map := {| component := fun j => {| mapping := fun α => α j F1 |}; |} : Δ (@morphism [J,Setoids] (Δ SOne) T : Setoids) ⟶ T;
+      coua_map := {| component := fun j => {| mapping := fun α => α j tt |}; |} : Δ (@morphism [J,Setoids] (Δ SOne) T : Setoids) ⟶ T;
     |}.
-(*
 Next Obligation.
   unfold Proper, respectful; simpl.
   intros.
-  apply (H j F1).
+  apply (H j tt).
 Defined.
 Next Obligation.
   constructor; simpl.
   intros.
   refine
     (`begin
-      fmap T f (x a F1)
+      fmap T f (x a tt)
      =⟨ _ ⟩
-      ((fmap T f) ∘ (x a)) F1
-     =⟨ mapoid_apply (F1 : SOne) (naturality_of x) ⟩
-      ((x b) ∘ (fmap (Δ[J](SOne)) f)) F1
+      ((fmap T f) ∘ (x a)) tt
+     =⟨ mapoid_apply (tt : SOne) (naturality_of x) ⟩
+      ((x b) ∘ (fmap (Δ[J](SOne)) f)) tt
      =⟨ _ ⟩
-      x b F1
+      x b tt
       `end).
   reflexivity.
   reflexivity.
@@ -163,15 +162,39 @@ Next Obligation.
   simpl.
   simpl in compf.
   refine (ex_intro _ ({| mapping := fun d => {| component := fun j => {| mapping := fun k => compf j d |} : Δ SOne j ⟶ T j |} : Δ SOne ⟶ T |}) _).
-  constructor.
-  - simpl.
+  {
+    constructor.
+    - simpl.
+      reflexivity.
+    - simpl.
+      intros.
+      rewrite <- (H A x).
+      destruct x0.
+      reflexivity.
+  }
+  Unshelve.
+
+  - unfold Proper, respectful; simpl.
+    reflexivity.
+  - constructor.
+    simpl.
+    intros.
+    destruct propf.
+    simpl in naturality.
+    rewrite (naturality a b f d).
     reflexivity.
   - simpl.
+    unfold Proper, respectful; simpl.
     intros.
-    rewrite <- (H A x).
-*)
-Admit Obligations.
+    rewrite H.
+    reflexivity.
+Defined.
 
 Theorem Setoids_complete : is_complete Setoids.
-Admitted.
+Proof.
+  unfold is_complete.
+  intros.
+  exact (lim_Sets_is (T:=F)).
+Defined.  
+
 
