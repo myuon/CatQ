@@ -89,6 +89,26 @@ Qed.
 
 Notation "a =⟨ p 'at' C ⟩ pr" := (@Equivalence_Transitive (@morphism C _ _) _ _ a _ _ p pr) (at level 30, right associativity).
 
+Inductive arrow {C : Category} : Type :=
+| an_arrow: forall {a b : C} (f : a ⟶ b), arrow.
+
+Definition domarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ a _ _) => a
+    end.
+
+Definition codarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ _ b _) => b
+    end.
+
+Definition from_arrow {C} (f : @arrow C) : domarr f ⟶ codarr f :=
+  match f with
+    | (@an_arrow _ _ _ f) => f
+  end.
+
 Lemma assoc_of (C : Category) :
   forall {a b c d : C} {f : a ⟶ b} {g : b ⟶ c} {h : c ⟶ d},
     (h ∘ g) ∘ f == h ∘ (g ∘ f).

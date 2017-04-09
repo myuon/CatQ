@@ -27,12 +27,12 @@ Program Definition Build_UniversalArrow_from_Type {C D : Category} (c : C) (G : 
   |}.
 Next Obligation.
   destruct (ua_UMP UA (d:=ctgt x) (f:=cedge x)).
-  destruct H.
+  destruct u.
   destruct x as [xs xt xe].
 
   unfold hom, morphism.
   simpl.
-  refine (ex_intro _ [comma_map: tt, x0 from [comma_pair: (ua_map UA : Δ(c) _ ⟶ G _)] to [comma_pair: xe]] _).
+  refine (exist _ [comma_map: tt, x0 from [comma_pair: (ua_map UA : Δ(c) _ ⟶ G _)] to [comma_pair: xe]] _).
   { constructor.
   - trivial.
   - intros.
@@ -69,10 +69,10 @@ Next Obligation.
     rewrite right_id_of.
     reflexivity.
   - intros.
-    destruct H.
+    destruct u.
     assert (fmap G g ∘ cedge (initial UA) == f ∘ fmap Δ(c) identity).
     + simpl.
-      rewrite H0.
+      rewrite H.
       rewrite right_id_of.
       reflexivity.
     + generalize (H1 [comma_map: (identity : csrc (initial UA) ⟶ csrc _), g from (initial UA) to [comma_pair: (f : Δ(c) tt ⟶ _)] natural by H2] ltac:(trivial)).
@@ -96,12 +96,12 @@ Program Definition Build_CouniversalArrow_from_Type {C D : Category} (c : C) (G 
   |}.
 Next Obligation.
   destruct (coua_UMP UA (d:=csrc x) (f:=cedge x)).
-  destruct H.
+  destruct u.
   destruct x as [xs xt xe].
 
   unfold hom, morphism.
   simpl.
-  refine (ex_intro _ [comma_map: x0, tt from [comma_pair: xe] to [comma_pair: (coua_map UA : G _ ⟶ Δ(c) _)]] _).
+  refine (exist _ [comma_map: x0, tt from [comma_pair: xe] to [comma_pair: (coua_map UA : G _ ⟶ Δ(c) _)]] _).
   { constructor.
   - trivial.
   - intros.
@@ -126,6 +126,9 @@ Next Obligation.
 Defined.
 
 Definition Limit {C J : Category} (T : [ J , C ]) := CouniversalArrow T Δ.
+
+Notation "[limit: L , π 'of' T ]" := (Build_CouniversalArrow_from_Type (c:=T) {| coua_object := L; coua_map := π; |}).
+Notation "[limit: L , π ]" := [limit: L , π of _].
 
 Definition is_complete (C : Category) :=
   forall {J} (F : Functor J C), Limit F.
@@ -161,7 +164,7 @@ Next Obligation.
   destruct f as [compf propf].
   simpl.
   simpl in compf.
-  refine (ex_intro _ ({| mapping := fun d => {| component := fun j => {| mapping := fun k => compf j d |} : Δ SOne j ⟶ T j |} : Δ SOne ⟶ T |}) _).
+  refine (exist _ ({| mapping := fun d => {| component := fun j => {| mapping := fun k => compf j d |} : Δ SOne j ⟶ T j |} : Δ SOne ⟶ T |}) _).
   {
     constructor.
     - simpl.
@@ -195,6 +198,130 @@ Proof.
   unfold is_complete.
   intros.
   exact (lim_Sets_is (T:=F)).
-Defined.  
+Defined.
 
+Ltac assume := fun f term => generalize term; intro f.
+
+Definition limit_from_spr_eq_Eql 
+        {C : Category} (spr : has_sproduct C) (eql : has_equalizer C) :=
+  fun J (F : [J,C]) =>
+    let PFob := spr J F in
+    let PFarr := spr arrow (fun arr => F (codarr arr)) in
+    let s := ⟨sproduct: (fun arr => sproduct_proj PFob (codarr arr)) of PFarr⟩ in
+    let t := ⟨sproduct: (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj PFob (domarr arr)) of PFarr⟩ in
+    let Eql := eql (sproduct PFob) (sproduct PFarr) s t in Eql.
+
+Program Definition limit_from_spr_eq
+        {C : Category} (spr : has_sproduct C) (eql : has_equalizer C) : is_complete C :=
+  fun J (F : [J,C]) =>
+    [limit:
+       equalizer (limit_from_spr_eq_Eql spr eql F) ,
+       [Nat: fun j => sproduct_proj (spr J F) j ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)] : Δ[J](_) ⟶ F in [J,C] of F].
+Next Obligation.
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap F f ∘ (sproduct_proj (spr J F) a ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F))
+     =⟨ ltac: (rewrite <- assoc_of; reflexivity) ⟩
+      (fmap F f ∘ sproduct_proj (spr J F) a) ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)
+     =⟨ _ ⟩
+      (sproduct_proj (spr arrow (fun arr => F (codarr arr))) (an_arrow f) ∘ ⟨sproduct: (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) of _⟩) ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)
+     =⟨ _ ⟩
+      sproduct_proj (spr arrow (fun arr => F (codarr arr))) (an_arrow f) ∘ (⟨sproduct: (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) of _⟩ ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F))
+     =⟨ _ ⟩
+      sproduct_proj (spr arrow (fun arr => F (codarr arr))) (an_arrow f) ∘ (⟨sproduct: (fun arr => sproduct_proj (spr J F) (codarr arr)) of _⟩ ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F))
+     =⟨ _ ⟩
+      (sproduct_proj (spr arrow (fun arr => F (codarr arr))) (an_arrow f) ∘ ⟨sproduct: (fun arr => sproduct_proj (spr J F) (codarr arr)) of _⟩) ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)
+     =⟨ _ ⟩
+      (sproduct_proj (spr J F) b ∘ equalizing_map _) ∘ fmap (Δ[J](_)) f
+     `end).
+
+  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) (an_arrow f)).
+    reflexivity.
+  - rewrite assoc_of.
+    reflexivity.
+  - generalize ((is_equalizer (limit_from_spr_eq_Eql spr eql F))).
+    intro.
+    destruct X as [Xeq].
+    rewrite Xeq.
+    reflexivity.
+  - rewrite assoc_of.
+    reflexivity.
+  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => sproduct_proj (spr J F) (codarr arr)) (an_arrow f)).
+    rewrite right_id_of.
+    reflexivity.
+Defined.
+Next Obligation.
+  assert (⟨sproduct: fun i => (f i : d ⟶ F i) of spr J F⟩ [equalize] (⟨sproduct: fun arr => sproduct_proj (spr J F) (codarr arr) of _⟩, ⟨sproduct: fun arr => fmap F (from_arrow arr) ∘ sproduct_proj _ (domarr arr) of spr arrow (fun arr => F (codarr arr))⟩)).
+  {
+    apply (sproduct_pointwise_equal).
+    intro.
+    rewrite <- assoc_of.
+    rewrite (sproduct_mediating_prop (spr arrow (fun arr => F (codarr arr)))).
+    rewrite <- assoc_of.
+    rewrite (sproduct_mediating_prop (spr arrow (fun arr => F (codarr arr)))).
+
+    rewrite (sproduct_mediating_prop (spr J F)).
+    rewrite assoc_of.
+    rewrite (sproduct_mediating_prop (spr J F)).
+    destruct i.
+    simpl.
+
+    refine
+      (`begin
+        f b
+       =⟨ ltac: (rewrite <- right_id_of; reflexivity) ⟩
+        f b ∘ fmap (Δ[J](d)) f0
+       =⟨ ltac: (rewrite <- naturality_of; reflexivity) ⟩
+        fmap F f0 ∘ f a
+       `end).
+  }
+
+  refine (exist _ ⟨equalizer: ⟨sproduct: fun i => (f i : d ⟶ F i) of spr J F⟩ equalize by H of limit_from_spr_eq_Eql spr eql F⟩ _).
+  constructor.
+  - intro.
+    rewrite assoc_of.
+    rewrite (equalizer_mediating_prop (limit_from_spr_eq_Eql spr eql F)).
+    rewrite (sproduct_mediating_prop (spr J F)).
+    reflexivity.
+  - intros.
+    rewrite (equalizer_mediating_unique (p:=limit_from_spr_eq_Eql spr eql F) (k:=equalizing_map (limit_from_spr_eq_Eql spr eql F) ∘ g)).
+    + apply equalizer_pointwise_equal.
+      rewrite (equalizer_mediating_prop).
+      assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+      destruct ieql.
+      rewrite <- assoc_of.
+      rewrite equalize_parallel.
+      apply assoc_of.
+
+      assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+      destruct ieql.
+      rewrite <- assoc_of.
+      rewrite equalize_parallel.
+      apply assoc_of.
+
+      rewrite equalizer_mediating_prop.
+      reflexivity.
+    + rewrite equalizer_mediating_prop.
+      apply (sproduct_pointwise_equal).
+      intro.
+      rewrite sproduct_mediating_prop.
+      symmetry.
+      rewrite <- assoc_of.
+      exact (H0 i).
+      Unshelve.
+
+  assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+  destruct ieql.
+  rewrite <- assoc_of.
+  rewrite equalize_parallel.
+  apply assoc_of.
+Defined.
+  
+Theorem sproduct_equalizer_imp_complete {C} : has_sproduct C → has_equalizer C → is_complete C.
+Proof.
+  exact (fun spr eql => limit_from_spr_eq spr eql).
+Defined.
 
