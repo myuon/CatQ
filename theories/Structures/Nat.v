@@ -39,9 +39,7 @@ Definition natiso {C D} {F G : Functor C D} (α : Nat F G)
   := forall {a}, sig_iso (component α a).
 
 Program Definition natiso_inv {C D} {F G : Functor C D} {α : Nat F G} : natiso α → Nat G F :=
-  fun iso_α => {|
-      component := fun a => iso_α a ⁻¹;
-    |}.
+  fun iso_α => [Nat: fun a => iso_α a ⁻¹].
 Next Obligation.
   apply Build_Is_Nat.
   intros.
@@ -81,9 +79,7 @@ Next Obligation.
 Defined.
 
 Program Definition idNat {C D : Category} (F : Functor C D) : Nat F F :=
-  {|
-    component := fun a => @identity D (fobj F a);
-  |}.
+  [Nat: fun a => @identity D (fobj F a)].
 Next Obligation.
   apply Build_Is_Nat.
   intros.
@@ -95,9 +91,7 @@ Next Obligation.
 Defined.
 
 Program Definition compNat {C D : Category} {F G H : Functor C D} (β : Nat G H) (α : Nat F G) : Nat F H :=
-  {|
-    component := fun a => component β a ∘ component α a;
-  |}.
+  [Nat: fun a => component β a ∘ component α a].
 Next Obligation.
   apply Build_Is_Nat.
   intros.

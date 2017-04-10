@@ -30,8 +30,8 @@ Structure isomorphic {C : Category} (x y : C) :=
     iso_on_right : iso_right ∘ iso_left == identity;
   }.
 
-Notation "A ≃ B" := (isomorphic A B) (at level 60).
 Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
+Infix "≃" := isomorphic (at level 60, only parsing).
 
 Definition sig_isomorphism {C : Category} (x y : C) : Type
   := { fg: (x ⟶ y) * (y ⟶ x) | let (f,g) := fg in f ∘ g == identity /\ g ∘ f == identity }.

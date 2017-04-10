@@ -18,6 +18,22 @@ Structure Terminal {C : Category} :=
 
 Definition has_terminal (C : Category) := @Terminal C.
 
+Notation "[terminal: T 'by' prf ]" := (@Build_Terminal T prf).
+Notation "[terminal: T ]" := [terminal: T by _].
+Notation "⟨terminal: x 'of' p ⟩" := (proj1_sig (is_terminal p x)).
+
+Lemma terminal_mediating_unique {C} (p : @Terminal C) {x} :
+  forall (h : x ⟶ terminal p), h == ⟨terminal: x of p⟩.
+Proof.
+  intro.
+  destruct (is_terminal p x).
+  destruct u.
+  simpl.
+  symmetry.
+  apply (e h).
+  trivial.
+Qed.
+  
 Structure Product {C : Category} (a b : C) :=
   {
     product : C;
@@ -30,6 +46,11 @@ Structure Product {C : Category} (a b : C) :=
 
 Definition has_product (C : Category) :=
   forall (a b : C), Product a b.
+
+Notation "[product: P 'with' pr1 , pr2 'of' a , b 'by' prf ]" := (@Build_Product _ a b P pr1 pr2 prf).
+Notation "[product: P 'with' pr1 , pr2 ]" := (@Build_Product _ _ _ P pr1 pr2 _).
+Notation "[product: P ]" := (@Build_Product _ _ _ P _ _ _).
+Notation "⟨product: f , g 'of' p ⟩" := (is_product p f g).
 
 Structure sProduct {C : Category} (I : Type) (indexed : I → object C) :=
   {

@@ -155,16 +155,9 @@ Program Definition Build_Category_from_Type : Category_Type → Category :=
   fun ctype =>
     {|
       object := cat_object ctype;
-      morphism := fun X Y =>
-        {|
-          carrier := @cat_hom ctype X Y;
-          equality := @cat_hom_equal ctype _ _;
-        |};
+      morphism := fun X Y => [setoid: (@cat_hom ctype X Y) with (@cat_hom_equal ctype _ _)];
       identity := @cat_identity ctype;
-      compose := fun a b c =>
-        {|
-          mapping := fun ps => @cat_comp ctype _ _ _ (fst ps) (snd ps);
-        |};
+      compose := fun a b c => [mapoid: fun ps => @cat_comp ctype _ _ _ (fst ps) (snd ps)];
     |}.
 Next Obligation.
   apply cat_hom_equal_equiv.
@@ -311,6 +304,6 @@ Proof.
   reflexivity.
 Qed.
 
-Definition SOne : object Setoids := to_setoid unit.
+Definition SOne : object Setoids := [setoid: unit].
 
   
