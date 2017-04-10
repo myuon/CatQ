@@ -23,3 +23,4 @@ theories/Functors/Bifunctor.v
 theories/Categories/Comma.v
 
 theories/Limit.v
+theories/Adjoint.v
