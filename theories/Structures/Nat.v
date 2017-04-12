@@ -36,7 +36,7 @@ Definition naturality_of {C D} {F G : Functor C D} (α : Nat F G) :
   := @naturality C D F G (component α) (is_nat α).
 
 Definition natiso {C D} {F G : Functor C D} (α : Nat F G)
-  := forall {a}, sig_iso (component α a).
+  := forall {a}, invertible (component α a).
 
 Program Definition natiso_inv {C D} {F G : Functor C D} {α : Nat F G} : natiso α → Nat G F :=
   fun iso_α => [Nat: fun a => iso_α a ⁻¹].

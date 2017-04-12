@@ -152,4 +152,4 @@ Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, i
 
 (* ff = iso on hom *)
 Definition ff {C D : Category} (F : Functor C D) : Type
-  := forall {a b}, @sig_isomorphism Setoids (morphism a b) (morphism (F a) (F b)).
+  := forall {a b}, (morphism a b) ≃ (morphism (F a) (F b)) in Setoids.

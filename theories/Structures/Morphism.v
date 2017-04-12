@@ -2,7 +2,7 @@ Require Import Morphisms Setoid.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category.
+From CatQ.Structures Require Import Setoids Category.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -22,24 +22,70 @@ Notation "∃ ! f .. g 'in' C , p" :=
     (at level 200, f binder, right associativity,
      format "'[' ∃ ! '/ ' f .. g '/ ' 'in' '/ ' C , '/ ' p ']'").
 
-Structure isomorphic {C : Category} (x y : C) :=
+Class Is_isomorphic {C : Category} (x y : C)
+      (iso_right : x ⟶ y) (iso_left: y ⟶ x) :=
   {
-    iso_right : hom x y;
-    iso_left : hom y x;
     iso_on_left : iso_left ∘ iso_right == identity;
     iso_on_right : iso_right ∘ iso_left == identity;
   }.
 
-Notation "A ≃ B 'at' C" := (@isomorphic C A B) (at level 50).
+Structure isomorphic {C : Category} (x y : C) :=
+  {
+    iso_right : hom x y;
+    iso_left : hom y x;
+    is_isomorphic :> Is_isomorphic iso_right iso_left;
+  }.
+Existing Instance is_isomorphic.
+
+Notation "[iso: f 'with' g 'as' A 'to' B ]" := (@Build_isomorphic _ A B f g _).
+Notation "[iso: f 'with' g ]" := [iso: f with g as _ to _].
+
+Lemma setiso_left_at {x y : Setoids} (iso: isomorphic x y) :
+  forall u, iso_left iso (iso_right iso u) == u.
+Proof.
+  intros.
+  apply (mapoid_apply u iso_on_left).
+Qed.
+
+Lemma setiso_right_at {x y : Setoids} (iso: isomorphic x y) :
+  forall u, iso_right iso (iso_left iso u) == u.
+Proof.
+  intros.
+  apply (mapoid_apply u iso_on_right).
+Qed.
+
+Notation "A ≃ B 'in' C" := (@isomorphic C A B) (at level 50).
 Infix "≃" := isomorphic (at level 60, only parsing).
 
-Definition sig_isomorphism {C : Category} (x y : C) : Type
-  := { fg: (x ⟶ y) * (y ⟶ x) | let (f,g) := fg in f ∘ g == identity /\ g ∘ f == identity }.
-
-Definition sig_iso {C : Category} {x y : C} (f : x ⟶ y) : Type
+Definition invertible {C : Category} {x y : C} (f : x ⟶ y) : Type
   := { g : y ⟶ x | f ∘ g == identity /\ g ∘ f == identity }.
+n
+Program Definition invertible_to_iso {C : Category} {x y : C} {f : x ⟶ y} : invertible f → x ≃ y in C
+  := fun inv => [iso: f with proj1_sig inv ].
+Next Obligation.
+  destruct inv.
+  destruct a.
+  simpl.
+  constructor.
+  - assumption.
+  - assumption.
+Defined.
+  
+Definition is_invertible {C : Category} {x y : C} (f : x ⟶ y) : Prop
+  := exists (g : y ⟶ x), f ∘ g == identity /\ g ∘ f == identity.
 
-Definition iso_inv {C : Category} {x y : C} {f : x ⟶ y} : sig_iso f → (y ⟶ x) := fun sf => proj1_sig sf.
+Definition iso_to_invertible {C : Category} {x y : C} : x ≃ y in C → ∃ (f : x ⟶ y), is_invertible f.
+  intros.
+  destruct X as [s t prop].
+  exists s.
+  unfold is_invertible.
+  exists t.
+  destruct prop as [prop1 prop2].
+  split.
+  - assumption.
+  - assumption.
+Defined.
 
-Notation "f ⁻¹" := (iso_inv f) (at level 30).
+Notation "f ⁻¹" := (proj1_sig (f : invertible _)) (at level 100).
+
 

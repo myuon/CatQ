@@ -68,5 +68,31 @@ Next Obligation.
     + apply right_identity.
 Defined.
 
+Infix "×" := Product (at level 50).
+
+Program Definition Product_mediating {X Y C D} (f : Functor X C) (g : Functor Y D) : Functor (X × Y) (C × D)
+  := [fmap: fun _ _ u => (| fmap f (fst u), fmap g (snd u) |) with fun (xy : X × Y) => (f (fst xy), g (snd xy)) : C × D ].
+Next Obligation.
+  unfold Proper, respectful.
+  simpl.
+  intros.
+  destruct H.
+  rewrite H, H0.
+  split.
+  reflexivity. reflexivity.
+Defined.
+Next Obligation.
+  split.
+  apply fmap_identity.
+  apply fmap_identity.
+Defined.
+Next Obligation.
+  split.
+  apply fmap_compose.
+  apply fmap_compose.
+Defined.
+
+Notation "⟨ProductF: f , g 'of' X , Y , C , D ⟩" := (@Product_mediating X Y C D f g).
+Notation "⟨ProductF: f , g ⟩" := ⟨ProductF: f , g of _ , _ , _ , _⟩.
 
 
