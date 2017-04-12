@@ -26,6 +26,11 @@ Structure Functor (fdom fcod : Category) :=
   }.
 Existing Instance is_functor.
 
+Notation "[fmorphism: fa 'with' fo 'as' C 'to' D 'by' prf ]" := (@Build_Functor C D fo fa prf).
+Notation "[fmorphism: fa 'with' fo 'as' C 'to' D ]" := [fmorphism: fa with fo as C to D by _].
+Notation "[fmorphism: fa 'with' fo ]" := [fmorphism: fa with fo as _ to _ ].
+Notation "[fmorphism: fa ]" := [fmorphism: fa with _ as _ to _ ].
+
 Definition fmap {C D : Category} (F : Functor C D) :
   forall {a b}, hom a b → hom (fobj F a) (fobj F b) := fun _ _ => fmorphism F.
 
@@ -54,14 +59,7 @@ Structure Functor_Type (fdom fcod : Category) :=
 
 Program Definition Build_Functor_from_Type : forall {C D}, Functor_Type C D → Functor C D :=
   fun C D ftype =>
-    {|
-      fobj := funct_obj ftype;
-      fmorphism := fun _ _ =>
-        {|
-          mapping := funct_map ftype;
-          is_mapoid := funct_map_proper ftype;
-        |};
-    |}.
+    [fmorphism: fun _ _ => [mapoid: funct_map ftype by funct_map_proper ftype] with funct_obj ftype].
 Next Obligation.
   apply Build_Is_Functor.
   - simpl. intro.
@@ -69,6 +67,9 @@ Next Obligation.
   - simpl. intros.
     apply funct_compose.
 Defined.
+
+Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (Build_Functor_from_Type (@Build_Functor_Type C D fo fa _ _ _)).
+Notation "[fmap: fa 'with' fo ]" := [fmap: fa with fo as _ to _ ].
 
 Program Definition Destruct_to_Functor_Type : forall {C D}, Functor C D → Functor_Type C D :=
   fun C D functor =>
@@ -85,11 +86,7 @@ Next Obligation.
 Defined.
 
 Program Definition idFunctor {C : Category} : Functor C C :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun a => a;
-      funct_map := fun _ _ f => f;
-    |}.
+  [fmap: fun _ _ f => f with fun a => a as C to C].
 Next Obligation.
   solve_proper.
 Defined.
@@ -101,16 +98,9 @@ Next Obligation.
 Defined.
 
 Program Definition compFunctor {C D E : Category} (G : Functor D E) (F : Functor C D) : Functor C E :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun a => fobj G (fobj F a);
-      funct_map := fun _ _ f => fmap G (fmap F f);
-    |}.
+  [fmap: fun _ _ f => fmap G (fmap F f) with fun a => fobj G (fobj F a)].
 Next Obligation.
-  unfold Proper, respectful.
-  intros.
-  rewrite H.
-  reflexivity.
+  solve_proper.
 Defined.
 Next Obligation.
   setoid_rewrite fmorphism_identity.
@@ -127,6 +117,8 @@ Notation "F ∘f G" := (compFunctor F G) (at level 40).
 
 Definition eqFunctor {C D} (F G : Functor C D) :=
   ∀ {a b} (f : a ⟶ b), fmap F f ≈ fmap G f.
+
+Notation "F ==f G" := (eqFunctor F G) (at level 40).
 
 Instance eqFunctor_equiv {C D} : Equivalence (@eqFunctor C D).
 Proof.
@@ -160,4 +152,4 @@ Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, i
 
 (* ff = iso on hom *)
 Definition ff {C D : Category} (F : Functor C D) : Type
-  := forall {a b}, @sig_isomorphism Setoids (morphism a b) (morphism (F a) (F b)).
+  := forall {a b}, (morphism a b) ≃ (morphism (F a) (F b)) in Setoids.

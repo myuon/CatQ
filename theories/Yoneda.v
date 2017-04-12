@@ -156,9 +156,10 @@ Next Obligation.
   reflexivity.
 Defined.
 
-Lemma Yoneda {C : Category} {a : C} {F : PSh[C]} : @morphism (PSh[C]) (yoneda a) F ≃ F a at Setoids.
+Lemma Yoneda {C : Category} {a : C} {F : PSh[C]} : @morphism (PSh[C]) (yoneda a) F ≃ F a in Setoids.
 Proof.
-  apply (@Build_isomorphic _ _ _ (YonedaLemma_right : @hom Setoids _ _) (YonedaLemma_left : @hom Setoids _ _)).
+  refine [iso: (YonedaLemma_right : @hom Setoids _ _) with (YonedaLemma_left : @hom Setoids _ _) ].
+  constructor.
   - unfold YonedaLemma_right, YonedaLemma_left.
     simpl. intros.
     assert (fmap F x0 ∘ x a == x A ∘ fmap (contraHomFunctor a) x0).
@@ -255,18 +256,18 @@ Defined.
 
 Theorem yoneda_ff {C : Category} : ff (@yoneda C).
 Proof.
-  unfold ff, sig_isomorphism.
+  unfold ff.
   intros.
 
   generalize (@Yoneda C a (yoneda b)).
   intro.
-  destruct X.
+  destruct X as [X1 X2 Xprop].
 
-  apply (exist _ (iso_left, iso_right)).
-
-  split.
-  - apply iso_on_left.
+  refine [iso: X2 with X1].
+  destruct Xprop.
+  constructor.
   - apply iso_on_right.
+  - apply iso_on_left.
 Qed.
 
 (*

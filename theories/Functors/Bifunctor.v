@@ -3,7 +3,7 @@ Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
-From CatQ.Categories Require Import Product.
+From CatQ.Categories Require Import Concrete.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

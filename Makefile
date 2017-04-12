@@ -110,12 +110,13 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Structures/Structures.v\
   theories/Categories/Concrete.v\
   theories/Functors/Concrete.v\
-  theories/Categories/Product.v\
   theories/Categories/FunCat.v\
   theories/Categories/Cat.v\
   theories/Yoneda.v\
   theories/Functors/Bifunctor.v\
   theories/Categories/Comma.v\
+  theories/UniversalArrow.v\
+  theories/Adjoint.v\
   theories/Limit.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
@@ -164,10 +165,6 @@ gallina: $(GFILES)
 html: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d html $(VFILES)
-
-docs: $(GLOBFILES) $(VFILES)
-	- mkdir -p docs
-	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d docs $(VFILES)
 
 gallinahtml: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
