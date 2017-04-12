@@ -15,7 +15,6 @@ theories/Functors/Concrete.v
 
 theories/Categories/FunCat.v
 theories/Categories/Cat.v
-theories/Categories/Bicategory.v
 
 theories/Yoneda.v
 

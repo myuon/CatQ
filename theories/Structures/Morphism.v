@@ -59,7 +59,7 @@ Infix "≃" := isomorphic (at level 60, only parsing).
 
 Definition invertible {C : Category} {x y : C} (f : x ⟶ y) : Type
   := { g : y ⟶ x | f ∘ g == identity /\ g ∘ f == identity }.
-n
+
 Program Definition invertible_to_iso {C : Category} {x y : C} {f : x ⟶ y} : invertible f → x ≃ y in C
   := fun inv => [iso: f with proj1_sig inv ].
 Next Obligation.
