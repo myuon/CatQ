@@ -111,3 +111,80 @@ Next Obligation.
      `end).
 Defined.
 
+Notation "α ∘n β" := (compNat α β) (at level 40).
+
+Program Definition compFNat {C D E : Category} (F : Functor D E) {G H : Functor C D} (α : Nat G H) : Nat (F ∘f G) (F ∘f H)
+  := [Nat: fun a => fmap F (α a)].
+Next Obligation.
+  constructor.
+  intros.
+  refine
+    (`begin
+      fmap (F ∘f H) f ∘ fmap F (α a)
+     =⟨ hom_refl ⟩
+      fmap F (fmap H f) ∘ fmap F (α a)
+     =⟨ ltac: (rewrite <- fmap_compose; reflexivity) ⟩
+      fmap F (fmap H f ∘ α a)
+     =⟨ ltac: (rewrite naturality_of; reflexivity) ⟩
+      fmap F (α b ∘ fmap G f)
+     =⟨ ltac: (rewrite fmap_compose; reflexivity) ⟩
+      fmap F (α b) ∘ fmap F (fmap G f)
+     =⟨ hom_refl ⟩
+      fmap F (α b) ∘ fmap (F ∘f G) f
+     `end).
+Defined.
+
+Notation "F f⋆ α" := (compFNat F α) (at level 40).
+  
+Program Definition compNatF {C D E : Category} {G H : Functor D E} (α : Nat G H) (F : Functor C D) : Nat (G ∘f F) (H ∘f F)
+  := [Nat: fun a => α (F a)].
+Next Obligation.
+  constructor.
+  intros.
+  refine
+    (`begin
+      fmap (H ∘f F) f ∘ α (F a)
+     =⟨ hom_refl ⟩
+      fmap H (fmap F f) ∘ α (F a)
+     =⟨ ltac: (rewrite naturality_of; reflexivity) ⟩
+      α (F b) ∘ fmap G (fmap F f)
+     =⟨ hom_refl ⟩
+      α (F b)∘ fmap (G ∘f F) f
+     `end).
+Defined.
+
+Notation "α ⋆f F" := (compNatF α F) (at level 40).
+
+(* monoidal structure in 2-Cat *)
+Program Definition assocFunctor {B C D E} {F : Functor B C} {G : Functor C D} {H : Functor D E} : Nat ((H ∘f G) ∘f F) (H ∘f (G ∘f F))
+  := [Nat: fun a => @identity E (H (G (F a)))].
+Next Obligation.
+  constructor.
+  intros.
+  simpl.
+  rewrite right_id_of.
+  rewrite left_id_of.
+  apply hom_refl.
+Defined.
+
+Program Definition rightIdFunctor {C D} {F : Functor C D} : Nat (F ∘f idFunctor) F
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  simpl.
+  rewrite right_id_of.
+  rewrite left_id_of.
+  apply hom_refl.
+Defined.
+
+Program Definition leftIdFunctor {C D} {F : Functor C D} : Nat (idFunctor ∘f F) F
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  simpl.
+  rewrite right_id_of.
+  rewrite left_id_of.
+  apply hom_refl.
+Defined.

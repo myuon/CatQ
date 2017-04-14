@@ -257,6 +257,37 @@ Next Obligation.
        `end).
 Defined.
 
+Program Definition counit {C D F G} (ψ : [adjoint: F,G as C to D]) : (F ∘f G) ⟶ idFunctor in [D,D]
+  := [Nat: fun d => [adj⁻¹: @identity _ (G d) of ψ] ].
+Next Obligation.
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap idFunctor f ∘ [adj⁻¹: identity]
+     =⟨ hom_refl ⟩
+      f ∘ [adj⁻¹: identity]
+     =⟨ ltac: (rewrite <- (adj_inv_natural_R ψ); reflexivity) ⟩
+      [adj⁻¹: fmap G f ∘ identity]
+     =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+      [adj⁻¹: fmap G f]
+     =⟨ ltac: (rewrite <- (@left_id_of C); reflexivity) ⟩
+      [adj⁻¹: identity ∘ fmap G f]
+     =⟨ ltac: (rewrite <- (adj_inv_natural_L ψ); reflexivity) ⟩
+      [adj⁻¹: identity] ∘ fmap F (fmap G f)
+     =⟨ hom_refl ⟩
+      [adj⁻¹: identity] ∘ fmap (F ∘f G) f
+     `end).
+Defined.
+
+Proposition triangular_R {C D F G} (ψ : [adjoint: F,G as C to D]) : rightIdFunctor ∘n ((G f⋆ counit ψ) ∘n assocFunctor ∘n (unit ψ ⋆f G)) == @identity [D,C] G ∘n leftIdFunctor in @morphism [D,C] _ _.
+Proof.
+  simpl.
+  intro.
+  
+ 
+  
 (*
 Section left_adjoint_from_unit_proof.
   Variable (C D : Category) (G : Functor D C).

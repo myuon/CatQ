@@ -306,4 +306,7 @@ Qed.
 
 Definition SOne : object Setoids := [setoid: unit].
 
-  
+Lemma hom_refl : forall {C : Category} {a b : C} {f : a ⟶ b}, f == f.
+Proof.
+  reflexivity.
+Qed.  
