@@ -167,6 +167,17 @@ Next Obligation.
   apply hom_refl.
 Defined.
 
+Program Definition assocInvFunctor {B C D E} {F : Functor B C} {G : Functor C D} {H : Functor D E} : Nat (H ∘f (G ∘f F)) ((H ∘f G) ∘f F)
+  := [Nat: fun a => @identity E (H (G (F a)))].
+Next Obligation.
+  constructor.
+  intros.
+  simpl.
+  rewrite right_id_of.
+  rewrite left_id_of.
+  apply hom_refl.
+Defined.
+
 Program Definition rightIdFunctor {C D} {F : Functor C D} : Nat (F ∘f idFunctor) F
   := [Nat: fun a => identity].
 Next Obligation.

@@ -285,9 +285,48 @@ Proposition triangular_R {C D F G} (ψ : [adjoint: F,G as C to D]) : rightIdFunc
 Proof.
   simpl.
   intro.
-  
- 
-  
+
+  refine
+    (`begin
+      identity ∘ ((fmap G [adj⁻¹: identity] ∘ identity) ∘ [adj: identity])
+     =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+      identity ∘ (fmap G [adj⁻¹: identity] ∘ [adj: identity])
+     =⟨ _ ⟩
+      identity ∘ [adj: [adj⁻¹: identity] ∘ identity]
+     =⟨ _ ⟩
+      identity ∘ [adj: [adj⁻¹: identity]]
+     =⟨ _ ⟩
+      identity ∘ identity
+     `end).
+
+  - rewrite <- (adj_natural_R ψ); reflexivity.
+  - rewrite right_id_of; reflexivity.
+  - rewrite adj_inv_isomorphic; reflexivity.
+Defined.
+
+Proposition triangular_L {C D F G} (ψ : [adjoint: F,G as C to D]) : leftIdFunctor ∘n ((counit ψ ⋆f F) ∘n assocInvFunctor ∘n (F f⋆ unit ψ)) == @identity [C,D] F ∘ rightIdFunctor in @morphism [C,D] _ _.
+Proof.
+  simpl.
+  intro.
+
+  refine
+    (`begin
+      identity ∘ (([adj⁻¹:identity] ∘ identity) ∘ fmap F [adj:identity])
+     =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+      identity ∘ ([adj⁻¹: identity] ∘ fmap F [adj: identity])
+     =⟨ ltac: (rewrite (adj_inv_natural_L ψ (d:=F A)); reflexivity) ⟩
+      identity ∘ [adj⁻¹: identity ∘ [adj:identity] ]
+     =⟨ _ ⟩
+      identity ∘ [adj⁻¹: [adj:identity] ]
+     =⟨ _ ⟩
+      identity ∘ identity
+     `end).
+
+  - rewrite (@left_id_of C); reflexivity.
+  - rewrite (adj_isomorphic ψ); reflexivity.
+Defined.
+
+
 (*
 Section left_adjoint_from_unit_proof.
   Variable (C D : Category) (G : Functor D C).
