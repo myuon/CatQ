@@ -117,7 +117,8 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Categories/Comma.v\
   theories/UniversalArrow.v\
   theories/Adjoint.v\
-  theories/Limit.v
+  theories/Limit.v\
+  theories/Kan/KanExt.v
 
 ifneq ($(filter-out archclean clean cleanall printenv,$(MAKECMDGOALS)),)
 -include $(addsuffix .d,$(VFILES))

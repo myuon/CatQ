@@ -24,3 +24,5 @@ theories/Categories/Comma.v
 theories/UniversalArrow.v
 theories/Adjoint.v
 theories/Limit.v
+
+theories/Kan/KanExt.v
