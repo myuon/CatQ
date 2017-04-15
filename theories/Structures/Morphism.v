@@ -22,6 +22,19 @@ Notation "∃ ! f .. g 'in' C , p" :=
     (at level 200, f binder, right associativity,
      format "'[' ∃ ! '/ ' f .. g '/ ' 'in' '/ ' C , '/ ' p ']'").
 
+Notation "⟨exist: f ⟩" := (proj1_sig f).
+
+Lemma UMP_unique
+      {C : Category} {a b : C} {P : hom a b → Prop} {p : ∃! (f : a ⟶ b) in C, P f} : forall f, P f → f == ⟨exist: p⟩.
+Proof.
+  intros.
+  destruct p.
+  simpl.
+  destruct u.
+  symmetry.
+  apply (H1 f H).
+Defined.
+
 Class Is_isomorphic {C : Category} (x y : C)
       (iso_right : x ⟶ y) (iso_left: y ⟶ x) :=
   {
