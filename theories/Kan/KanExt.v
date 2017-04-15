@@ -3,7 +3,8 @@ Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
-From CatQ.Categories Require Import FunCat.
+From CatQ.Categories Require Import FunCat Concrete.
+From CatQ.Functors Require Import Concrete Bifunctor.
 Require Import CatQ.Adjoint.
 
 Set Implicit Arguments.
@@ -131,3 +132,78 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Program Definition adjoint_Lan_Inv {C D U F} (F_has_kan : forall E, F † E) : [adjoint: Lan_f F_has_kan , inv F as [C,U] to [D,U] ] :=
+  {|
+    adjunction := [Nat: fun ES => [mapoid: fun θ => (θ ⋆f F) ∘n lan_unit (F_has_kan (fst ES))] ];
+  |}.
+Next Obligation.
+  simpl.
+  unfold opposite_obj_to, opposite_obj.
+  unfold Proper, respectful.
+  simpl.
+  intros.
+  rewrite (H (F A)).
+  reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  simpl.
+  intros.
+  unfold opposite_obj in x.
+  unfold Lan_f, opf, op_trf; simpl.
+  unfold fmap; simpl.
+  unfold fmap; simpl.
+  unfold opposite_obj, opposite_hom.
+  unfold opposite_hom_to.
+  rewrite assoc_of.
+  rewrite assoc_of.
+  rewrite assoc_of.
+  rewrite <- (lan_mediating_prop_at (F_has_kan (fst b)) (θ:=lan_unit (F_has_kan (fst a)) ∘n fst f) (A:=A)).
+  rewrite <- assoc_of.
+  simpl.
+  reflexivity.
+Defined.
+Next Obligation.
+  unfold natiso.
+  intro.
+  refine (exist _ (([Nat: fun ES => [mapoid: fun (α : fst ES ⟶ (snd ES ∘f F) in [C,U]) => ⟨lan: snd ES with α of F_has_kan (fst ES)⟩]
+                            as (homFunctor ∘f ⟨ProductF: idFunctor,inv F⟩)
+                                 to (homFunctor ∘f ⟨ProductF: opf (Lan_f F_has_kan),idFunctor⟩)] : @hom [(opposite [C,U] × [D,U]),Setoids] _ _) a) _).
+  {
+    simpl.
+    split.
+    - intros.
+      rewrite <- (lan_mediating_prop_at (F_has_kan (fst a)) (θ:=x)).
+      reflexivity.
+    - intros.
+      symmetry.
+      apply (lan_mediating_unique_at (kan:=F_has_kan (fst a)) (θ:=(x ⋆f F) ∘n lan_unit (F_has_kan (fst a)))).
+      reflexivity.
+  }
+  Unshelve.
+  - unfold Proper, respectful.
+    simpl.
+    intros.
+    apply (lan_mediating_unique_at (θ:=y)).
+    simpl; intro.
+    rewrite <- H.
+    apply (lan_mediating_prop_at (F_has_kan (fst ES))).
+  - simpl.
+    constructor.
+    simpl.
+    intros.
+    unfold opf, op_trf, Lan_f; simpl.
+    unfold fmap; simpl.
+    unfold fmap; simpl.
+    unfold opposite_hom, opposite_hom_to, opposite_obj, opposite_obj_to.
+    rewrite <- (lan_mediating_unique_at (θ:=((snd f ⋆f F) ∘{[C, U]} x) ∘{[C, U]} fst f) (A:=A) (τ:=snd f ∘n ⟨lan: x ⟩ ∘n ⟨lan: lan_unit (F_has_kan (fst a0)) ∘n fst f ⟩)).
+    + simpl.
+      reflexivity.
+    + simpl; intro.
+      repeat rewrite assoc_of.
+      rewrite <- (lan_mediating_prop_at (F_has_kan (fst b)) (θ:=lan_unit (F_has_kan (fst a0)) ∘n fst f) (A:=A0)).
+      simpl.
+      rewrite <- (assoc_of (h:=⟨lan: x ⟩ (F A0))).
+      rewrite <- (lan_mediating_prop_at (F_has_kan (fst a0))).
+      reflexivity.
+Defined.  
