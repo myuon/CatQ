@@ -51,7 +51,7 @@ Qed.
 Definition hom (C : Category) : object C → object C → Type :=
   fun a b => carrier (morphism a b).
 
-Notation "f == g 'of' C" := (@equality (@hom C _ _) f g) (at level 70, g at next level).
+Notation "f == g 'in' C" := (@equality (@morphism C _ _) f g) (at level 70, g at next level).
 Infix "==" := equality (at level 70, only parsing).
 
 Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d → Prop :=

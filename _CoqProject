@@ -26,3 +26,4 @@ theories/Adjoint.v
 theories/Limit.v
 
 theories/Kan/KanExt.v
+theories/Kan/Pointwise.v

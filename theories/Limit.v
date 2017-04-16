@@ -21,6 +21,14 @@ Notation "[limit: L , π ]" := [limit: L , π of _].
 Definition is_complete (C : Category) :=
   forall {J} (F : Functor J C), Limit F.
 
+Definition Colimit {C J : Category} (T : [ J , C ]) := UniversalArrow T Δ.
+
+Notation "[colimit: L , π 'of' T ]" := (Build_UniversalArrow_from_Type (c:=T) {| ua_object := L; ua_map := π; |}).
+Notation "[colimit: L , π ]" := [colimit: L , π of _].
+
+Definition is_cocomplete (C : Category) :=
+  forall {J} (F : Functor J C), Colimit F.
+
 Program Definition lim_Sets_is {J : Category} {T : [J,Setoids]} : Limit T :=
   Build_CouniversalArrow_from_Type
     {|

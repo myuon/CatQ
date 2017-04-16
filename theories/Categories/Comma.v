@@ -320,35 +320,27 @@ Defined.
 (*
 Theorem comma_nat_universality {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :
   forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-  ∃! H from E to (K ↓ L) in Cat, (eqFunctor (comma_π₁ K L ∘f H) P) /\ (eqFunctor (comma_π₂ K L ∘f H) P').
+  ∃! H from E to (K ↓ L) in Cat,
+  {eqs: (comma_π₁ K L ∘f H) ==f P /\ (comma_π₂ K L ∘f H) ==f P' | comma_nat K L ⋆f H ≈ η in [E,C]}.
 Proof.
   intros.
-
   exists (comma_nat_universal_map η).
   constructor.
 
-  - split.
+  - constructor.
+    split.
     + constructor.
       reflexivity.
     + constructor.
       reflexivity.
+    + 
   - intros.
     destruct H.
     unfold equality; simpl.
     unfold eqFunctor.
     intros.
-    unfold comma_nat_universal_map, fmap; simpl.
-    destruct (comma_pairmap_π (f:=fmorphism g f)).
-
-    unfold comma_pairmap_π_morphism in H1.
-    rewrite <- H1.
-
-*)
-    
-    
-    
-
-
-    
-
+    unfold comma_nat_universal_map.
+    unfold fmap; simpl.
+    rewrite <- (comma_pairmap_π (f:=fmorphism g f)).
+ *)
 

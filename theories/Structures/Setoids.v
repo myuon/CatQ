@@ -17,7 +17,7 @@ Structure Setoid :=
   }.
 Existing Instance is_setoid.
 
-Notation "f == g 'in' X" := (@equality X f g) (at level 70, g at next level).
+Notation "f == g 'of' X" := (@equality X f g) (at level 70, g at next level).
 Infix "==" := equality (at level 70, only parsing).
 Notation "[setoid: A 'with' eql 'by' prf ]" := (@Build_Setoid A eql prf).
 Notation "[setoid: A 'with' eql ]" := [setoid: A with eql by _].
