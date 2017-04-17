@@ -112,8 +112,8 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Functors/Concrete.v\
   theories/Categories/FunCat.v\
   theories/Categories/Cat.v\
-  theories/Yoneda.v\
   theories/Functors/Bifunctor.v\
+  theories/Yoneda.v\
   theories/Categories/Comma.v\
   theories/UniversalArrow.v\
   theories/Adjoint.v\

@@ -48,6 +48,12 @@ Proof.
   apply fmorphism_compose.
 Defined.
 
+Lemma fmap_proper {C D : Category} (F : Functor C D) {a b : C} :
+  Proper (@equality _ ==> @equality _) (fmap F (a:=a) (b:=b)).
+Proof.
+  solve_proper.
+Defined.
+
 Structure Functor_Type (fdom fcod : Category) :=
   {
     funct_obj : fdom → fcod;

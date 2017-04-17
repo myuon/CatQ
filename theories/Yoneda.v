@@ -12,145 +12,68 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-Program Definition covariantHomFunctor {C : Category} (a : C) : Functor C Setoids :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun (y : C) => (morphism a y : object Setoids);
-      funct_map :=
-        fun x y (f : hom x y) =>
-          {|
-            mapping := fun (ax : hom a x) => f ∘ ax;
-          |};
-    |}.
-Next Obligation.
-  solve_proper.
-Defined.
-Next Obligation.
-  unfold Proper, respectful. simpl.
-  intros.
-  rewrite H.
-  reflexivity.
-Defined.
-Next Obligation.
-  apply left_identity.
-Defined.
-Next Obligation.
-  rewrite assoc_of.
-  reflexivity.
-Defined.
-
-Program Definition contraHomFunctor {C : Category} (a : C) : Functor (opposite C) Setoids :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun (y : opposite C) => (@morphism C y a : object Setoids);
-      funct_map :=
-        fun x y (f : @morphism (opposite C) x y) =>
-          {|
-            mapping := fun (xa : @morphism C x a) => xa ∘ f;
-          |};
-    |}.
-Next Obligation.
-  unfold Func.flip in f.
-  unfold Proper, respectful.
-  intros.
-  rewrite H.
-  reflexivity.
-Defined.
-Next Obligation.
-  unfold Proper, respectful. simpl.
-  intros.
-  rewrite H.
-  reflexivity.
-Defined.
-Next Obligation.
-  apply right_identity.
-Defined.
-Next Obligation.
-  rewrite assoc_of.
-  reflexivity.
-Defined.
-
-Program Definition contraHomNat {C : Category} {a b : C} (t : hom a b) : Nat (contraHomFunctor a) (contraHomFunctor b) :=
-  {|
-    component :=
-      fun x =>
-        {|
-          mapping := fun xa => t ∘ xa;
-        |};
-  |}.
-Next Obligation.
-  solve_proper.
-Defined.
-Next Obligation.
-  apply Build_Is_Nat.
-  simpl. intros.
-  apply associativity.
-Defined.
-
-(* Yoneda functor *)
 Program Definition yoneda {C : Category} : Functor C (PSh[C]) :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun a => (contraHomFunctor a : object (PSh[C]));
-      funct_map := fun _ _ => contraHomNat;
-    |}.
+  [fmap: fun _ _ f => homFunctor[-,f]n with fun a => (homFunctor[-,a] : PSh[C]) ].
 Next Obligation.
   unfold Proper, respectful.
   intros.
-  unfold contraHomNat. simpl.
+  unfold Bifunctor_apply_R.
+  simpl.
   rewrite H.
   reflexivity.
 Defined.
 Next Obligation.
-  apply left_identity.
+  rewrite right_id_of.
+  rewrite left_id_of.
+  reflexivity.
 Defined.
 Next Obligation.
-  apply associativity.
+  rewrite right_id_of.
+  rewrite right_id_of.
+  rewrite right_id_of.
+  apply assoc_of.
 Defined.
 
-Program Definition YonedaLemma_right {C : Category} {a : C} {F : PSh[C]} : @morphism (PSh[C]) (yoneda a) F -⇒ F a :=
-  {|
-    mapping := fun yaF => yaF a identity;
-  |}.
+Program Definition YonedaLemma_right {C : Category} {a : C} {F : PSh[C]} : @morphism PSh[C] (yoneda a) F -⇒ F a
+  := [mapoid: fun yaF => yaF a identity].
 Next Obligation.
   solve_proper.
 Defined.
 
-Program Definition YonedaLemma_left {C : Category} {a : C} {F : PSh[C]} : F a -⇒ @morphism (PSh[C]) (yoneda a) F :=
-  {|
-    mapping := fun Fa =>
-      {|
-        component := fun b =>
-          {|
-            mapping := fun ba => fmap F ba Fa;
-          |};
-      |};
-  |}.
+Program Definition YonedaLemma_left {C : Category} {a : C} {F : PSh[C]} : F a -⇒ @morphism (PSh[C]) (yoneda a) F
+  := [mapoid: fun Fa => [Nat: fun (b : opposite C) => [mapoid: fun (ba : opposite_obj b ⟶ a) => fmap F ba Fa] ] ].
 Next Obligation.
   unfold Proper, respectful.
   intros.
-  assert (fmap F x == fmap F y).
-  - rewrite H.
-    reflexivity.
-  - destruct F.
-    unfold fmap.
-    simpl.
-    unfold fmap in H0.
-    simpl in H0.
-    apply H0.
+  apply mapoid_apply.
+  rewrite H.
+  reflexivity.
 Defined.
 Next Obligation.
-  apply Build_Is_Nat.
-  simpl. intros.
-  assert (fmap F f ∘ fmap F x == fmap F (x ∘ f)).
-  - rewrite <- (fmap_compose F).
+  constructor.
+  simpl.
+  intros.
+
+  refine
+    (`begin
+      (fmap F f) (fmap F x Fa)
+     =⟨ _ ⟩
+      (fmap F f ∘ fmap F x) Fa
+     =⟨ _ ⟩
+      fmap F (f ∘{opposite C} (x ∘{opposite C} identity)) Fa
+     =⟨ _ ⟩
+      fmap F ((identity ∘ x) ∘ f) Fa
+     `end).
+  - reflexivity.
+  - apply mapoid_apply.
+    rewrite <- fmap_compose.
+    rewrite right_id_of.
     reflexivity.
-  - rewrite <- (mapoid_apply _ H).
-    simpl.
-    reflexivity.
+  - reflexivity.
 Defined.
 Next Obligation.
-  unfold Proper, respectful. simpl.
+  unfold Proper, respectful.
+  simpl.
   intros.
   rewrite H.
   reflexivity.
@@ -161,46 +84,52 @@ Proof.
   refine [iso: (YonedaLemma_right : @hom Setoids _ _) with (YonedaLemma_left : @hom Setoids _ _) ].
   constructor.
   - unfold YonedaLemma_right, YonedaLemma_left.
-    simpl. intros.
-    assert (fmap F x0 ∘ x a == x A ∘ fmap (contraHomFunctor a) x0).
-    + apply (naturality_of x).
-    + exact
-        (`begin
-          fmap F x0 ((x a) identity)
-         =⟨ ltac: (apply Setoids_comp_apply) ⟩
-          (fmap F x0 ∘ x a) identity
-         =⟨ mapoid_apply identity H ⟩
-          (x A ∘ fmap (contraHomFunctor a) x0) identity
-         =⟨ ltac: (apply Setoids_comp_apply) ⟩
-          (x A) (fmap (contraHomFunctor a) x0 identity)
-         =⟨ mapoid_cong (x A) (ltac: (unfold contraHomFunctor, fmap; simpl; reflexivity)) ⟩
-          (x A) (identity ∘ x0)
-         =⟨ ltac: (rewrite left_id_of; reflexivity) ⟩
-          (x A) x0
-          `end).
+    simpl.
+    intros.
+
+    refine
+      (`begin
+        fmap F x0 ((x a) identity)
+       =⟨ ltac: (apply Setoids_comp_apply; reflexivity) ⟩
+        (fmap F x0 ∘ x a) identity
+       =⟨ mapoid_apply identity (naturality_of x) ⟩
+        (x A ∘ fmap (homFunctor[-,a]) x0) identity
+       =⟨ ltac: (apply Setoids_comp_apply; reflexivity) ⟩
+        (x A) (fmap (homFunctor[-,a]) x0 identity)
+       =⟨ mapoid_cong (x A) _ ⟩
+        (x A) (identity ∘ x0)
+       =⟨ _ ⟩
+        (x A) x0
+       `end).
+
+    + simpl.
+      rewrite right_id_of.
+      reflexivity.
+    + rewrite left_id_of.
+      reflexivity.
+    
   - unfold YonedaLemma_right, YonedaLemma_left.
     simpl.
     intros.
-    unfold FunCat; simpl in F.
-    exact
+    
+    refine
       (`begin
         (fmap F identity) x
        =⟨ mapoid_apply x (fmap_identity F) ⟩
+        @identity Setoids _ x
+       =⟨ _ ⟩
         x
        `end).
+
+    reflexivity.
 Qed.
 
 Program Definition yF {C : Category} {F : PSh[C]} : Functor (opposite C) Setoids :=
-  @Build_Functor_from_Type (opposite C) Setoids
-    {|
-      funct_obj := fun a => (morphism (yoneda (opposite_obj a)) F : object Setoids);
-      funct_map :=
-        fun a b (f : @hom (opposite C) a b) =>
-          {|
-            mapping := fun yaF => yaF ∘ fmap yoneda (opposite_hom f);
-            is_mapoid := ltac: (unfold opposite_obj, opposite_hom; solve_proper);
-          |};
-    |}.
+  [fmap: fun a b f => [mapoid: fun yaF => yaF ∘ fmap yoneda (opposite_hom f)]
+   with fun a => (morphism (yoneda (opposite_obj a)) F : object Setoids)].
+Next Obligation.
+  solve_proper.
+Defined.
 Next Obligation.
   unfold opposite_obj, opposite_hom.
   unfold Proper, respectful.
@@ -212,23 +141,23 @@ Defined.
 Next Obligation.
   unfold opposite_hom.
   rewrite left_id_of.
+  rewrite right_id_of.
   reflexivity.
 Defined.
 Next Obligation.
-  unfold opposite_hom, comp.
-  destruct x.
+  apply mapoid_cong.
+  rewrite right_id_of.
+  rewrite right_id_of.
+  rewrite right_id_of.
   simpl.
-  unfold Func.flip.
-  rewrite associativity.
+  rewrite <- assoc_of.
   reflexivity.
 Defined.
 
 Program Definition yoneda_lemma_nat {C : Category} {F : PSh[C]} : Nat yF F :=
-  {|
-    component := fun a => @YonedaLemma_right C a F;
-  |}.
+  [Nat: fun a => @YonedaLemma_right C a F].
 Next Obligation.
-  apply Build_Is_Nat.
+  constructor.
   unfold YonedaLemma_right.
   simpl.
   intros.
@@ -239,19 +168,18 @@ Next Obligation.
      =⟨ ltac: (apply Setoids_comp_apply) ⟩
       (fmap F f ∘ x a) identity
      =⟨ ltac: (apply mapoid_apply; apply naturality_of) ⟩
-      (x b ∘ (fmap (contraHomFunctor (opposite_obj a)) f)) identity
+      (x b ∘ fmap (homFunctor[-,opposite_obj a]) f) identity
+     =⟨ ltac: (apply Setoids_comp_apply) ⟩
+      x b ((identity ∘{C} identity) ∘{C} opposite_hom f)
      =⟨ _ ⟩
-      (x b) (identity ∘{C} f)
-     =⟨ mapoid_cong (x b) _ ⟩
-      (x b) (opposite_hom f ∘{C} identity)
+      x b ((opposite_hom f ∘{C} identity) ∘{C} identity)
       `end).
 
-  unfold contraHomFunctor. simpl.
-  reflexivity.
-
-  rewrite right_id_of.
-  rewrite left_id_of.
-  reflexivity.
+  - rewrite left_id_of.
+    rewrite left_id_of.
+    rewrite right_id_of.
+    rewrite right_id_of.
+    reflexivity.
 Defined.
 
 Theorem yoneda_ff {C : Category} : ff (@yoneda C).
