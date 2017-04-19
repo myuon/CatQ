@@ -60,15 +60,7 @@ Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d
 Notation "f ≈ g 'in' C" := (@Heq_hom C _ _ f _ _ g) (at level 70, g at next level).
 Infix "≈" := Heq_hom (at level 70, only parsing).
 
-Instance Heq_hom_sym {C : Category} {a b : C} : Symmetric (fun f g => Heq_hom (a:=a) (b:=b) f g).
-Proof.
-  unfold Symmetric.
-  intros.
-  destruct H.
-  constructor.
-  rewrite H.
-  reflexivity.
-Qed.
+Axiom Heq_eq : forall {C a b} (f g : @hom C a b), f ≈ g → f == g.
 
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
   fun _ _ _ g f => compose (| g , f |).
@@ -130,6 +122,46 @@ Lemma right_id_of (C : Category) :
 Proof.
   intros.
   apply right_identity.
+Qed.
+
+Instance Heq_hom_equiv {C : Category} {a b : C} : Equivalence (fun f g => Heq_hom (a:=a) (b:=b) f g).
+Proof.
+  constructor.
+  - unfold Reflexive.
+    intros.
+    constructor.
+    reflexivity.
+  - unfold Symmetric.
+    intros.
+    destruct H.
+    constructor.
+    rewrite H.
+    reflexivity.
+  - unfold Transitive.
+    intros.
+    destruct H.
+    destruct H0.
+    constructor.
+    rewrite H.
+    exact H0.
+Qed.
+
+Lemma Heq_hom_tr_trans {C : Category} {a b c d : C} : Transitive (fun (f : a ⟶ b) (g : c ⟶ d) => @Heq_hom C a b f c d g).
+
+Instance eq_hom_equiv {C : Category} {a b : C} : Equivalence (fun (f : hom a b) g => f == g in C).
+Proof.
+  constructor.
+  - unfold Reflexive.
+    intros.
+    reflexivity.
+  - unfold Symmetric.
+    intros.
+    symmetry.
+    exact H.
+  - unfold Transitive.
+    intros.
+    rewrite H.
+    exact H0.
 Qed.
 
 Structure Category_Type :=

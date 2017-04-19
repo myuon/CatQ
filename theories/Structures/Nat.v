@@ -199,3 +199,31 @@ Next Obligation.
   rewrite left_id_of.
   apply hom_refl.
 Defined.
+
+Definition is_eq_nat {C D} {F G : Functor C D} (α : Nat F G)
+  := forall {a}, α a ≈ @identity D (F a).
+
+Definition eqFunctor_as_nat {C D} (F G : Functor C D) := { α : _ & @is_eq_nat _ _ F G α }.
+
+Notation "F ==n G" := (eqFunctor_as_nat F G) (at level 40).
+
+Lemma eqn_fmap {C D} {F G : Functor C D} {a b} (f : a ⟶ b in C) : F ==n G → fmap F f ≈ fmap G f.
+Proof.
+  intro.
+  destruct X.
+  generalize (naturality_of (f:=f) x).
+  intro.
+  
+  destruct (i a).
+  destruct (i b).
+  rewrite H.
+  rewrite H0.
+  
+
+  refine
+    (`begin
+      fmap F f
+     =⟨ _ ⟩
+      fmap G f
+     `end).
+

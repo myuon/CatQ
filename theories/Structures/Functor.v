@@ -153,6 +153,13 @@ Proof.
     reflexivity.
 Defined.
 
+Lemma eqFunctor_obj {C D} {F F' : Functor C D} : F ==f F' → forall a, F a = F' a.
+Proof.
+  intros.
+  destruct (H a a identity).
+  reflexivity.
+Qed.
+
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
 Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).
 

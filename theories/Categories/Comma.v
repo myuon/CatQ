@@ -251,10 +251,8 @@ Proof.
   - reflexivity.
 Qed.
 
-Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Nat (K ∘f comma_π₁ K L) (L ∘f comma_π₂ K L) :=
-  {|
-    component := fun a => cedge a;
-  |}.
+Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
+  : Nat (K ∘f comma_π₁ K L) (L ∘f comma_π₂ K L) := [Nat: fun a => cedge a].
 Next Obligation.
   apply Build_Is_Nat.
   intros.
@@ -277,70 +275,112 @@ Next Obligation.
   reflexivity.
 Defined.
 
-Program Definition comma_nat_universal_map {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')) : Functor E (K ↓ L) :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun e => [comma_pair: η e] : object (K ↓ L);
-      funct_map := fun _ _ f => [comma_map: fmap P f , fmap P' f];
-    |}.
-Next Obligation.
-  apply (naturality_of η).
-Defined.
-Next Obligation.
-  unfold Proper, respectful.
-  intros.
-
-  constructor.
-  - unfold esrc.
-    rewrite H.
-    reflexivity.
-  - unfold etgt.
-    rewrite H.
-    reflexivity.
-Defined.
-Next Obligation.
-  constructor.
-  - unfold esrc.
-    simpl.
-    apply fmap_identity.
-  - unfold etgt.
-    simpl.
-    apply fmap_identity.
-Defined.
-Next Obligation.
-  constructor.
-  - unfold esrc.
-    simpl.
-    apply fmap_compose.
-  - unfold etgt.
-    simpl.
-    apply fmap_compose.
-Defined.
-
-(*
-Theorem comma_nat_universality {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :
-  forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-  ∃! H from E to (K ↓ L) in Cat,
-  {eqs: (comma_π₁ K L ∘f H) ==f P /\ (comma_π₂ K L ∘f H) ==f P' | comma_nat K L ⋆f H ≈ η in [E,C]}.
-Proof.
-  intros.
-  exists (comma_nat_universal_map η).
-  constructor.
-
-  - constructor.
-    split.
-    + constructor.
-      reflexivity.
-    + constructor.
-      reflexivity.
-    + 
-  - intros.
-    destruct H.
-    unfold equality; simpl.
-    unfold eqFunctor.
+Section CommaUniversality.
+  Context {C D₁ D₂ : Category}.
+  Context (K : Functor D₁ C) (L : Functor D₂ C).
+  
+  Program Definition mediating (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')) : Functor E (K ↓ L) :=
+    [fmap: fun _ _ f => [comma_map: fmap P f , fmap P' f] with fun e => [comma_pair: η e] : object (K ↓ L)].
+  Next Obligation.
+    apply (naturality_of η).
+  Defined.
+  Next Obligation.
+    unfold Proper, respectful.
     intros.
-    unfold comma_nat_universal_map.
+
+    constructor.
+    - unfold esrc.
+      rewrite H.
+      reflexivity.
+    - unfold etgt.
+      rewrite H.
+      reflexivity.
+  Defined.
+  Next Obligation.
+    constructor.
+    - unfold esrc.
+      simpl.
+      apply fmap_identity.
+    - unfold etgt.
+      simpl.
+      apply fmap_identity.
+  Defined.
+  Next Obligation.
+    constructor.
+    - unfold esrc.
+      simpl.
+      apply fmap_compose.
+    - unfold etgt.
+      simpl.
+      apply fmap_compose.
+  Defined.
+
+  Program Definition mediating_π₁ : forall {E P P'} η, comma_π₁ K L ∘f @mediating E P P' η ==n P
+    := fun E P P' η => existT _ [Nat: fun a => identity ] _.
+  Next Obligation.
+    constructor.
+    intros.
+    rewrite right_id_of.
+    rewrite left_id_of.
+    unfold compFunctor.
     unfold fmap; simpl.
-    rewrite <- (comma_pairmap_π (f:=fmorphism g f)).
- *)
+    reflexivity.
+  Defined.
+    
+  Program Definition mediating_π₂ : forall {E P P'} η, comma_π₂ K L ∘f @mediating E P P' η ==n P'
+    := fun E P P' η => existT _ [Nat: fun a => identity ] _.
+  Next Obligation.
+    constructor.
+    simpl.
+    reflexivity.
+  Defined.
+  Next Obligation.
+    constructor.
+    intros.
+    rewrite right_id_of.
+    rewrite left_id_of.
+    unfold compFunctor.
+    unfold fmap; simpl.
+    reflexivity.
+  Defined.
+  Next Obligation.
+    constructor.
+    simpl.
+    reflexivity.
+  Defined.
+
+  Theorem universality :
+    forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
+      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==n P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==n P'),
+      (L f⋆ projT1 eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
+      == η ∘n (K f⋆ projT1 eq₁) ∘n assocFunctor in [E,C].
+  Proof.
+    intros.
+    exists (@mediating E P P' η).
+    constructor.
+
+    - exists (mediating_π₁ η).
+      exists (mediating_π₂ η).
+      simpl.
+      intro.
+      rewrite right_id_of.
+      rewrite fmap_identity.
+      rewrite left_id_of.
+      rewrite right_id_of.
+      rewrite fmap_identity.
+      rewrite right_id_of.
+      reflexivity.
+    - intros.
+      destruct H.
+      destruct H.
+      unfold mediating.
+      simpl.
+      intro.
+      intros.
+      unfold fmap; simpl.
+      
+      
+      rewrite <- (comma_pairmap_π (f:=fmorphism g f)).
+      rewrite comma_pairmap_π.
+
 
