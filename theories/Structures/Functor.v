@@ -121,45 +121,6 @@ Defined.
 
 Notation "F ∘f G" := (compFunctor F G) (at level 40).
 
-Definition eqFunctor {C D} (F G : Functor C D) :=
-  ∀ {a b} (f : a ⟶ b), fmap F f ≈ fmap G f.
-
-Notation "F ==f G" := (eqFunctor F G) (at level 40).
-
-Instance eqFunctor_equiv {C D} : Equivalence (@eqFunctor C D).
-Proof.
-  constructor.
-  - unfold Reflexive.
-    intro.
-    constructor.
-    reflexivity.
-  - unfold Symmetric.
-    intros.
-    unfold eqFunctor.
-    intros.
-    unfold eqFunctor in H.
-    destruct (H a b f).
-    constructor.
-    symmetry.
-    exact H0.
-  - unfold Transitive.
-    intros.
-    unfold eqFunctor.
-    intros.
-    destruct (H0 a b f).
-    destruct (H a b f).
-    constructor.
-    rewrite H2, H1.
-    reflexivity.
-Defined.
-
-Lemma eqFunctor_obj {C D} {F F' : Functor C D} : F ==f F' → forall a, F a = F' a.
-Proof.
-  intros.
-  destruct (H a a identity).
-  reflexivity.
-Qed.
-
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
 Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).
 

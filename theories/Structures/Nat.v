@@ -201,29 +201,55 @@ Next Obligation.
 Defined.
 
 Definition is_eq_nat {C D} {F G : Functor C D} (α : Nat F G)
-  := forall {a}, α a ≈ @identity D (F a).
+  := forall {a}, an_arrow (α a) ≈ an_arrow (identity (x:=F a)).
 
-Definition eqFunctor_as_nat {C D} (F G : Functor C D) := { α : _ & @is_eq_nat _ _ F G α }.
+Lemma Heq_hom_invertible {C} {f g : @arrow C} : f ≈ g → invertible (from_arrow f) → invertible (from_arrow g).
+Proof.
+  intros.
+  unfold invertible in X.
 
-Notation "F ==n G" := (eqFunctor_as_nat F G) (at level 40).
+  destruct (Heq_eq H) as [(f',g')].
+  destruct y, H1, H2, H3.
+  rewrite <- H1; simpl in H2,H3.
+  simpl.
 
-Lemma eqn_fmap {C D} {F G : Functor C D} {a b} (f : a ⟶ b in C) : F ==n G → fmap F f ≈ fmap G f.
+  rewrite <- H0 in X.
+  simpl in X.
+
+  destruct X.
+  exists x.
+  rewrite H4 in a.
+  exact a.
+Defined.
+
+Lemma is_eqnat_natiso {C D} {F G : Functor C D} (α : Nat F G) : is_eq_nat α → natiso α.
 Proof.
   intro.
-  destruct X.
-  generalize (naturality_of (f:=f) x).
   intro.
-  
-  destruct (i a).
-  destruct (i b).
-  rewrite H.
-  rewrite H0.
-  
+  generalize (H a).
+  intro.
+  generalize (Equivalence_Symmetric (Equivalence:=Heq_hom_equiv) [arr:α a] [arr:@identity _ (F a)] H0); intro.
+  apply (Heq_hom_invertible H1).
+  simpl.
+  exists identity.
+  rewrite right_id_of.
+  split.
+  reflexivity.
+  reflexivity.
+Qed.
 
-  refine
-    (`begin
-      fmap F f
-     =⟨ _ ⟩
-      fmap G f
-     `end).
+Instance Heq_hom_equiv {C : Category} : Equivalence (fun f g => f ≈ g in C).
+Definition eqFunctor_as_nat {C D} (F G : Functor C D) := { α : _ & @is_eq_nat _ _ F G α }.
+
+Notation "F ==f G" := (eqFunctor_as_nat F G) (at level 40).
+
+Program Definition eqn_fobj_iso {C D} {F G : Functor C D} {a} : F ==f G → F a ≃ G a in D
+  := fun FG => [iso: projT1 FG a with natiso_inv (is_eqnat_natiso (projT2 FG)) a ].
+Admit Obligations.
+
+(*
+Lemma eqn_fmap {C D} {F G : Functor C D} {a b} (f : a ⟶ b in C) : F ==f G → an_arrow (fmap F f) ≈ an_arrow (fmap G f).
+Admitted.
+ *)
+
 

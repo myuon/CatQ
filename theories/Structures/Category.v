@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid Vectors.Fin.
+Require Import Morphisms Setoid Vectors.Fin Classical.
 Require Import Utf8.
 
 Require Program.Basics.
@@ -54,14 +54,6 @@ Definition hom (C : Category) : object C → object C → Type :=
 Notation "f == g 'in' C" := (@equality (@morphism C _ _) f g) (at level 70, g at next level).
 Infix "==" := equality (at level 70, only parsing).
 
-Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d → Prop :=
-| mk_Heq_hom : forall {g : hom a b}, f == g → Heq_hom f g.
-
-Notation "f ≈ g 'in' C" := (@Heq_hom C _ _ f _ _ g) (at level 70, g at next level).
-Infix "≈" := Heq_hom (at level 70, only parsing).
-
-Axiom Heq_eq : forall {C a b} (f g : @hom C a b), f ≈ g → f == g.
-
 Definition comp (C : Category) : forall {a b c : C}, hom b c → hom a b → hom a c :=
   fun _ _ _ g f => compose (| g , f |).
 
@@ -80,26 +72,6 @@ Proof.
 Qed.
 
 Notation "a =⟨ p 'at' C ⟩ pr" := (@Equivalence_Transitive (@morphism C _ _) _ _ a _ _ p pr) (at level 30, right associativity).
-
-Inductive arrow {C : Category} : Type :=
-| an_arrow: forall {a b : C} (f : a ⟶ b), arrow.
-
-Definition domarr {C : Category} : @arrow C → C :=
-  fun arr =>
-    match arr with
-      | (@an_arrow _ a _ _) => a
-    end.
-
-Definition codarr {C : Category} : @arrow C → C :=
-  fun arr =>
-    match arr with
-      | (@an_arrow _ _ b _) => b
-    end.
-
-Definition from_arrow {C} (f : @arrow C) : domarr f ⟶ codarr f :=
-  match f with
-    | (@an_arrow _ _ _ f) => f
-  end.
 
 Lemma assoc_of (C : Category) :
   forall {a b c d : C} {f : a ⟶ b} {g : b ⟶ c} {h : c ⟶ d},
@@ -124,29 +96,93 @@ Proof.
   apply right_identity.
 Qed.
 
-Instance Heq_hom_equiv {C : Category} {a b : C} : Equivalence (fun f g => Heq_hom (a:=a) (b:=b) f g).
+Inductive arrow {C : Category} : Type :=
+| an_arrow: forall {a b : C} (f : a ⟶ b), arrow.
+
+Notation "[arr: f ]" := (an_arrow f).
+
+Definition domarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ a _ _) => a
+    end.
+
+Definition codarr {C : Category} : @arrow C → C :=
+  fun arr =>
+    match arr with
+      | (@an_arrow _ _ b _) => b
+    end.
+
+Definition from_arrow {C} (f : @arrow C) : domarr f ⟶ codarr f :=
+  match f with
+    | (@an_arrow _ _ _ f) => f
+  end.
+
+Axiom arr_unique : forall {C : Category} {a b : C} {f g : a ⟶ b}, [arr: f] = [arr: g] → f = g.
+
+Inductive Heq_hom {C : Category} : @arrow C → @arrow C → Prop :=
+| mk_Heq_hom : forall {a b} {f g : a ⟶ b}, f == g → Heq_hom (an_arrow f) (an_arrow g).
+
+Notation "f ≈ g 'in' C" := (@Heq_hom C f g) (at level 70, g at next level).
+Infix "≈" := Heq_hom (at level 70, only parsing).
+
+Axiom Heq_eq : forall {C} (f g : @arrow C), f ≈ g →
+      { fg : (domarr f ⟶ codarr f) * (domarr f ⟶ codarr f)
+      | let '(f',g') := fg in
+        [arr: f'] = f /\ [arr: g'] = g /\ domarr f = domarr g /\ codarr f = codarr g /\ f' == g'}.
+
+Instance arr_proper {C a b} : Proper (@equality _ ==> @Heq_hom C) (fun (f : a ⟶ b) => [arr: f]).
+Proof.
+  unfold Proper, respectful.
+  intros.
+  constructor.
+  exact H.
+Qed.
+
+Instance Heq_hom_equiv {C : Category} : Equivalence (fun f g => f ≈ g in C).
 Proof.
   constructor.
   - unfold Reflexive.
     intros.
+    destruct x.
     constructor.
     reflexivity.
   - unfold Symmetric.
     intros.
     destruct H.
+    symmetry in H.
     constructor.
-    rewrite H.
-    reflexivity.
+    exact H.
   - unfold Transitive.
     intros.
-    destruct H.
-    destruct H0.
-    constructor.
-    rewrite H.
-    exact H0.
-Qed.
+    destruct (Heq_eq H) as [(f,g)].
+    destruct y0.
+    destruct H2.
+    destruct H3.
+    destruct H4.
 
-Lemma Heq_hom_tr_trans {C : Category} {a b c d : C} : Transitive (fun (f : a ⟶ b) (g : c ⟶ d) => @Heq_hom C a b f c d g).
+    generalize (Heq_eq H0).
+    rewrite <- H1.
+    rewrite <- H2.
+    simpl.
+    intro.
+    destruct X as [(g',h)].
+
+    destruct y0.
+    destruct H7.
+    destruct H8.
+    destruct H9.
+
+    assert (H11 := arr_unique H6).
+    rewrite H11 in H10.
+
+    assert (f == h).
+    { rewrite H5, H10; reflexivity. }
+
+    rewrite <- H7.
+    constructor.
+    exact H12.
+Qed.
 
 Instance eq_hom_equiv {C : Category} {a b : C} : Equivalence (fun (f : hom a b) g => f == g in C).
 Proof.
