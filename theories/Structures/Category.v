@@ -131,7 +131,7 @@ Axiom Heq_eq : forall {C} (f g : @arrow C), f ≈ g →
       | let '(f',g') := fg in
         [arr: f'] = f /\ [arr: g'] = g /\ domarr f = domarr g /\ codarr f = codarr g /\ f' == g'}.
 
-Instance arr_proper {C a b} : Proper (@equality _ ==> @Heq_hom C) (fun (f : a ⟶ b) => [arr: f]).
+Instance arr_proper {C a b} : Proper (@equality (@morphism C a b) ==> @Heq_hom C) (fun (f : a ⟶ b) => an_arrow f).
 Proof.
   unfold Proper, respectful.
   intros.
@@ -139,7 +139,7 @@ Proof.
   exact H.
 Qed.
 
-Instance Heq_hom_equiv {C : Category} : Equivalence (fun f g => f ≈ g in C).
+Instance Heq_hom_equiv {C : Category} : Equivalence (@Heq_hom C).
 Proof.
   constructor.
   - unfold Reflexive.

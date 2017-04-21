@@ -121,6 +121,39 @@ Defined.
 
 Notation "F ∘f G" := (compFunctor F G) (at level 40).
 
+Lemma compFunctor_compose {C D E} (G : Functor D E) (F : Functor C D) {a b} (f : a ⟶ b) :
+  fmap (G ∘f F) f == fmap G (fmap F f).
+Proof.
+  reflexivity.
+Qed.
+
+Definition map_from_idobj {C} {a b} : a = b → a ⟶ b in C.
+Proof.
+  intro.
+  rewrite H.
+  exact identity.
+Defined.
+
+Definition map_from_idobj_left {C} {a' a b} (p : a = b) : forall{f : a' ⟶ a in C}, [arr:map_from_idobj p ∘ f] ≈ [arr:f].
+Proof.
+  rewrite p.
+  intro.
+  constructor.
+  unfold map_from_idobj.
+  rewrite left_id_of.
+  reflexivity.
+Defined.
+
+Definition map_from_idobj_right {C} {a' a b} (p : a' = a) : forall{f : a ⟶ b in C}, [arr:f ∘ map_from_idobj p] ≈ [arr:f].
+Proof.
+  rewrite p.
+  intro.
+  constructor.
+  unfold map_from_idobj.
+  rewrite right_id_of.
+  reflexivity.
+Defined.
+
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
 Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).
 

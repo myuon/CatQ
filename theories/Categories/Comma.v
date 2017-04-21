@@ -240,7 +240,7 @@ Next Obligation.
 Defined.
 
 Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
-  comma_pairmap_π_morphism f ≈ f in K ↓ L.
+  an_arrow (comma_pairmap_π_morphism f : a ⟶ b in K ↓ L) ≈ an_arrow f in K ↓ L.
 Proof.
   destruct f.
   unfold comma_pairmap_π_morphism.
@@ -260,19 +260,15 @@ Next Obligation.
   refine
     (`begin
       fmap (L ∘f comma_π₂ K L) f ∘ cedge a
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       (fmap L (fmap (comma_π₂ K L) f)) ∘ cedge a
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       fmap L (etgt f) ∘ cedge a
      =⟨ is_comma_morphism f ⟩
       cedge b ∘ fmap K (esrc f)
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       cedge b ∘ fmap (K ∘f comma_π₁ K L) f
       `end).
-
-  reflexivity.
-  reflexivity.
-  reflexivity.
 Defined.
 
 Section CommaUniversality.
@@ -315,44 +311,24 @@ Section CommaUniversality.
       apply fmap_compose.
   Defined.
 
-  Program Definition mediating_π₁ : forall {E P P'} η, comma_π₁ K L ∘f @mediating E P P' η ==n P
-    := fun E P P' η => existT _ [Nat: fun a => identity ] _.
-  Next Obligation.
-    constructor.
+  Lemma mediating_π₁ : forall {E P P'} η, comma_π₁ K L ∘f @mediating E P P' η ==f P.
+  Proof.
     intros.
-    rewrite right_id_of.
-    rewrite left_id_of.
-    unfold compFunctor.
-    unfold fmap; simpl.
+    constructor.
     reflexivity.
-  Defined.
+  Qed.
     
-  Program Definition mediating_π₂ : forall {E P P'} η, comma_π₂ K L ∘f @mediating E P P' η ==n P'
-    := fun E P P' η => existT _ [Nat: fun a => identity ] _.
-  Next Obligation.
-    constructor.
-    simpl.
-    reflexivity.
-  Defined.
-  Next Obligation.
-    constructor.
+  Lemma mediating_π₂ : forall {E P P'} η, comma_π₂ K L ∘f @mediating E P P' η ==f P'.
+  Proof.
     intros.
-    rewrite right_id_of.
-    rewrite left_id_of.
-    unfold compFunctor.
-    unfold fmap; simpl.
-    reflexivity.
-  Defined.
-  Next Obligation.
     constructor.
-    simpl.
     reflexivity.
-  Defined.
+  Qed.
 
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==n P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==n P'),
-      (L f⋆ projT1 eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
+      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
+      (L f⋆ eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
       == η ∘n (K f⋆ projT1 eq₁) ∘n assocFunctor in [E,C].
   Proof.
     intros.
