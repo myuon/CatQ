@@ -122,8 +122,6 @@ Qed.
 
 Axiom Heq_eq : forall {C : Category} {a b c d : C} (f : hom a b) (g : hom c d),
     f ≈ g → { eq : a = c /\ b = d | extend (proj1 eq) (proj2 eq) f == g }.
-Axiom Heq_extend : forall {C : Category} {a b c d : C} (f : hom a b) (g : hom c d) (ac : a = c) (bd : b = d),
-    extend ac bd f == g → f ≈ g.
 
 Lemma Heq_eq_same_hom {C : Category} {a b : C} (f : hom a b) (g : hom a b) : f ≈ g → f == g.
 Proof.
@@ -189,26 +187,6 @@ Proof.
     constructor.
     rewrite H, H0.
     reflexivity.
-Qed.
-
-Lemma Heq_hom_rewrite {C : Category} {a b c d : C} {f g : a ⟶ b} {h i : c ⟶ d} : f == g → h == i → f ≈ h → g ≈ i.
-Proof.
-  intros.
-  destruct (Heq_eq H1).
-  destruct x.
-  rewrite H in e.
-  rewrite H0 in e.
-  apply (Heq_extend (ac:=e0) (bd:=e1)).
-  
-  rewrite <- e.
-
-  assert (e0 = proj1 (conj e0 e1)).
-  apply proof_irrelevance.
-  assert (e1 = proj2 (conj e0 e1)).
-  apply proof_irrelevance.
-
-  rewrite <- H2, <- H3.
-  reflexivity.
 Qed.
 
 Definition hom_from_eq {C : Category} {a b : C} (ab: a = b) : {f : a ⟶ b | f ≈ @identity _ b}.
