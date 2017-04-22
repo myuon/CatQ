@@ -19,8 +19,8 @@ Structure comma_pair {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :=
     cedge : hom (K csrc) (L ctgt);
   }.
 
-Notation "[comma_pair: e 'from' src 'to' tgt ]" := (@Build_comma_pair _ _ _ _ _ src tgt e).
-Notation "[comma_pair: e ]" := [comma_pair: e from _ to _].
+Notation "[comma_pair: e 'as' src 'to' tgt ]" := (@Build_comma_pair _ _ _ _ _ src tgt e).
+Notation "[comma_pair: e ]" := [comma_pair: e as _ to _].
 
 Structure comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b : comma_pair K L) :=
   {
@@ -29,10 +29,10 @@ Structure comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C}
     is_comma_morphism : fmap L etgt ∘ (cedge a) == (cedge b) ∘ fmap K esrc;
   }.
 
-Notation "[comma_map: f , g 'from' src 'to' tgt 'natural' 'by' prf ]" := (@Build_comma_morphism _ _ _ _ _ src tgt f g prf).
-Notation "[comma_map: f , g 'from' src 'to' tgt ]" := [comma_map: f , g from src to tgt natural by _].
-Notation "[comma_map: f , g 'natural' 'by' prf ]" := [comma_map: f , g from _ to _ natural by prf].
-Notation "[comma_map: f , g ]" := [comma_map: f , g from _ to _].
+Notation "[comma_map: f , g 'as' src 'to' tgt 'natural' 'by' prf ]" := (@Build_comma_morphism _ _ _ _ _ src tgt f g prf).
+Notation "[comma_map: f , g 'natural' 'by' prf ]" := [comma_map: f , g as _ to _ natural by prf].
+Notation "[comma_map: f , g 'as' src 'to' tgt ]" := [comma_map: f , g as src to tgt natural by _].
+Notation "[comma_map: f , g ]" := [comma_map: f , g as _ to _ natural by _].
 
 Program Definition comma_id {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a : comma_pair K L) : comma_morphism a a
   := [comma_map: identity, identity].
@@ -45,7 +45,7 @@ Next Obligation.
 Defined.
 
 Program Definition comma_comp {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b c : comma_pair K L) (g : comma_morphism b c) (f : comma_morphism a b) : comma_morphism a c
-  := [comma_map: esrc g ∘ esrc f , etgt g ∘ etgt f ].
+  := [comma_map: esrc g ∘ esrc f , etgt g ∘ etgt f].
 Next Obligation.
   exact
     (`begin
@@ -145,10 +145,38 @@ Program Definition Comma {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
       cat_object := comma_pair K L;
       cat_hom := comma_morphism;
       cat_hom_equal := fun _ _ => comma_morphism_eq;
-      cat_hsetoid := HSetoid_on_setoid (fun X Y => [setoid: comma_morphism X Y with comma_morphism_eq]);
+      cat_hsetoid := [hsetoid: fun _ _ _ _ f g => esrc f ≈ esrc g /\ etgt f ≈ etgt g];
       cat_identity := comma_id;
       cat_comp := comma_comp;
     |}.
+Next Obligation.
+  apply (hsetoid D₁).
+Defined.
+Next Obligation.
+  apply (hsetoid D₂).
+Defined.
+Next Obligation.
+  constructor.
+  - unfold Reflexive.
+    intros.
+    split.
+    destruct x.
+    simpl.
+    apply hrefl.
+    apply hrefl.
+  - unfold Symmetric.
+    intros.
+    destruct H.
+    split.
+    apply hsym; exact H.
+    apply hsym; exact H0.
+  - unfold Transitive.
+    intros.
+    destruct H, H0.
+    split.
+    apply (htrans H H0).
+    apply (htrans H1 H2).
+Defined.
 Next Obligation.
   constructor.
   - rewrite esrc_comp.
@@ -164,18 +192,16 @@ Next Obligation.
 Defined.
 Next Obligation.
   constructor.
-  - intros.
-    constructor.
-    apply H.
   - intro.
-    generalize (heq_extending_eq H).
-    intro.
-    destruct H0.
-    destruct x.
-    unfold Setoids.extend in e.
-    rewrite <- eq_rect_eq in e.
-    rewrite <- eq_rect_eq in e.
-    apply e.
+    destruct H.
+    split.
+    apply eq_extend; assumption.
+    apply eq_extend; assumption.
+  - intro.
+    destruct H.
+    constructor.
+    apply eq_extend; assumption.
+    apply eq_extend; assumption.
 Defined.
 Next Obligation.
   constructor.
@@ -262,9 +288,8 @@ Proof.
   unfold comma_pairmap_π_morphism.
   unfold comma_π₁, fmap; simpl.
   constructor.
-  constructor.
-  - reflexivity.
-  - reflexivity.
+  apply hrefl.
+  apply hrefl.
 Qed.
 
 Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
@@ -341,10 +366,9 @@ Section CommaUniversality.
     reflexivity.
   Qed.
 
-(*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
+      ∃! (H : Functor E (K ↓ L)) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
       (L f⋆ nat_of_from_eqf eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
       == η ∘n (K f⋆ nat_of_from_eqf eq₁) ∘n assocFunctor in [E,C].
   Proof.
@@ -375,7 +399,7 @@ Section CommaUniversality.
       + generalize (mediating_π₁ η (@identity _ A)).
         intro.
         unfold hom_from_heqdom.
-        destruct (Heq_eq h).
+        destruct (heq_extending_eq h).
         destruct x.
         rewrite fmap_identity.
         assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
@@ -389,7 +413,7 @@ Section CommaUniversality.
         reflexivity.
       + generalize (mediating_π₂ η (@identity _ A)); intro.
         unfold hom_from_heqdom.
-        destruct (Heq_eq h).
+        destruct (heq_extending_eq h).
         destruct x.
         rewrite fmap_identity.
         assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
@@ -416,72 +440,25 @@ Section CommaUniversality.
       assert (comma_pairmap_π_morphism (fmap g f) ≈ fmorphism g f in K ↓ L).
       { apply (comma_pairmap_π (f:=fmorphism g f)). }
 
-      apply Heq_sym_hetero.
+      apply hsym.
       apply Heq_sym_hetero in H0.
       apply (Heq_trans_hetero H0).
 
       unfold comma_pairmap_π_morphism.
       destruct H, H.
 
-      assert ([comma_map:fmap P f, fmap P' f] ≈ comma_pairmap_π_morphism (fmap g f) in K ↓ L).
-      { apply (comma_pairmap_π (f:=fmorphism g f)). }
+      assert ([comma_map:fmap (comma_π₁ K L) (fmap g f), fmap (comma_π₂ K L) (fmap g f) as g a to g b natural by comma_pairmap_π_morphism_obligation_1 (fmap g f)] ≈ [comma_map:fmap P f, fmap P' f as [comma_pair: η a as P a to P' a] to [comma_pair: η b as P b to P' b] natural by mediating_obligation_1 η f] in K ↓ L).
+      {
+        unfold hequality.
+        simpl.
+        split.
 
-      Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
-  comma_pairmap_π_morphism f ≈ f in K ↓ L.
+        apply x.
+        apply x0.
+      }
 
+      apply H1.
       
-      
-      simpl.
-      intro.
-
-      refine
-        (`begin
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity)) ∘ identity) ∘ η A
-         =⟨ _ ⟩
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity))) ∘ η A
-         =⟨ _ ⟩
-          (fmap L (fmap P' identity)) ∘ η A
-         =⟨ naturality_of η ⟩
-          η A ∘ fmap K (fmap P identity)
-         =⟨ _ ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity)))
-         ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity))) ∘ identity
-         `end).
-
-      + generalize (mediating_π₁ η (@identity _ A)).
-        intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
-        rewrite fmap_identity.
-        assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
-          reflexivity.
-        }
-
-        rewrite <- H.
-        reflexivity.
-      + generalize (mediating_π₂ η (@identity _ A)); intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
-        rewrite fmap_identity.
-        assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
-          reflexivity.
-        }
-
-        rewrite H.
-        reflexivity.
-      + rewrite right_id_of.
-        reflexivity.
- *)
-  
 End CommaUniversality.
 
   

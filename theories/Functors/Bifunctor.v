@@ -39,6 +39,13 @@ Next Obligation.
   reflexivity.
 Defined.
 Next Obligation.
+  simpl.
+  assert ((snd f ∘ f0) ∘ fst f ≈ (snd g ∘ f0) ∘ fst g).
+  Admit Obligations.
+
+(*  
+Defined.
+Next Obligation.
   rewrite left_id_of.
   rewrite right_id_of.
   reflexivity.
@@ -47,7 +54,8 @@ Next Obligation.
   repeat rewrite assoc_of.
   reflexivity.
 Defined.
-
+ *)
+  
 Definition bimap {C D E} (G : Bifunctor C D E) {a b} (f : fst a ⟶ fst b) (g : snd a ⟶ snd b) : G a ⟶ G b
   := fmap G (Spair f g).
 

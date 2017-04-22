@@ -14,6 +14,7 @@ Class Is_Functor
       (fobj : fdom → fcod)
       (fmorphism : forall {a b}, @morphism fdom a b -⇒ @morphism fcod (fobj a) (fobj b)) :=
   {
+    fmorphism_preserve_hequality : forall {a b a' b'} {f : a ⟶ b} {g : a' ⟶ b'}, f ≈ g in fdom → fmorphism f ≈ fmorphism g in fcod;
     fmorphism_identity : forall {a}, fmorphism (@identity fdom a) == @identity fcod (fobj a);
     fmorphism_compose : forall {a b c} {f : a ⟶ b} {g : b ⟶ c}, fmorphism (compose (g,f)) == compose (fmorphism g, fmorphism f);
   }.
@@ -59,6 +60,7 @@ Structure Functor_Type (fdom fcod : Category) :=
     funct_obj : fdom → fcod;
     funct_map : forall {a b}, hom a b → hom (funct_obj a) (funct_obj b);
     funct_map_proper : forall {a b}, Proper ((@equality _) ==> (@equality _)) (@funct_map a b);
+    funct_preserve_hequality : forall {a b a' b'} {f : a ⟶ b} {g : a' ⟶ b'}, f ≈ g in fdom → funct_map f ≈ funct_map g in fcod;
     funct_identity : forall {a}, funct_map (@identity fdom a) == @identity fcod (funct_obj a);
     funct_compose : forall {a b c} {f : hom a b} {g : hom b c}, funct_map (g ∘ f) == funct_map g ∘ funct_map f;
   }.
@@ -68,13 +70,16 @@ Program Definition Build_Functor_from_Type : forall {C D}, Functor_Type C D → 
     [fmorphism: fun _ _ => [mapoid: funct_map ftype by funct_map_proper ftype] with funct_obj ftype].
 Next Obligation.
   apply Build_Is_Functor.
+  - intros.
+    apply (funct_preserve_hequality ftype).
+    assumption.
   - simpl. intro.
     apply funct_identity.
   - simpl. intros.
     apply funct_compose.
 Defined.
 
-Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (Build_Functor_from_Type (@Build_Functor_Type C D fo fa _ _ _)).
+Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (Build_Functor_from_Type (@Build_Functor_Type C D fo fa _ _ _ _)).
 Notation "[fmap: fa 'with' fo ]" := [fmap: fa with fo as _ to _ ].
 
 Program Definition Destruct_to_Functor_Type : forall {C D}, Functor C D → Functor_Type C D :=
@@ -84,6 +89,11 @@ Program Definition Destruct_to_Functor_Type : forall {C D}, Functor C D → Func
       funct_map := fun _ _ => fmap functor;
       funct_map_proper := fun _ _ => is_mapoid (fmorphism functor);
     |}.
+Next Obligation.
+  unfold fmap.
+  apply fmorphism_preserve_hequality.
+  exact H.
+Defined.
 Next Obligation.
   apply fmorphism_identity.
 Defined.
@@ -107,6 +117,11 @@ Program Definition compFunctor {C D E : Category} (G : Functor D E) (F : Functor
   [fmap: fun _ _ f => fmap G (fmap F f) with fun a => fobj G (fobj F a)].
 Next Obligation.
   solve_proper.
+Defined.
+Next Obligation.
+  apply fmorphism_preserve_hequality.
+  apply fmorphism_preserve_hequality.
+  exact H.
 Defined.
 Next Obligation.
   setoid_rewrite fmorphism_identity.

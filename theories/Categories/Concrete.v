@@ -49,7 +49,22 @@ Next Obligation.
   trivial.
 Defined.
 Next Obligation.
-  exact (HSetoid_on_setoid (fun a b => @morphism C (fst a) (fst b) ** @morphism D (snd a) (snd b))).
+  refine [hsetoid: fun _ _ _ _ a b => fst a ≈ fst b in C /\ snd a ≈ snd b in D].
+  constructor.
+  - intros.
+    split.
+    apply hrefl.
+    apply hrefl.
+  - intros.
+    destruct H.
+    split.
+    + apply hsym; assumption.
+    + apply hsym; assumption.
+  - intros.
+    destruct H, H0.
+    split.
+    + apply (htrans H H0).
+    + apply (htrans H1 H2).
 Defined.
 Next Obligation.
   simpl.
@@ -68,24 +83,21 @@ Next Obligation.
   constructor.
   - intros.
     constructor.
-    + intro.
-      apply heqex_extend_eq.
-      exact H.
-    + intro.
-      generalize (heq_extending_eq H).
-      intro.
-      destruct H0.
-      rewrite <- e.
-      unfold Setoids.extend.
-      destruct x.
-      rewrite <- eq_rect_eq.
-      rewrite <- eq_rect_eq.
-      reflexivity.
-  - simpl.
-    intros.
+    + destruct 1.
+      simpl.
+      split.
+      apply eq_extend; assumption.
+      apply eq_extend; assumption.
+    + destruct 1.
+      split.
+      apply eq_extend; assumption.
+      apply eq_extend; assumption.
+  - intros.
+    destruct f,g,h.
+    simpl.
     split.
-    + apply associativity.
-    + apply associativity.
+    apply assoc_of.
+    apply assoc_of.
   - simpl.
     intros.
     split.
@@ -110,6 +122,11 @@ Next Obligation.
   rewrite H, H0.
   split.
   reflexivity. reflexivity.
+Defined.
+Next Obligation.
+  split.
+  apply fmorphism_preserve_hequality; assumption.
+  apply fmorphism_preserve_hequality; assumption.
 Defined.
 Next Obligation.
   split.

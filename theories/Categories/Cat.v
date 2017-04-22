@@ -31,11 +31,18 @@ Next Obligation.
   fold (fmap y0 f).
   fold (fmap x (fmap x0 f)).
   fold (fmap y (fmap y0 f)).
-  destruct (H0 a0 b0 f).
-  destruct (H _ _ g).
-  constructor.
-  rewrite H1.
-  exact H2.
+
+  assert (hequality (hsetoid c) (fmap x (fmap x0 f)) (fmap x (fmap y0 f))).
+  {
+    apply fmorphism_preserve_hequality.
+    apply (H0 _ _ f).
+  }
+  assert (hequality (hsetoid c) (fmap x (fmap y0 f)) (fmap y (fmap y0 f))).
+  {
+    apply (H _ _ (fmap y0 f)).
+  }
+
+  apply (htrans H1 H2).
 Defined.
 Next Obligation.
   constructor.
@@ -55,22 +62,25 @@ Next Obligation.
     apply e.
 Defined.
 Next Obligation.
-  constructor.
+  intro.
+  intros.
   unfold fmap, compFunctor. simpl.
   unfold fmap. simpl.
-  reflexivity.
+  apply hrefl.
 Defined.
 Next Obligation.
-  constructor.
+  intro.
+  intros.
   unfold fmap. simpl.
   unfold idFunctor, fmap. simpl.
-  reflexivity.
+  apply hrefl.
 Defined.
 Next Obligation.
-  constructor.
+  intro.
+  intros.
   unfold fmap; simpl.
   unfold idFunctor, fmap; simpl.
-  reflexivity.
+  apply hrefl.
 Defined.
   
 

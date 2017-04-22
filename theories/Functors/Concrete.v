@@ -23,6 +23,9 @@ Next Obligation.
   reflexivity.
 Defined.
 Next Obligation.
+  apply hrefl.
+Defined.
+Next Obligation.
   reflexivity.
 Defined.
 Next Obligation.
@@ -36,18 +39,19 @@ Notation "Δ[ D ]( a )" := (@const _ D a).
 Notation "Δ( a )" := (const_one a).
 
 Program Definition op_trf {C D} (F : Functor (opposite C) D) : Functor C (opposite D) :=
-  [fmap: fun a b f => opposite_hom_to (fmap F (opposite_hom_to f)) with fun a => opposite_obj_to (F a) as C to opposite D].
+  [fmap: fun a b f => fmap F (opposite_hom_to f) with fun a => opposite_obj_to (F a) as C to opposite D].
 Next Obligation.
   unfold opposite_hom_to, opposite_obj_to.
   solve_proper.
 Defined.
 Next Obligation.
-  assert (forall a, opposite_hom_to (@identity C a) = @identity (opposite C) a).
+  assert (opposite_hom_to f ≈ opposite_hom_to g in opposite C).
+  { exact H. }
+  apply (fmorphism_preserve_hequality H0).
+Defined.
+Next Obligation.
+  rewrite fmap_identity.
   reflexivity.
-
-  rewrite (H _).
-  unfold opposite_hom_to.
-  apply fmap_identity.
 Defined.
 Next Obligation.
   refine

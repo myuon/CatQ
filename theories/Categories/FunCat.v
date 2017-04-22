@@ -17,10 +17,20 @@ Program Definition FunCat (C D : Category) : Category :=
       cat_object := Functor C D;
       cat_hom := Nat;
       cat_hom_equal := fun _ _ α β => forall A, component α A == component β A;
-      cat_hsetoid := HSetoid_on_setoid (fun X Y => [setoid: Nat X Y with fun α β => forall A, component α A == component β A]);
+      cat_hsetoid := [hsetoid: fun _ _ _ _ α β => forall A, component α A ≈ component β A in D];
       cat_identity := idNat;
       cat_comp := fun _ _ _ => compNat;
     |}.
+Next Obligation.
+  constructor.
+  - intros.
+    apply hrefl.
+  - intros.
+    apply hsym.
+    apply H.
+  - intros.
+    apply (htrans (H A) (H0 A)).
+Defined.
 Next Obligation.
   apply Build_Equivalence.
   - unfold Reflexive.
@@ -31,31 +41,20 @@ Next Obligation.
     intros. rewrite H, H0. reflexivity.
 Defined.
 Next Obligation.
-  apply FunCat_obligation_1.
-Defined.
-Next Obligation.
   unfold Proper, respectful.
   intros.
-  unfold equality. simpl.
+  simpl.
   rewrite H, H0.
   reflexivity.
 Defined.
 Next Obligation.
   constructor.
   - intros.
-    constructor.
-    intro.
+    apply eq_extend.
     apply H.
-  - intro.
-    generalize (heq_extending_eq H).
-    intro.
-    destruct H0.
-    destruct x.
-    intro.
-    unfold Setoids.extend in e.
-    rewrite <- eq_rect_eq in e.
-    rewrite <- eq_rect_eq in e.
-    apply e.
+  - intros.
+    apply eq_extend.
+    apply H.
 Defined.
 Next Obligation.
   apply assoc_of.

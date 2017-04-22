@@ -107,8 +107,7 @@ Structure HSetoid {A} (P : A → A → Type) :=
   }.
 Existing Instance is_hsetoid.
 
-Notation "f ≈ g 'of' X" := (@hequality X _ _ _ _ _ _ f g) (at level 70, g at next level).
-Infix "≈" := hequality (at level 70, only parsing).
+Notation "f ≈ g 'of' X" := (@hequality (X : HSetoid _) _ _ _ _ _ _ f g) (at level 70, g at next level).
 Notation "[hsetoid: heq 'of' P 'by' prf ]" := (@Build_HSetoid _ P heq prf).
 Notation "[hsetoid: heq 'of' P ]" := [hsetoid: heq of P by _].
 Notation "[hsetoid: heq ]" := [hsetoid: heq of _].

@@ -57,6 +57,8 @@ Definition hom (C : Category) : object C → object C → Type :=
 
 Notation "f == g 'in' C" := (@equality (@morphism C _ _) f g) (at level 70, g at next level).
 Infix "==" := equality (at level 70, only parsing).
+Notation "f ≈ g 'in' C" := (hequality (hsetoid C) f g) (at level 70, g at next level).
+Infix "≈" := (hequality _) (at level 70, only parsing).
 
 Definition comp (C : Category) : ∀ {a b c : C}, hom b c → hom a b → hom a c :=
   fun _ _ _ g f => compose (| g , f |).
@@ -230,7 +232,7 @@ Program Definition Setoids : Category :=
       cat_object := Setoid;
       cat_hom := fun X Y => Mapoid X Y;
       cat_hom_equal := fun _ _ f g => forall x, f x == g x;
-      cat_hsetoid := HSetoid_on_setoid Mapoid_space;
+      cat_hsetoid := [hsetoid: fun _ _ _ _ f g => forall x, f x ≈ g x];
       cat_identity := fun _ => {| mapping := fun x => x |};
       cat_comp := fun _ _ _ g f => {| mapping := fun x => g (f x) |};
     |}.
