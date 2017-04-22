@@ -2,7 +2,7 @@ Require Import Morphisms.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
-From CatQ.Structures Require Import Category Functor Nat.
+From CatQ.Structures Require Import Structures.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -15,7 +15,7 @@ Program Definition Cat : Category :=
     {|
       cat_object := Category;
       cat_hom := Functor;
-      cat_hom_equal := fun _ _ => eqFunctor;
+      cat_hom_equal := fun _ _ F G => (F ==f G : Prop);
       cat_identity := @idFunctor;
       cat_comp := @compFunctor;
     |}.

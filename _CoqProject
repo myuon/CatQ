@@ -15,10 +15,10 @@ theories/Functors/Concrete.v
 
 theories/Categories/FunCat.v
 theories/Categories/Cat.v
+theories/Functors/Bifunctor.v
 
 theories/Yoneda.v
 
-theories/Functors/Bifunctor.v
 theories/Categories/Comma.v
 
 theories/UniversalArrow.v
@@ -26,3 +26,4 @@ theories/Adjoint.v
 theories/Limit.v
 
 theories/Kan/KanExt.v
+theories/Kan/Pointwise.v

@@ -19,7 +19,7 @@ Structure Lan {C D U} (F : Functor C D) (E : Functor C U) :=
     lan_unit : Nat E (lan_functor ∘f F);
     is_lan :
       forall (S : Functor D U) (θ : Nat E (S ∘f F)),
-        ∃! (τ : Nat lan_functor S) in [D,U], θ == (τ ⋆f F) ∘n lan_unit in @morphism [C,U] _ _;
+        ∃! (τ : Nat lan_functor S) in [D,U], θ == (τ ⋆f F) ∘n lan_unit in [C,U];
   }.
 
 Notation "F † E" := (Lan F E) (at level 50).
@@ -31,7 +31,7 @@ Notation "⟨lan: θ 'of' kan ⟩" := ⟨lan: _ with θ of kan⟩.
 Notation "⟨lan: θ ⟩" := ⟨lan: θ of _⟩.
 
 Lemma lan_mediating_prop {C D U F E} (kan : @Lan C D U F E) {S θ} :
-  θ == (⟨lan: S with θ of kan⟩ ⋆f F) ∘n lan_unit kan in @morphism [C,U] _ _.
+  θ == (⟨lan: S with θ of kan⟩ ⋆f F) ∘n lan_unit kan in [C,U].
 Proof.
   destruct (is_lan kan θ).
   simpl.
@@ -49,7 +49,7 @@ Proof.
 Qed.
 
 Lemma lan_mediating_unique {C D U F E} (kan : @Lan C D U F E) {S θ} :
-  forall τ, (θ == (τ ⋆f F) ∘n lan_unit kan in @morphism [C,U] _ _) → τ == ⟨lan: S with θ of kan⟩ in @morphism [D,U] _ _.
+  forall τ, (θ == (τ ⋆f F) ∘n lan_unit kan in [C,U]) → τ == ⟨lan: S with θ of kan⟩ in [D,U].
 Proof.
   intros.
   destruct (is_lan kan θ).
@@ -63,13 +63,13 @@ Proof.
 Qed.
 
 Lemma lan_mediating_unique_at {C D U F E} (kan : @Lan C D U F E) {S θ} {A} :
-  forall τ, (θ == (τ ⋆f F) ∘n lan_unit kan in @morphism [C,U] _ _) → τ A == ⟨lan: S with θ of kan⟩ A.
+  forall τ, (θ == (τ ⋆f F) ∘n lan_unit kan in [C,U]) → τ A == ⟨lan: S with θ of kan⟩ A.
 Proof.
   intros.
   apply (lan_mediating_unique H).
 Qed.
 
-Program Definition Lan_f {C D U F} (kan : forall E, F † E) : Functor [C,U] [D,U] :=
+Program Definition Lan_f {C D U F} (kan : forall E, F † E) : Functor ([C,U]) ([D,U]) :=
   [fmap: fun E E' α => ⟨lan: lan_functor (kan E') with lan_unit (kan E') ∘n α of kan E⟩
    with fun (E : [C,U]) => (lan_functor (kan E) : [D,U])].
 Next Obligation.
@@ -120,7 +120,7 @@ Next Obligation.
         `end).
 Defined.
 
-Program Definition inv {C D U} (F : Functor C D) : Functor [D,U] [C,U] :=
+Program Definition inv {C D U} (F : Functor C D) : Functor ([D,U]) ([C,U]) :=
   [fmap: fun _ _ α => α ⋆f F with fun (G : [D,U]) => (G ∘f F : [C,U]) ].
 Next Obligation.
   solve_proper.
@@ -167,8 +167,8 @@ Next Obligation.
   unfold natiso.
   intro.
   refine (exist _ (([Nat: fun ES => [mapoid: fun (α : fst ES ⟶ (snd ES ∘f F) in [C,U]) => ⟨lan: snd ES with α of F_has_kan (fst ES)⟩]
-                            as (homFunctor ∘f ⟨ProductF: idFunctor,inv F⟩)
-                                 to (homFunctor ∘f ⟨ProductF: opf (Lan_f F_has_kan),idFunctor⟩)] : @hom [(opposite [C,U] × [D,U]),Setoids] _ _) a) _).
+                     as (homFunctor ∘f ⟨ProductF: idFunctor,inv F⟩)
+                     to (homFunctor ∘f ⟨ProductF: opf (Lan_f F_has_kan),idFunctor⟩)] : @hom [(opposite ([C,U]) × ([D,U])),Setoids] _ _) a) _).
   {
     simpl.
     split.

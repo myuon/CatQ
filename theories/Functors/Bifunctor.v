@@ -14,13 +14,8 @@ Set Universe Polymorphism.
 Definition Bifunctor (C D E : Category) := Functor (Product C D) E.
 
 Program Definition homFunctor {C : Category} : Bifunctor (opposite C) C Setoids :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun (a : object (Product (opposite C) C)) => (@morphism C (fst a) (snd a) : object Setoids);
-      funct_map :=
-        fun a b (ab : a ⟶ b) =>
-          {| mapping := fun (f : @hom C (fst a) (snd a)) => snd ab ∘ f ∘ fst ab; |};
-    |}.
+  [fmap: fun a b ab => [mapoid: fun f => snd ab ∘ f ∘ fst ab]
+   with fun a => @morphism C (fst a) (snd a) as (opposite C) × C to Setoids].
 Next Obligation.
   simpl.
   unfold Proper, respectful.
@@ -44,21 +39,135 @@ Next Obligation.
   reflexivity.
 Defined.
 Next Obligation.
-  simpl in x.
-  unfold comp.
-  rewrite right_identity.
-  rewrite left_identity.
+  rewrite left_id_of.
+  rewrite right_id_of.
   reflexivity.
 Defined.
 Next Obligation.
-  destruct f, g.
-  simpl in c, c0, c1, c2, x.
-  unfold Func.flip in c, c1.
   repeat rewrite assoc_of.
   reflexivity.
 Defined.
 
-Definition bimap {C D E} (G : Bifunctor C D E) {a b : Product C D} (f : fst a ⟶ fst b) (g : snd a ⟶ snd b) : G a ⟶ G b
+Definition bimap {C D E} (G : Bifunctor C D E) {a b} (f : fst a ⟶ fst b) (g : snd a ⟶ snd b) : G a ⟶ G b
   := fmap G (Spair f g).
 
+Instance bimap_proper {C D E} {G : Bifunctor C D E} {a b} :
+  Proper (@equality _ ==> @equality _ ==> @equality _) (fun f g => bimap G (a:=a) (b:=b) f g).
+Proof.
+  unfold bimap.
+  unfold Proper, respectful.
+  intros.
+  apply fmap_proper.
+  simpl.
+  auto.
+Qed.
+
+Lemma bimap_identity {C D E} (G : Bifunctor C D E) {a} : bimap G (a:=a) identity identity == identity.
+Proof.
+  unfold bimap.
+  rewrite fmap_identity.
+  reflexivity.
+Qed.
+
+Lemma bimap_compose {C D E} (G : Bifunctor C D E) {a b c}
+      (f : fst a ⟶ fst b) (f' : fst b ⟶ fst c) (g : snd a ⟶ snd b) (g' : snd b ⟶ snd c) :
+  bimap G (f' ∘ f) (g' ∘ g) == bimap G f' g' ∘ bimap G f g.
+Proof.
+  unfold bimap.
+  rewrite <- fmap_compose.
+  reflexivity.
+Qed.
+
+Program Definition Bifunctor_at_L {C D E} (G : Bifunctor C D E) (c : C) : Functor D E
+  := [fmap: fun a b f => bimap G (a:=(c,a)) (b:=(c,b)) identity f with fun d => G (c,d) ].
+Next Obligation.
+  solve_proper.
+Defined.
+Next Obligation.
+  apply bimap_identity.
+Defined.
+Next Obligation.
+  rewrite <- bimap_compose.
+  rewrite right_id_of.
+  reflexivity.
+Defined.
+
+Notation "F [ a ,-]" := (Bifunctor_at_L F a) (at level 0).
+
+Program Definition Bifunctor_at_R {C D E} (G : Bifunctor C D E) (d : D) : Functor C E
+  := [fmap: fun a b f => bimap G (a:=(a,d)) (b:=(b,d)) f identity with fun c => G (c,d) ].
+Next Obligation.
+  solve_proper.
+Defined.
+Next Obligation.
+  apply bimap_identity.
+Defined.
+Next Obligation.
+  rewrite <- bimap_compose.
+  rewrite right_id_of.
+  reflexivity.
+Defined.
+
+Notation "F [-, a ]" := (Bifunctor_at_R F a) (at level 0).
+
+Program Definition Bifunctor_apply_L {C D E} (G : Bifunctor C D E) {c c'} (k : c ⟶ c' in C) : Nat G[c,-] G[c',-]
+  := [Nat: fun a => bimap G (a:=(c,a)) (b:=(c',a)) k identity ].
+Next Obligation.
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap G[c',-] f ∘ bimap G (a:=(c,a)) (b:=(c',a)) k identity
+     =⟨ hom_refl ⟩
+      bimap G (a:=(c',a)) (b:=(c',b)) identity f ∘ bimap G (a:=(c,a)) (b:=(c',a)) k identity
+     =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
+      bimap G (a:=(c,a)) (b:=(c',b)) (identity ∘ k) (f ∘ identity)
+     =⟨ ltac: (rewrite left_id_of; rewrite right_id_of; reflexivity) ⟩
+      bimap G (a:=(c,a)) (b:=(c',b)) k f
+     =⟨ _ ⟩
+      bimap G (a:=(c,a)) (b:=(c',b)) (k ∘ identity) (identity ∘ f)
+     =⟨ _ ⟩
+      bimap G (a:=(c,b)) (b:=(c',b)) k identity ∘ bimap G (a:=(c,a)) (b:=(c,b)) identity f
+     =⟨ hom_refl ⟩
+      bimap G (a:=(c,b)) (b:=(c',b)) k identity ∘ fmap G[c,-] f
+     `end).
+
+  - rewrite right_id_of, left_id_of.
+    reflexivity.
+  - rewrite <- bimap_compose.
+    reflexivity.
+Defined.
+
+Notation "F [ f ,-]n" := (Bifunctor_apply_L F f) (at level 0).
+
+Program Definition Bifunctor_apply_R {C D E} (G : Bifunctor C D E) {d d'} (k : d ⟶ d' in D) : Nat G[-,d] G[-,d']
+  := [Nat: fun a => bimap G (a:=(a,d)) (b:=(a,d')) identity k].
+Next Obligation.
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap G[-,d'] f ∘ bimap G (a:=(a,d)) (b:=(a,d')) identity k
+     =⟨ hom_refl ⟩
+      bimap (a:=(a,d')) (b:=(b,d')) G f identity ∘ bimap G (a:=(a,d)) (b:=(a,d')) identity k
+     =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
+      bimap (a:=(a,d)) (b:=(b,d')) G (f ∘ identity) (identity ∘ k)
+     =⟨ _ ⟩
+      bimap G (a:=(a,d)) (b:=(b,d')) (identity ∘ f) (k ∘ identity)
+     =⟨ _ ⟩
+      bimap G (a:=(b,d)) (b:=(b,d')) identity k ∘ bimap G (a:=(a,d)) (b:=(b,d)) f identity
+     =⟨ hom_refl ⟩
+      bimap G (a:=(b,d)) (b:=(b,d')) identity k ∘ fmap G[-,d] f
+     `end).
+
+  - rewrite right_id_of, left_id_of.
+    rewrite right_id_of, left_id_of.
+    reflexivity.
+  - rewrite <- bimap_compose.
+    reflexivity.
+Defined.
+
+Notation "F [-, f ]n" := (Bifunctor_apply_R F f) (at level 0).
 

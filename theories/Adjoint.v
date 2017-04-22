@@ -281,7 +281,7 @@ Next Obligation.
      `end).
 Defined.
 
-Proposition triangular_R {C D F G} (ψ : [adjoint: F,G as C to D]) : rightIdFunctor ∘n ((G f⋆ counit ψ) ∘n assocFunctor ∘n (unit ψ ⋆f G)) == @identity [D,C] G ∘n leftIdFunctor in @morphism [D,C] _ _.
+Proposition triangular_R {C D F G} (ψ : [adjoint: F,G as C to D]) : rightIdFunctor ∘n ((G f⋆ counit ψ) ∘n assocFunctor ∘n (unit ψ ⋆f G)) == @identity [D,C] G ∘n leftIdFunctor in [D,C].
 Proof.
   simpl.
   intro.
@@ -304,7 +304,7 @@ Proof.
   - rewrite adj_inv_isomorphic; reflexivity.
 Defined.
 
-Proposition triangular_L {C D F G} (ψ : [adjoint: F,G as C to D]) : leftIdFunctor ∘n ((counit ψ ⋆f F) ∘n assocInvFunctor ∘n (F f⋆ unit ψ)) == @identity [C,D] F ∘ rightIdFunctor in @morphism [C,D] _ _.
+Proposition triangular_L {C D F G} (ψ : [adjoint: F,G as C to D]) : leftIdFunctor ∘n ((counit ψ ⋆f F) ∘n assocInvFunctor ∘n (F f⋆ unit ψ)) == @identity [C,D] F ∘ rightIdFunctor in [C,D].
 Proof.
   simpl.
   intro.

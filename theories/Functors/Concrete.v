@@ -62,11 +62,7 @@ Next Obligation.
      `end).
 
   apply (@is_setoid (@morphism (opposite D) _ _)).
-  reflexivity.
-  apply (@is_setoid (@morphism (opposite D) _ _)).
   apply fmap_compose.
-  apply (@is_setoid (@morphism (opposite D) _ _)).
-  reflexivity.
   apply (@is_setoid (@morphism (opposite D) _ _)).
 Defined.
 
