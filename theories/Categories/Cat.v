@@ -1,4 +1,4 @@
-Require Import Morphisms.
+Require Import Morphisms ProofIrrelevance.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
@@ -16,6 +16,7 @@ Program Definition Cat : Category :=
       cat_object := Category;
       cat_hom := Functor;
       cat_hom_equal := fun _ _ F G => (F ==f G : Prop);
+      cat_hsetoid := HSetoid_on_setoid (fun X Y => [setoid: Functor X Y with fun F G => (F ==f G : Prop)]);
       cat_identity := @idFunctor;
       cat_comp := @compFunctor;
     |}.
@@ -35,6 +36,23 @@ Next Obligation.
   constructor.
   rewrite H1.
   exact H2.
+Defined.
+Next Obligation.
+  constructor.
+  - intros.
+    constructor.
+    intro.
+    apply H.
+  - intro.
+    generalize (heq_extending_eq H).
+    intro.
+    destruct H0.
+    destruct x.
+    intro.
+    unfold Setoids.extend in e.
+    rewrite <- eq_rect_eq in e.
+    rewrite <- eq_rect_eq in e.
+    apply e.
 Defined.
 Next Obligation.
   constructor.

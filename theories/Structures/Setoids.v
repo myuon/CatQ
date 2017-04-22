@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid ProofIrrelevance.
 Require Import Utf8.
 
 Set Implicit Arguments.
@@ -8,7 +8,6 @@ Unset Printing Implicit Defensive.
 Set Universe Polymorphism.
 
 (* Setoid *)
-
 Structure Setoid :=
   {
     carrier :> Type;
@@ -92,6 +91,104 @@ Definition surj {S S'} (f : Mapoid S S') : Prop :=
 
 Definition inj {S S'} (f : Mapoid S S') : Prop :=
   forall (s₁ s₂ : S), f s₁ == f s₂ → s₁ == s₂.
+
+(* set with hetero equality (2-ary) *)
+Class HEquivalence {A} (P : A → A → Type) (heq : forall {a b c d}, P a b → P c d → Prop) :=
+  {
+    hrefl : forall {a b} {x : P a b}, heq x x;
+    hsym : forall {a b c d} {x : P a b} {y : P c d}, heq x y → heq y x;
+    htrans : forall {a b c d e f} {x : P a b} {y : P c d} {z : P e f}, heq x y → heq y z → heq x z;
+  }.
+
+Structure HSetoid {A} (P : A → A → Type) :=
+  {
+    hequality : forall {a b c d}, P a b → P c d → Prop;
+    is_hsetoid :> HEquivalence (@hequality);
+  }.
+Existing Instance is_hsetoid.
+
+Notation "f ≈ g 'of' X" := (@hequality X _ _ _ _ _ _ f g) (at level 70, g at next level).
+Infix "≈" := hequality (at level 70, only parsing).
+Notation "[hsetoid: heq 'of' P 'by' prf ]" := (@Build_HSetoid _ P heq prf).
+Notation "[hsetoid: heq 'of' P ]" := [hsetoid: heq of P by _].
+Notation "[hsetoid: heq ]" := [hsetoid: heq of _].
+
+Inductive heq_extending {A} {P : A → A → Setoid} {a b} (f : P a b) : forall {c d}, P c d → Prop :=
+| mk_heq_extending : forall {g : P a b}, f == g of P a b → heq_extending f g.
+
+Definition extend {A P} {a b c d : A} (ac: a = c) (bd: b = d) : P a b → P c d
+  := fun f => eq_rect a (λ k, P k d) (eq_rect b (λ k, P a k) f d bd) c ac.
+
+Lemma extend_refl {A} {P : A → A → Setoid} {a b : A} {f : P a b} : @extend A P a b a b eq_refl eq_refl f = f.
+Proof.
+  unfold extend.
+  simpl.
+  reflexivity.
+Qed.
+
+Axiom heq_extending_eq : forall {A} {P : A → A → Setoid} {a b c d : A} (f : P a b) (g : P c d),
+    heq_extending f g → {eq : a = c /\ b = d | extend (P:=P) (proj1 eq) (proj2 eq) f == g}.
+
+Program Definition HSetoid_on_setoid {A} (P : A → A → Setoid) : @HSetoid A P :=
+  [hsetoid: fun a b c d x y => @heq_extending A P a b x c d y of P].
+Next Obligation.
+  constructor.
+  - intros.
+    constructor.
+    reflexivity.
+  - intros.
+    destruct H.
+    constructor.
+    symmetry.
+    apply H.
+  - intros.
+    destruct H, H0.
+    constructor.
+    rewrite H.
+    apply H0.
+Defined.
+
+Lemma heqex_extend_eq {A} (P : A → A → Setoid) {a b : A} : forall {x y}, @equality (P a b) x y <-> heq_extending (P:=P) x y.
+Proof.
+  intros.
+  constructor.
+  - intro.
+    constructor.
+    exact H.
+  - intro.
+    destruct (heq_extending_eq H).
+    destruct x0.
+    rewrite <- e.
+
+    assert (proj1 (conj e0 e1) = eq_refl).
+    apply proof_irrelevance.
+    assert (proj2 (conj e0 e1) = eq_refl).
+    apply proof_irrelevance.
+    rewrite H0, H1.
+    unfold extend.
+    simpl.
+    reflexivity.
+Defined.
+
+Definition heq_on {A P} (S : @HSetoid A P) : forall {a b}, P a b → P a b → Prop
+  := fun a b x y => hequality S x y.
+
+Instance heq_extend_eq {A P} (S : @HSetoid A P) {a b} : Equivalence (heq_on S (a:=a) (b:=b)).
+Proof.
+  constructor.
+  - unfold Reflexive, heq_on.
+    intros.
+    apply hrefl.
+  - unfold Symmetric, heq_on.
+    intros.
+    apply (hsym H).
+  - unfold Transitive, heq_on.
+    intros.
+    apply (htrans H H0).
+Qed.
+
+Definition Setoid_from_H {A P} (S : @HSetoid A P) {a b} : Setoid :=
+  [setoid: P a b with heq_on S by heq_extend_eq S].
 
 (* Reasoning *)
 Definition Rtrans {A : Setoid} (a : A) {b c} (pr : b == c of A) (p : a == b of A) : a == c of A.

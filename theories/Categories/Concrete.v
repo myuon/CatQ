@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid Coq.Vectors.Fin.
+Require Import Morphisms Setoid Coq.Vectors.Fin ProofIrrelevance.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
@@ -20,6 +20,13 @@ Program Definition One : Category :=
       cat_comp := fun _ _ _ _ _ => tt;
     |}.
 Next Obligation.
+  refine [hsetoid: fun _ _ _ _ _ _ => True].
+  constructor.
+  - trivial.
+  - trivial.
+  - trivial.
+Defined.
+Next Obligation.
   constructor.
   - auto.
   - auto.
@@ -34,8 +41,16 @@ Program Definition Product (C D : Category) : Category :=
     object := object C * object D;
     morphism := fun a b => @morphism C (fst a) (fst b) ** @morphism D (snd a) (snd b);
     identity := fun _ => Spair identity identity;
-    compose := fun _ _ _ => {| mapping := fun gf => Spair (fst (fst gf) ∘ fst (snd gf)) (snd (fst gf) ∘ snd (snd gf)); |};
+    compose := fun _ _ _ => [mapoid: fun gf => Spair (fst (fst gf) ∘ fst (snd gf)) (snd (fst gf) ∘ snd (snd gf))];
   |}.
+Next Obligation.
+  constructor.
+  trivial.
+  trivial.
+Defined.
+Next Obligation.
+  exact (HSetoid_on_setoid (fun a b => @morphism C (fst a) (fst b) ** @morphism D (snd a) (snd b))).
+Defined.
 Next Obligation.
   simpl.
   unfold Proper, respectful.
@@ -50,7 +65,22 @@ Next Obligation.
     reflexivity.
 Defined.
 Next Obligation.
-  apply Build_Is_Category.
+  constructor.
+  - intros.
+    constructor.
+    + intro.
+      apply heqex_extend_eq.
+      exact H.
+    + intro.
+      generalize (heq_extending_eq H).
+      intro.
+      destruct H0.
+      rewrite <- e.
+      unfold Setoids.extend.
+      destruct x.
+      rewrite <- eq_rect_eq.
+      rewrite <- eq_rect_eq.
+      reflexivity.
   - simpl.
     intros.
     split.

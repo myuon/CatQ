@@ -145,6 +145,7 @@ Program Definition Comma {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
       cat_object := comma_pair K L;
       cat_hom := comma_morphism;
       cat_hom_equal := fun _ _ => comma_morphism_eq;
+      cat_hsetoid := HSetoid_on_setoid (fun X Y => [setoid: comma_morphism X Y with comma_morphism_eq]);
       cat_identity := comma_id;
       cat_comp := comma_comp;
     |}.
@@ -160,6 +161,21 @@ Next Obligation.
     rewrite (etgt_proper x y H).
     rewrite (etgt_proper x0 y0 H0).
     reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  - intros.
+    constructor.
+    apply H.
+  - intro.
+    generalize (heq_extending_eq H).
+    intro.
+    destruct H0.
+    destruct x.
+    unfold Setoids.extend in e.
+    rewrite <- eq_rect_eq in e.
+    rewrite <- eq_rect_eq in e.
+    apply e.
 Defined.
 Next Obligation.
   constructor.

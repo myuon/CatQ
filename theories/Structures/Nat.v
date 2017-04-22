@@ -81,19 +81,17 @@ Defined.
 Program Definition idNat {C D : Category} (F : Functor C D) : Nat F F :=
   [Nat: fun a => @identity D (fobj F a)].
 Next Obligation.
-  apply Build_Is_Nat.
+  constructor.
   intros.
-  setoid_rewrite (@right_identity D).
-  setoid_rewrite (@left_identity D).
-  - reflexivity.
-  - destruct D. simpl. auto.
-  - destruct D. simpl. auto.
+  rewrite (@right_id_of D).
+  rewrite (@left_id_of D).
+  reflexivity.
 Defined.
 
 Program Definition compNat {C D : Category} {F G H : Functor C D} (β : Nat G H) (α : Nat F G) : Nat F H :=
   [Nat: fun a => component β a ∘ component α a].
 Next Obligation.
-  apply Build_Is_Nat.
+  constructor.
   intros.
   exact
     (`begin

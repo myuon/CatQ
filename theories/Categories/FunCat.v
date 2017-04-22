@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid ProofIrrelevance.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
@@ -17,6 +17,7 @@ Program Definition FunCat (C D : Category) : Category :=
       cat_object := Functor C D;
       cat_hom := Nat;
       cat_hom_equal := fun _ _ α β => forall A, component α A == component β A;
+      cat_hsetoid := HSetoid_on_setoid (fun X Y => [setoid: Nat X Y with fun α β => forall A, component α A == component β A]);
       cat_identity := idNat;
       cat_comp := fun _ _ _ => compNat;
     |}.
@@ -30,11 +31,31 @@ Next Obligation.
     intros. rewrite H, H0. reflexivity.
 Defined.
 Next Obligation.
+  apply FunCat_obligation_1.
+Defined.
+Next Obligation.
   unfold Proper, respectful.
   intros.
   unfold equality. simpl.
   rewrite H, H0.
   reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  - intros.
+    constructor.
+    intro.
+    apply H.
+  - intro.
+    generalize (heq_extending_eq H).
+    intro.
+    destruct H0.
+    destruct x.
+    intro.
+    unfold Setoids.extend in e.
+    rewrite <- eq_rect_eq in e.
+    rewrite <- eq_rect_eq in e.
+    apply e.
 Defined.
 Next Obligation.
   apply assoc_of.
