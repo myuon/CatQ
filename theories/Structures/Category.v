@@ -290,3 +290,19 @@ Proof.
 Qed.
 
 Definition SOne : object Setoids := [setoid: unit].
+
+Lemma id_unique {C : Category} {a : C} (f : a ⟶ a) :
+  (∀ {b} {g : a ⟶ b}, g ∘ f == g) /\ (∀ {b} {g : b ⟶ a}, f ∘ g == g) → f == identity.
+Proof.
+  intros.
+  destruct H.
+
+  refine
+    (`begin
+      f
+     ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+      f ∘ identity
+     =⟨ H0 _ identity ⟩
+      identity
+     `end).
+Qed.

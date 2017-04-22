@@ -203,7 +203,6 @@ Proof.
     reflexivity.
 Defined.
 
-
 Notation "F ==f G" := (eqFunctor F G) (at level 40).
 
 Section Nat_Eqf.

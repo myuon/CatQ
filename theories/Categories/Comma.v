@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid.
+Require Import Morphisms Setoid ProofIrrelevance.
 Require Import Utf8.
 
 Add LoadPath "../../theories" as CatQ.
@@ -325,12 +325,12 @@ Section CommaUniversality.
     reflexivity.
   Qed.
 
-  (*
+(*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
       ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
-      (L f⋆ eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
-      == η ∘n (K f⋆ projT1 eq₁) ∘n assocFunctor in [E,C].
+      (L f⋆ nat_of_from_eqf eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
+      == η ∘n (K f⋆ nat_of_from_eqf eq₁) ∘n assocFunctor in [E,C].
   Proof.
     intros.
     exists (@mediating E P P' η).
@@ -340,26 +340,132 @@ Section CommaUniversality.
       exists (mediating_π₂ η).
       simpl.
       intro.
-      rewrite right_id_of.
-      rewrite fmap_identity.
-      rewrite left_id_of.
-      rewrite right_id_of.
-      rewrite fmap_identity.
-      rewrite right_id_of.
-      reflexivity.
+
+      refine
+        (`begin
+          (fmap L (hom_from_heqdom (mediating_π₂ η identity)) ∘ identity) ∘ η A
+         =⟨ _ ⟩
+          (fmap L (hom_from_heqdom (mediating_π₂ η identity))) ∘ η A
+         =⟨ _ ⟩
+          (fmap L (fmap P' identity)) ∘ η A
+         =⟨ naturality_of η ⟩
+          η A ∘ fmap K (fmap P identity)
+         =⟨ _ ⟩
+          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity)))
+         ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity))) ∘ identity
+         `end).
+
+      + generalize (mediating_π₁ η (@identity _ A)).
+        intro.
+        unfold hom_from_heqdom.
+        destruct (Heq_eq h).
+        destruct x.
+        rewrite fmap_identity.
+        assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
+        {
+          unfold eq_rect_r.
+          rewrite <- eq_rect_eq.
+          reflexivity.
+        }
+
+        rewrite <- H.
+        reflexivity.
+      + generalize (mediating_π₂ η (@identity _ A)); intro.
+        unfold hom_from_heqdom.
+        destruct (Heq_eq h).
+        destruct x.
+        rewrite fmap_identity.
+        assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
+        {
+          unfold eq_rect_r.
+          rewrite <- eq_rect_eq.
+          reflexivity.
+        }
+
+        rewrite H.
+        reflexivity.
+      + rewrite right_id_of.
+        reflexivity.
+
     - intros.
-      destruct H.
-      destruct H.
+      simpl.
+      intro; intros.
+
       unfold mediating.
+      unfold fmap; simpl.
+      fold (fmap P f).
+      fold (fmap P' f).
+
+      assert (comma_pairmap_π_morphism (fmap g f) ≈ fmorphism g f in K ↓ L).
+      { apply (comma_pairmap_π (f:=fmorphism g f)). }
+
+      apply Heq_sym_hetero.
+      apply Heq_sym_hetero in H0.
+      apply (Heq_trans_hetero H0).
+
+      unfold comma_pairmap_π_morphism.
+      destruct H, H.
+
+      assert ([comma_map:fmap P f, fmap P' f] ≈ comma_pairmap_π_morphism (fmap g f) in K ↓ L).
+      { apply (comma_pairmap_π (f:=fmorphism g f)). }
+
+      Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
+  comma_pairmap_π_morphism f ≈ f in K ↓ L.
+
+      
+      
       simpl.
       intro.
-      intros.
-      unfold fmap; simpl.
-      
-      
-      rewrite <- (comma_pairmap_π (f:=fmorphism g f)).
-      rewrite comma_pairmap_π.
-*)
+
+      refine
+        (`begin
+          (fmap L (hom_from_heqdom (mediating_π₂ η identity)) ∘ identity) ∘ η A
+         =⟨ _ ⟩
+          (fmap L (hom_from_heqdom (mediating_π₂ η identity))) ∘ η A
+         =⟨ _ ⟩
+          (fmap L (fmap P' identity)) ∘ η A
+         =⟨ naturality_of η ⟩
+          η A ∘ fmap K (fmap P identity)
+         =⟨ _ ⟩
+          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity)))
+         ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity))) ∘ identity
+         `end).
+
+      + generalize (mediating_π₁ η (@identity _ A)).
+        intro.
+        unfold hom_from_heqdom.
+        destruct (Heq_eq h).
+        destruct x.
+        rewrite fmap_identity.
+        assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
+        {
+          unfold eq_rect_r.
+          rewrite <- eq_rect_eq.
+          reflexivity.
+        }
+
+        rewrite <- H.
+        reflexivity.
+      + generalize (mediating_π₂ η (@identity _ A)); intro.
+        unfold hom_from_heqdom.
+        destruct (Heq_eq h).
+        destruct x.
+        rewrite fmap_identity.
+        assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
+        {
+          unfold eq_rect_r.
+          rewrite <- eq_rect_eq.
+          reflexivity.
+        }
+
+        rewrite H.
+        reflexivity.
+      + rewrite right_id_of.
+        reflexivity.
+ *)
+  
 End CommaUniversality.
 
   
