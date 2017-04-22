@@ -52,7 +52,7 @@ Next Obligation.
   refine
     (`begin
       fmap F f
-     =⟨ ltac: (rewrite <- left_id_of; reflexivity) ⟩
+     ↑⟨ ltac: (rewrite left_id_of; reflexivity) ⟩
       identity ∘ fmap F f
      =⟨ ltac: (rewrite <- (proj2 a1); reflexivity) ⟩
       (x0 ∘ α b) ∘ fmap F f

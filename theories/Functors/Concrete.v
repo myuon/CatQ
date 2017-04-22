@@ -61,9 +61,11 @@ Next Obligation.
       opposite_hom_to (fmap F (opposite_hom_to g)) ∘{opposite D} opposite_hom_to (fmap F (opposite_hom_to f))
      `end).
 
-  apply (@is_setoid (@morphism (opposite D) _ _)).
-  apply fmap_compose.
-  apply (@is_setoid (@morphism (opposite D) _ _)).
+  - apply (@is_setoid (@morphism (opposite D) _ _)).
+  - unfold opposite_hom_to.
+    simpl.
+    apply fmap_compose.
+  - apply (@is_setoid (@morphism (opposite D) _ _)).
 Defined.
 
 Program Definition opopf {C} : Functor C (opposite (opposite C)) :=

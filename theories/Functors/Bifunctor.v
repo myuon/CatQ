@@ -123,20 +123,15 @@ Next Obligation.
       bimap G (a:=(c',a)) (b:=(c',b)) identity f ∘ bimap G (a:=(c,a)) (b:=(c',a)) k identity
      =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
       bimap G (a:=(c,a)) (b:=(c',b)) (identity ∘ k) (f ∘ identity)
-     =⟨ ltac: (rewrite left_id_of; rewrite right_id_of; reflexivity) ⟩
+     =⟨ ltac: (rewrite right_id_of, left_id_of; reflexivity) ⟩
       bimap G (a:=(c,a)) (b:=(c',b)) k f
-     =⟨ _ ⟩
+     ↑⟨ ltac: (rewrite right_id_of, left_id_of; reflexivity) ⟩
       bimap G (a:=(c,a)) (b:=(c',b)) (k ∘ identity) (identity ∘ f)
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
       bimap G (a:=(c,b)) (b:=(c',b)) k identity ∘ bimap G (a:=(c,a)) (b:=(c,b)) identity f
      =⟨ hom_refl ⟩
       bimap G (a:=(c,b)) (b:=(c',b)) k identity ∘ fmap G[c,-] f
      `end).
-
-  - rewrite right_id_of, left_id_of.
-    reflexivity.
-  - rewrite <- bimap_compose.
-    reflexivity.
 Defined.
 
 Notation "F [ f ,-]n" := (Bifunctor_apply_L F f) (at level 0).
@@ -154,19 +149,15 @@ Next Obligation.
       bimap (a:=(a,d')) (b:=(b,d')) G f identity ∘ bimap G (a:=(a,d)) (b:=(a,d')) identity k
      =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
       bimap (a:=(a,d)) (b:=(b,d')) G (f ∘ identity) (identity ∘ k)
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite right_id_of, left_id_of; reflexivity) ⟩
+      bimap (a:=(a,d)) (b:=(b,d')) G f k
+     ↑⟨ ltac: (rewrite right_id_of, left_id_of; reflexivity) ⟩
       bimap G (a:=(a,d)) (b:=(b,d')) (identity ∘ f) (k ∘ identity)
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite <- bimap_compose; reflexivity) ⟩
       bimap G (a:=(b,d)) (b:=(b,d')) identity k ∘ bimap G (a:=(a,d)) (b:=(b,d)) f identity
      =⟨ hom_refl ⟩
       bimap G (a:=(b,d)) (b:=(b,d')) identity k ∘ fmap G[-,d] f
      `end).
-
-  - rewrite right_id_of, left_id_of.
-    rewrite right_id_of, left_id_of.
-    reflexivity.
-  - rewrite <- bimap_compose.
-    reflexivity.
 Defined.
 
 Notation "F [-, f ]n" := (Bifunctor_apply_R F f) (at level 0).

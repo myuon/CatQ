@@ -67,23 +67,15 @@ Next Obligation.
   refine
     (`begin
       fmap Δ[J](b) f0 ∘ f
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       identity ∘ f
-     =⟨ _ ⟩
+     =⟨ left_id_of ⟩
       f
-     =⟨ _ ⟩
+     ↑⟨ right_id_of ⟩
       f ∘ identity
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       f ∘ fmap Δ[J](a) f0
      `end).
-
-  - unfold const, fmap.
-    simpl.
-    reflexivity.
-  - apply left_id_of.
-  - rewrite right_id_of.
-    reflexivity.
-  - reflexivity.
 Defined.
 Next Obligation.
   solve_proper.
