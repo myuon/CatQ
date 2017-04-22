@@ -107,6 +107,7 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Structures/Nat.v\
   theories/Structures/Object.v\
   theories/Structures/Morphism.v\
+  theories/Structures/Equality.v\
   theories/Structures/Structures.v\
   theories/Categories/Concrete.v\
   theories/Functors/Concrete.v\

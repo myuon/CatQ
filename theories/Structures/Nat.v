@@ -200,20 +200,4 @@ Next Obligation.
   apply hom_refl.
 Defined.
 
-Program Definition nat_from_eqf {C D} (F G : Functor C D) : F ==f G → Nat F G
-  := fun FG => [Nat: fun a => hom_from_heqdom (FG a a identity)].
-Next Obligation.
-  constructor.
-  intros.
-  apply Heq_eq_same_hom.
-  generalize (hom_from_heqdom_left (h:=fmap F f) (FG b b identity)); intro.
-  generalize (hom_from_heqdom_right (h:=fmap G f) (FG a a identity)); intro.
-  apply Heq_sym_hetero.
-  apply (Heq_trans_hetero H).
-  apply Heq_sym_hetero.
-  apply (Heq_trans_hetero H0).
-  apply Heq_sym_hetero.
-  exact (FG a b f).
-Defined.
-
 
