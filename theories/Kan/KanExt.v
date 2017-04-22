@@ -69,7 +69,7 @@ Proof.
   apply (lan_mediating_unique H).
 Qed.
 
-Program Definition Lan_f {C D U F} (kan : forall E, F † E) : Functor [C,U] [D,U] :=
+Program Definition Lan_f {C D U F} (kan : forall E, F † E) : Functor ([C,U]) ([D,U]) :=
   [fmap: fun E E' α => ⟨lan: lan_functor (kan E') with lan_unit (kan E') ∘n α of kan E⟩
    with fun (E : [C,U]) => (lan_functor (kan E) : [D,U])].
 Next Obligation.
@@ -120,7 +120,7 @@ Next Obligation.
         `end).
 Defined.
 
-Program Definition inv {C D U} (F : Functor C D) : Functor [D,U] [C,U] :=
+Program Definition inv {C D U} (F : Functor C D) : Functor ([D,U]) ([C,U]) :=
   [fmap: fun _ _ α => α ⋆f F with fun (G : [D,U]) => (G ∘f F : [C,U]) ].
 Next Obligation.
   solve_proper.
@@ -167,8 +167,8 @@ Next Obligation.
   unfold natiso.
   intro.
   refine (exist _ (([Nat: fun ES => [mapoid: fun (α : fst ES ⟶ (snd ES ∘f F) in [C,U]) => ⟨lan: snd ES with α of F_has_kan (fst ES)⟩]
-                            as (homFunctor ∘f ⟨ProductF: idFunctor,inv F⟩)
-                                 to (homFunctor ∘f ⟨ProductF: opf (Lan_f F_has_kan),idFunctor⟩)] : @hom [(opposite [C,U] × [D,U]),Setoids] _ _) a) _).
+                     as (homFunctor ∘f ⟨ProductF: idFunctor,inv F⟩)
+                     to (homFunctor ∘f ⟨ProductF: opf (Lan_f F_has_kan),idFunctor⟩)] : @hom [(opposite ([C,U]) × ([D,U])),Setoids] _ _) a) _).
   {
     simpl.
     split.

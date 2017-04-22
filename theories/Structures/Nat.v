@@ -200,49 +200,20 @@ Next Obligation.
   apply hom_refl.
 Defined.
 
-Definition is_eq_functor {C D} (F G : Functor C D) :=
-  forall {a b} (f : a ⟶ b), an_arrow (fmap F f) ≈ an_arrow (fmap G f).
-Notation "F ==f G" := (is_eq_functor F G) (at level 40).
-
-Instance is_eqf_equiv {C D} : Equivalence (fun F G : Functor C D => F ==f G).
-Proof.
-  constructor.
-  - unfold Reflexive.
-    intros.
-    constructor.
-    reflexivity.
-  - unfold Symmetric.
-    intros.
-    unfold is_eq_functor.
-    intros.
-    apply (Equivalence_Symmetric (Equivalence:=Heq_hom_equiv) [arr:fmap x f] [arr:fmap y f]).
-    apply (H a b f).
-  - unfold Transitive.
-    intros.
-    unfold is_eq_functor.
-    intros.
-    generalize (H a b f).
-    generalize (H0 a b f).
-    intros.
-    apply (Equivalence_Transitive (Equivalence:=Heq_hom_equiv) _ _ _ H2 H1).
-Defined.
-
 Program Definition nat_from_eqf {C D} (F G : Functor C D) : F ==f G → Nat F G
-  := fun FG => [Nat: fun a => _].
-Next Obligation.
-  generalize (Heq_eq (FG a a identity)).
-  simpl.
-  intro.
-  destruct X.
-  destruct x, y, H0, H1, H2.
-  rewrite H1.
-  exact identity.
-Defined.
+  := fun FG => [Nat: fun a => hom_from_heqdom (FG a a identity)].
 Next Obligation.
   constructor.
   intros.
-  generalize (Heq_eq (FG a a identity)).
-  simpl.
-  intro.
+  apply Heq_eq_same_hom.
+  generalize (hom_from_heqdom_left (h:=fmap F f) (FG b b identity)); intro.
+  generalize (hom_from_heqdom_right (h:=fmap G f) (FG a a identity)); intro.
+  apply Heq_sym_hetero.
+  apply (Heq_trans_hetero H).
+  apply Heq_sym_hetero.
+  apply (Heq_trans_hetero H0).
+  apply Heq_sym_hetero.
+  exact (FG a b f).
+Defined.
 
 

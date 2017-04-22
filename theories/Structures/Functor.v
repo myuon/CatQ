@@ -127,32 +127,44 @@ Proof.
   reflexivity.
 Qed.
 
-Definition map_from_idobj {C} {a b} : a = b → a ⟶ b in C.
+Definition eqFunctor {C D} (F G : Functor C D) :=
+  ∀ {a b} (f : a ⟶ b), fmap F f ≈ fmap G f.
+
+Notation "F ==f G" := (eqFunctor F G) (at level 40).
+
+Instance eqFunctor_equiv {C D} : Equivalence (@eqFunctor C D).
 Proof.
-  intro.
-  rewrite H.
-  exact identity.
+  constructor.
+  - unfold Reflexive.
+    intro.
+    constructor.
+    reflexivity.
+  - unfold Symmetric.
+    intros.
+    unfold eqFunctor.
+    intros.
+    unfold eqFunctor in H.
+    destruct (H a b f).
+    constructor.
+    symmetry.
+    exact H0.
+  - unfold Transitive.
+    intros.
+    unfold eqFunctor.
+    intros.
+    destruct (H0 a b f).
+    destruct (H a b f).
+    constructor.
+    rewrite H2, H1.
+    reflexivity.
 Defined.
 
-Definition map_from_idobj_left {C} {a' a b} (p : a = b) : forall{f : a' ⟶ a in C}, [arr:map_from_idobj p ∘ f] ≈ [arr:f].
+Lemma eqFunctor_obj {C D} {F F' : Functor C D} : F ==f F' → forall a, F a = F' a.
 Proof.
-  rewrite p.
-  intro.
-  constructor.
-  unfold map_from_idobj.
-  rewrite left_id_of.
+  intros.
+  destruct (H a a identity).
   reflexivity.
-Defined.
-
-Definition map_from_idobj_right {C} {a' a b} (p : a' = a) : forall{f : a ⟶ b in C}, [arr:f ∘ map_from_idobj p] ≈ [arr:f].
-Proof.
-  rewrite p.
-  intro.
-  constructor.
-  unfold map_from_idobj.
-  rewrite right_id_of.
-  reflexivity.
-Defined.
+Qed.
 
 Definition full {C D : Category} (F : Functor C D) : Prop := forall {a b}, surj (@fmorphism C D F a b).
 Definition faithful {C D : Category} (F : Functor C D) : Prop := forall {a b}, inj (@fmorphism C D F a b).

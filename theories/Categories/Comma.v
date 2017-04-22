@@ -240,7 +240,7 @@ Next Obligation.
 Defined.
 
 Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
-  an_arrow (comma_pairmap_π_morphism f : a ⟶ b in K ↓ L) ≈ an_arrow f in K ↓ L.
+  comma_pairmap_π_morphism f ≈ f in K ↓ L.
 Proof.
   destruct f.
   unfold comma_pairmap_π_morphism.
@@ -325,6 +325,7 @@ Section CommaUniversality.
     reflexivity.
   Qed.
 
+  (*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
       ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
@@ -358,5 +359,7 @@ Section CommaUniversality.
       
       rewrite <- (comma_pairmap_π (f:=fmorphism g f)).
       rewrite comma_pairmap_π.
+*)
+End CommaUniversality.
 
-
+  

@@ -1,4 +1,4 @@
-Require Import Morphisms Setoid Vectors.Fin Classical.
+Require Import Morphisms Setoid Vectors.Fin ProofIrrelevance.
 Require Import Utf8.
 
 Require Program.Basics.
@@ -62,6 +62,11 @@ Infix "⟶" := hom (at level 60, only parsing).
 Notation "g ∘ f" := (comp g f) (at level 30).
 Notation "g ∘{ C } f" := (@comp C _ _ _ g f) (at level 30).
 
+Lemma hom_refl : forall {C : Category} {a b : C} {f : a ⟶ b}, f == f.
+Proof.
+  reflexivity.
+Qed.  
+
 Instance comp_proper {C : Category} {a b c : C} :
   Proper (@equality (morphism b c) ==> @equality (morphism a b) ==> @equality (morphism a c)) (fun g f => g ∘ f).
 Proof.
@@ -96,55 +101,79 @@ Proof.
   apply right_identity.
 Qed.
 
-Inductive arrow {C : Category} : Type :=
-| an_arrow: forall {a b : C} (f : a ⟶ b), arrow.
+Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d → Prop :=
+| mk_Heq_hom : forall {g : hom a b}, f == g → Heq_hom f g.
 
-Notation "[arr: f ]" := (an_arrow f).
-
-Definition domarr {C : Category} : @arrow C → C :=
-  fun arr =>
-    match arr with
-      | (@an_arrow _ a _ _) => a
-    end.
-
-Definition codarr {C : Category} : @arrow C → C :=
-  fun arr =>
-    match arr with
-      | (@an_arrow _ _ b _) => b
-    end.
-
-Definition from_arrow {C} (f : @arrow C) : domarr f ⟶ codarr f :=
-  match f with
-    | (@an_arrow _ _ _ f) => f
-  end.
-
-Axiom arr_unique : forall {C : Category} {a b : C} {f g : a ⟶ b}, [arr: f] = [arr: g] → f = g.
-
-Inductive Heq_hom {C : Category} : @arrow C → @arrow C → Prop :=
-| mk_Heq_hom : forall {a b} {f g : a ⟶ b}, f == g → Heq_hom (an_arrow f) (an_arrow g).
-
-Notation "f ≈ g 'in' C" := (@Heq_hom C f g) (at level 70, g at next level).
+Notation "f ≈ g 'in' C" := (@Heq_hom C _ _ f _ _ g) (at level 70, g at next level).
 Infix "≈" := Heq_hom (at level 70, only parsing).
 
-Axiom Heq_eq : forall {C} (f g : @arrow C), f ≈ g →
-      { fg : (domarr f ⟶ codarr f) * (domarr f ⟶ codarr f)
-      | let '(f',g') := fg in
-        [arr: f'] = f /\ [arr: g'] = g /\ domarr f = domarr g /\ codarr f = codarr g /\ f' == g'}.
+Program Definition extend {C : Category} {a b c d : C} (ac: a = c) (bd: b = d) : morphism a b -⇒ morphism c d
+  := [mapoid: fun f => eq_rect a (λ k, k ⟶ d in C) (eq_rect b (λ k, a ⟶ k in C) f d bd) c ac].
+Next Obligation.
+  solve_proper.
+Defined.
 
-Instance arr_proper {C a b} : Proper (@equality (@morphism C a b) ==> @Heq_hom C) (fun (f : a ⟶ b) => an_arrow f).
+Lemma extend_refl {C : Category} {a b : C} {f : a ⟶ b} : extend eq_refl eq_refl f = f.
 Proof.
-  unfold Proper, respectful.
+  unfold extend.
+  simpl.
+  reflexivity.
+Qed.
+
+Axiom Heq_eq : forall {C : Category} {a b c d : C} (f : hom a b) (g : hom c d),
+    f ≈ g → { eq : a = c /\ b = d | extend (proj1 eq) (proj2 eq) f == g }.
+Axiom Heq_extend : forall {C : Category} {a b c d : C} (f : hom a b) (g : hom c d) (ac : a = c) (bd : b = d),
+    extend ac bd f == g → f ≈ g.
+
+Lemma Heq_eq_same_hom {C : Category} {a b : C} (f : hom a b) (g : hom a b) : f ≈ g → f == g.
+Proof.
   intros.
+  destruct (Heq_eq H).
+  destruct x.
+  rewrite <- e.
+
+  assert (e0 = eq_refl).
+  { apply proof_irrelevance. }
+  assert (e1 = eq_refl).
+  { apply proof_irrelevance. }
+
+  rewrite H0.
+  rewrite H1.
+
+  assert (proj1 (conj (eq_refl : a = a) (eq_refl : b = b)) = eq_refl).
+  { apply proof_irrelevance. }
+  assert (proj2 (conj (eq_refl : a = a) (eq_refl : b = b)) = eq_refl).
+  { apply proof_irrelevance. }
+
+  rewrite H2, H3.
+  rewrite extend_refl.
+  reflexivity.
+Qed.
+
+Lemma Heq_trans_hetero {C : Category} {a1 b1 a2 b2 a3 b3 : C} {f : a1 ⟶ b1} {g : a2 ⟶ b2} {h : a3 ⟶ b3} : f ≈ g → g ≈ h → f ≈ h.
+Proof.
+  intros.
+  destruct H.
+  destruct H0.
   constructor.
+  rewrite H.
+  exact H0.
+Qed.
+
+Lemma Heq_sym_hetero {C : Category} {a1 b1 a2 b2 : C} {f : a1 ⟶ b1} {g : a2 ⟶ b2} : f ≈ g → g ≈ f.
+Proof.
+  intros.
+  destruct H.
+  constructor.
+  symmetry.
   exact H.
 Qed.
 
-Instance Heq_hom_equiv {C : Category} : Equivalence (@Heq_hom C).
+Instance Heq_hom_equiv {C : Category} {a b : C} : Equivalence (fun f g => @Heq_hom C a b f a b g).
 Proof.
   constructor.
   - unfold Reflexive.
     intros.
-    destruct x.
     constructor.
     reflexivity.
   - unfold Symmetric.
@@ -155,33 +184,91 @@ Proof.
     exact H.
   - unfold Transitive.
     intros.
-    destruct (Heq_eq H) as [(f,g)].
-    destruct y0.
-    destruct H2.
-    destruct H3.
-    destruct H4.
-
-    generalize (Heq_eq H0).
-    rewrite <- H1.
-    rewrite <- H2.
-    simpl.
-    intro.
-    destruct X as [(g',h)].
-
-    destruct y0.
-    destruct H7.
-    destruct H8.
-    destruct H9.
-
-    assert (H11 := arr_unique H6).
-    rewrite H11 in H10.
-
-    assert (f == h).
-    { rewrite H5, H10; reflexivity. }
-
-    rewrite <- H7.
+    destruct H.
+    destruct H0.
     constructor.
-    exact H12.
+    rewrite H, H0.
+    reflexivity.
+Qed.
+
+Lemma Heq_hom_rewrite {C : Category} {a b c d : C} {f g : a ⟶ b} {h i : c ⟶ d} : f == g → h == i → f ≈ h → g ≈ i.
+Proof.
+  intros.
+  destruct (Heq_eq H1).
+  destruct x.
+  rewrite H in e.
+  rewrite H0 in e.
+  apply (Heq_extend (ac:=e0) (bd:=e1)).
+  
+  rewrite <- e.
+
+  assert (e0 = proj1 (conj e0 e1)).
+  apply proof_irrelevance.
+  assert (e1 = proj2 (conj e0 e1)).
+  apply proof_irrelevance.
+
+  rewrite <- H2, <- H3.
+  reflexivity.
+Qed.
+
+Definition hom_from_eq {C : Category} {a b : C} (ab: a = b) : {f : a ⟶ b | f ≈ @identity _ b}.
+  rewrite ab.
+  exists identity.
+  constructor.
+  reflexivity.
+Defined.
+
+Lemma hom_from_eq_refl {C : Category} {a : C} : proj1_sig (@hom_from_eq C a a eq_refl) = identity.
+Proof.
+  unfold hom_from_eq.
+  simpl.
+  reflexivity.
+Qed.
+
+Definition hom_from_heqdom {C : Category} {a b c d : C} {f : a ⟶ b} {g : c ⟶ d} :
+  f ≈ g → a ⟶ c.
+Proof.
+  intro.
+  destruct (Heq_eq H).
+  destruct x.
+  rewrite e0.
+  exact identity.
+Defined.
+
+Lemma hom_from_heqdom_left {C : Category} {a' a b c d : C} {f : a ⟶ b} {g : c ⟶ d} {h : a' ⟶ a} (fg : f ≈ g)
+  : hom_from_heqdom fg ∘ h ≈ h.
+Proof.
+  destruct fg.
+  unfold hom_from_heqdom.
+  destruct (Heq_eq (mk_Heq_hom e)).
+  destruct x.
+  constructor.
+
+  assert (e1 = eq_refl).
+  apply proof_irrelevance.
+
+  rewrite H.
+  unfold eq_rect_r.
+  simpl.
+  apply left_id_of.
+Qed.
+
+Lemma hom_from_heqdom_right {C : Category} {a b c c' d : C} {f : a ⟶ b} {g : c ⟶ d} {h : c ⟶ c'} (fg : f ≈ g)
+  : h ∘ hom_from_heqdom fg ≈ h.
+Proof.
+  destruct fg.
+  unfold hom_from_heqdom.
+  destruct (Heq_eq (mk_Heq_hom e)).
+  destruct x.
+  constructor.
+
+  assert (e1 = eq_refl).
+  apply proof_irrelevance.
+
+  rewrite H.
+  unfold eq_rect_r.
+  simpl.
+  apply right_id_of.
 Qed.
 
 Instance eq_hom_equiv {C : Category} {a b : C} : Equivalence (fun (f : hom a b) g => f == g in C).
@@ -373,8 +460,3 @@ Proof.
 Qed.
 
 Definition SOne : object Setoids := [setoid: unit].
-
-Lemma hom_refl : forall {C : Category} {a b : C} {f : a ⟶ b}, f == f.
-Proof.
-  reflexivity.
-Qed.  
