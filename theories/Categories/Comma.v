@@ -19,8 +19,15 @@ Structure comma_pair {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) :=
     cedge : hom (K csrc) (L ctgt);
   }.
 
-Notation "[comma_pair: e 'from' src 'to' tgt ]" := (@Build_comma_pair _ _ _ _ _ src tgt e).
-Notation "[comma_pair: e ]" := [comma_pair: e from _ to _].
+Notation "[comma_pair: e 'as' src 'to' tgt ]" := (@Build_comma_pair _ _ _ _ _ src tgt e).
+Notation "[comma_pair: e ]" := [comma_pair: e as _ to _].
+
+(* capture the equality of comma_pairs induced by hom equality in C *)
+Definition eq_comma_pair {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b : comma_pair K L) :=
+  { eq: csrc a = csrc b /\ ctgt a = ctgt b | extend (fobj_eq (proj1 eq)) (fobj_eq (proj2 eq)) (cedge a) == cedge b }.
+
+Axiom comma_pair_equal : forall {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) {a b : comma_pair K L},
+    eq_comma_pair a b → a = b.
 
 Structure comma_morphism {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} (a b : comma_pair K L) :=
   {
@@ -195,6 +202,22 @@ Defined.
 
 Notation "K ↓ L" := (Comma K L) (at level 50).
 
+Lemma esrc_preserve_extend {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b a' b'} {f : a ⟶ b in K ↓ L} (p : a = a') (q : b = b') : esrc (extend p q f) == extend (ltac: (rewrite p; reflexivity)) (ltac: (rewrite q; reflexivity)) (esrc f).
+Proof.
+  destruct p, q.
+  rewrite extend_eq.
+  rewrite extend_eq.
+  reflexivity.
+Qed.
+
+Lemma etgt_preserve_extend {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b a' b'} {f : a ⟶ b in K ↓ L} (p : a = a') (q : b = b') : etgt (extend p q f) == extend (ltac: (rewrite p; reflexivity)) (ltac: (rewrite q; reflexivity)) (etgt f).
+Proof.
+  destruct p, q.
+  rewrite extend_eq.
+  rewrite extend_eq.
+  reflexivity.
+Qed.
+
 Instance comma_map_proper {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {prf : forall f g, fmap L g ∘ cedge a == cedge b ∘ fmap K f} : Proper (@equality _ ==> @equality _ ==> comma_morphism_eq) (fun (f : csrc a ⟶ csrc b) g => [comma_map: f,g natural by prf f g]).
 Proof.
   unfold Proper, respectful.
@@ -333,7 +356,6 @@ Section CommaUniversality.
     reflexivity.
   Qed.
 
-  (*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
       ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : comma_π₂ K L ∘f H ==f P'),
@@ -383,80 +405,75 @@ Section CommaUniversality.
       assert (forall x, mediating η x = g x).
       { unfold mediating; intro.
         unfold fmap; simpl.
-        
+        apply comma_pair_equal.
+        unfold eq_comma_pair.
+        destruct H, H.
+        destruct x0, x1.
+        simpl in H.
+        exists (conj (~ x0 x) (~ x1 x)).
+
+        generalize (H x).
+        unfold eq_to_hom.
+        rewrite fmap_preserve_extend.
+        rewrite fmap_identity.
+        rewrite right_id_of.
+        rewrite fmap_preserve_extend.
+        rewrite fmap_identity.
+        rewrite <- extend_compose_left.
+        rewrite extend_eq.
+        rewrite left_id_of.
+        rewrite right_id_of.
+        intro.
+
+        assert (cedge (g x) == (extend eq_refl (fobj_eq (~ x1 x))) (η x ∘ (extend eq_refl (fobj_eq (x0 x))) identity)).
+        { rewrite <- H0.
+          rewrite extend_trans.
+          rewrite extend_eq.
+          reflexivity. }
+
+        rewrite H1.
+        rewrite extend_compose_factor.
+        rewrite extend_eq.
+        rewrite extend_compose_flip_l.
+        rewrite extend_eq.
+        rewrite right_id_of.
+        rewrite extend_trans.
+        rewrite extend_irrelevance.
+        reflexivity.
       }
-      fold (fmap P f).
-      fold (fmap P' f).
 
-      assert (comma_pairmap_π_morphism (fmap g f) ≈ fmorphism g f in K ↓ L).
-      { apply (comma_pairmap_π (f:=fmorphism g f)). }
-
-      apply Heq_sym_hetero.
-      apply Heq_sym_hetero in H0.
-      apply (Heq_trans_hetero H0).
-
-      unfold comma_pairmap_π_morphism.
+      exists H0.
+      intros.
       destruct H, H.
 
-      assert ([comma_map:fmap P f, fmap P' f] ≈ comma_pairmap_π_morphism (fmap g f) in K ↓ L).
-      { apply (comma_pairmap_π (f:=fmorphism g f)). }
-
-      Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
-  comma_pairmap_π_morphism f ≈ f in K ↓ L.
-
-      
-      
-      simpl.
-      intro.
-
-      refine
-        (`begin
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity)) ∘ identity) ∘ η A
-         =⟨ _ ⟩
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity))) ∘ η A
-         =⟨ _ ⟩
-          (fmap L (fmap P' identity)) ∘ η A
-         =⟨ naturality_of η ⟩
-          η A ∘ fmap K (fmap P identity)
-         =⟨ _ ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity)))
-         ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity))) ∘ identity
-         `end).
-
-      + generalize (mediating_π₁ η (@identity _ A)).
-        intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
-        rewrite fmap_identity.
-        assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
+      assert (fmap (mediating η) f == extend (~ H0 a) (~ H0 b) (fmap g f)).
+      {
+        split.
+        - assert (esrc (fmap (mediating η) f) == fmap P f).
           reflexivity.
-        }
 
-        rewrite <- H.
-        reflexivity.
-      + generalize (mediating_π₂ η (@identity _ A)); intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
-        rewrite fmap_identity.
-        assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
+          rewrite H1.
+          destruct x.
+          simpl in H.
+          rewrite <- (e a b f).
+          rewrite esrc_preserve_extend.
+          apply extend_irrelevance.
+        - assert (etgt (fmap (mediating η) f) == fmap P' f).
           reflexivity.
-        }
 
-        rewrite H.
-        reflexivity.
-      + rewrite right_id_of.
-        reflexivity.
-   *)
-  
+          rewrite H1.
+          destruct x0.
+          simpl in H.
+          rewrite <- (e a b f).
+          rewrite etgt_preserve_extend.
+          apply extend_irrelevance.
+      }
+
+      rewrite H1.
+      rewrite extend_trans.
+      rewrite extend_eq.
+      reflexivity.
+  Qed.
 End CommaUniversality.
 
   

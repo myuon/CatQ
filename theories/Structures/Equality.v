@@ -87,8 +87,30 @@ Section EqFunctor.
     reflexivity.
   Qed.
 
+  Lemma extend_compose_flip_l {C : Category} {a a' b b' c : C} (p: a = a') (q: b = b') {f : a ⟶ b} {g: b' ⟶ c}
+    : g ∘ extend p q f == extend (~ q) eq_refl g ∘ extend p eq_refl f.
+  Proof.
+    destruct p, q.
+    simpl.
+    reflexivity.
+  Qed.
+
+  Lemma extend_compose_flip_r {C : Category} {a a' b b' c : C} (p: a = a') (q: b = b') {f : a ⟶ b} {g: c ⟶ a'}
+    : extend p q f ∘ g == extend eq_refl q f ∘ extend eq_refl (~ p) g.
+  Proof.
+    destruct p, q.
+    simpl.
+    reflexivity.
+  Qed.
+
+  Definition fobj_eq {C D} {F : Functor C D} {a b} : a = b → F a = F b.
+    intro.
+    rewrite H.
+    reflexivity.
+  Defined.
+
   Lemma fmap_preserve_extend {C D : Category} (F : Functor C D) {a b c d : C} (p: a = c) (q: b = d) {f : a ⟶ b}
-    : fmap F (extend p q f) == extend (ltac: (rewrite p; reflexivity)) (ltac: (rewrite q; reflexivity)) (fmap F f).
+    : fmap F (extend p q f) == extend (fobj_eq p) (fobj_eq q) (fmap F f).
   Proof.
     destruct p.
     destruct q.
