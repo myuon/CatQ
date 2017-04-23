@@ -96,17 +96,13 @@ Proof.
         (x A ∘ fmap (homFunctor[-,a]) x0) identity
        =⟨ ltac: (apply Setoids_comp_apply; reflexivity) ⟩
         (x A) (fmap (homFunctor[-,a]) x0 identity)
-       =⟨ mapoid_cong (x A) _ ⟩
+       =⟨ mapoid_cong (x A) hom_refl ⟩
+        (x A) ((identity ∘ identity) ∘ x0)
+       =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
         (x A) (identity ∘ x0)
-       =⟨ _ ⟩
+       =⟨ ltac: (rewrite left_id_of; reflexivity) ⟩
         (x A) x0
        `end).
-
-    + simpl.
-      rewrite right_id_of.
-      reflexivity.
-    + rewrite left_id_of.
-      reflexivity.
     
   - unfold YonedaLemma_right, YonedaLemma_left.
     simpl.
@@ -170,16 +166,14 @@ Next Obligation.
      =⟨ ltac: (apply mapoid_apply; apply naturality_of) ⟩
       (x b ∘ fmap (homFunctor[-,opposite_obj a]) f) identity
      =⟨ ltac: (apply Setoids_comp_apply) ⟩
+      (x b) (fmap (homFunctor[-,opposite_obj a]) f identity)
+     =⟨ mapoid_cong (x b) hom_refl ⟩
       x b ((identity ∘{C} identity) ∘{C} opposite_hom f)
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite left_id_of; rewrite left_id_of; reflexivity) ⟩ 
+      x b (opposite_hom f)
+     ↑⟨ ltac: (rewrite right_id_of; rewrite right_id_of; reflexivity) ⟩
       x b ((opposite_hom f ∘{C} identity) ∘{C} identity)
       `end).
-
-  - rewrite left_id_of.
-    rewrite left_id_of.
-    rewrite right_id_of.
-    rewrite right_id_of.
-    reflexivity.
 Defined.
 
 Theorem yoneda_ff {C : Category} : ff (@yoneda C).

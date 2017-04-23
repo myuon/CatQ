@@ -70,36 +70,35 @@ Proof.
   refine
     (`begin
       component (c',d) u ∘ f
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       component (c',d) u ∘ fmap idFunctor f
      =⟨ _ ⟩
       (identity ∘ component (c',d) u) ∘ fmap idFunctor f
      =⟨ _ ⟩
       (fmap G identity ∘ component (c',d) u) ∘ fmap idFunctor f
-     =⟨ _ ⟩
+     =⟨ H ⟩
       component (c,d) ((fmap idFunctor identity ∘ u) ∘ fmap (opf F) f)
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       component (c,d) ((identity ∘ u) ∘ fmap (opf F) f)
-     =⟨ _ ⟩
+     =⟨ mapoid_cong (component (c,d)) _ ⟩
       component (c,d) (u ∘ fmap (opf F) f)
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       component (c,d) (u ∘ fmap F f)
      `end).
 
-  - reflexivity.
-  - rewrite left_id_of; reflexivity.
-  - rewrite fmap_identity; reflexivity.
-  - exact H.
-  - reflexivity.
-  - apply (mapoid_cong (component (c,d))).
-    unfold opf, op_trf; simpl.
+  - unfold opf, op_trf; simpl.
     unfold fmap; simpl.
     unfold opop_invf; simpl.
     unfold fmap; simpl.
     unfold opposite_hom, opposite_hom_to.
     rewrite left_id_of.
     reflexivity.
-  - reflexivity.
+  - rewrite left_id_of.
+    rewrite fmap_identity.
+    rewrite left_id_of.
+    reflexivity.
+  - rewrite left_id_of.
+    reflexivity.
 Qed.
 
 Lemma adj_natural_R
@@ -123,15 +122,21 @@ Proof.
       component (c,d') ((g ∘ u) ∘ fmap (opf F) identity)
      =⟨ _ ⟩
       component (c,d') ((fmap idFunctor g ∘ u) ∘ fmap (opf F) identity)
-     =⟨ _ ⟩
+     ↑⟨ H ⟩
       (fmap G g ∘ component (c,d) u) ∘ fmap idFunctor identity
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite fmap_identity; reflexivity) ⟩
       (fmap G g ∘ component (c,d) u) ∘ identity
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
       fmap G g ∘ component (c,d) u
      `end).
 
-  - rewrite right_id_of.
+  - apply mapoid_cong.
+    unfold opf.
+    unfold op_trf, opop_invf.
+    simpl.
+    unfold fmap; simpl.
+    unfold fmap; simpl.
+    unfold opposite_hom_to, opposite_hom.
     reflexivity.
   - apply mapoid_cong.
     unfold opf.
@@ -142,9 +147,6 @@ Proof.
     unfold opposite_hom_to, opposite_hom.
     rewrite fmorphism_identity.
     reflexivity.
-  - reflexivity.
-  - symmetry; assumption.
-  - reflexivity.
   - rewrite right_id_of.
     reflexivity.
 Qed.
@@ -156,7 +158,7 @@ Proof.
   refine
     (`begin
       [adj⁻¹: u of ψ] ∘ fmap F f
-     =⟨ ltac: (rewrite <- (setiso_left_at (adj_iso ψ)); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (setiso_left_at (adj_iso ψ)); reflexivity) ⟩
       [adj⁻¹: [adj: [adj⁻¹: u of ψ] ∘ fmap F f]]
      =⟨ ltac: (rewrite (adj_natural_L ψ); reflexivity) ⟩
       [adj⁻¹: [adj: [adj⁻¹: u of ψ]] ∘ f]
@@ -172,7 +174,7 @@ Proof.
   refine
     (`begin
       [adj⁻¹: fmap G g ∘ u of ψ]
-     =⟨ ltac: (rewrite <- (adj_inv_isomorphic ψ u); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (adj_inv_isomorphic ψ u); reflexivity) ⟩
       [adj⁻¹: fmap G g ∘ [adj: [adj⁻¹: u of ψ]]]
      =⟨ ltac: (rewrite <- (adj_natural_R ψ); reflexivity) ⟩
       [adj⁻¹: [adj: g ∘ [adj⁻¹: u of ψ]]]
@@ -207,24 +209,19 @@ Next Obligation.
   refine
     (`begin
       fmap G (fmap F f) ∘ [adj: identity of ψ]
-     =⟨ ltac: (rewrite <- (adj_natural_R ψ); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (adj_natural_R ψ); reflexivity) ⟩
       [adj: fmap F f ∘ identity]
      =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
       [adj: fmap F f]
-     =⟨ ltac: (rewrite <- (@left_id_of D); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (@left_id_of D); reflexivity) ⟩
       [adj: identity ∘ fmap F f]
      =⟨ ltac: (rewrite (adj_natural_L ψ); reflexivity) ⟩
       [adj: identity of ψ] ∘ f
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       [adj: identity of ψ] ∘ fmap idFunctor f
-     =⟨ _ ⟩
+     =⟨ hom_refl ⟩
       (adjunction ψ (b,F b)) identity ∘ fmap idFunctor f
      `end).
-
-  - unfold idFunctor; simpl.
-    unfold fmap; simpl.
-    reflexivity.
-  - reflexivity.
 Defined.
 
 Program Definition unit_universality {C D F G} (ψ : [adjoint: F,G as C to D]) : forall c, UniversalArrow c G
@@ -268,13 +265,13 @@ Next Obligation.
       fmap idFunctor f ∘ [adj⁻¹: identity]
      =⟨ hom_refl ⟩
       f ∘ [adj⁻¹: identity]
-     =⟨ ltac: (rewrite <- (adj_inv_natural_R ψ); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (adj_inv_natural_R ψ); reflexivity) ⟩
       [adj⁻¹: fmap G f ∘ identity]
      =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
       [adj⁻¹: fmap G f]
-     =⟨ ltac: (rewrite <- (@left_id_of C); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (@left_id_of C); reflexivity) ⟩
       [adj⁻¹: identity ∘ fmap G f]
-     =⟨ ltac: (rewrite <- (adj_inv_natural_L ψ); reflexivity) ⟩
+     ↑⟨ ltac: (rewrite (adj_inv_natural_L ψ); reflexivity) ⟩
       [adj⁻¹: identity] ∘ fmap F (fmap G f)
      =⟨ hom_refl ⟩
       [adj⁻¹: identity] ∘ fmap (F ∘f G) f
@@ -291,17 +288,13 @@ Proof.
       identity ∘ ((fmap G [adj⁻¹: identity] ∘ identity) ∘ [adj: identity])
      =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
       identity ∘ (fmap G [adj⁻¹: identity] ∘ [adj: identity])
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite <- (adj_natural_R ψ); reflexivity) ⟩
       identity ∘ [adj: [adj⁻¹: identity] ∘ identity]
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
       identity ∘ [adj: [adj⁻¹: identity]]
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite (adj_inv_isomorphic ψ (d:=A)); reflexivity) ⟩
       identity ∘ identity
      `end).
-
-  - rewrite <- (adj_natural_R ψ); reflexivity.
-  - rewrite right_id_of; reflexivity.
-  - rewrite adj_inv_isomorphic; reflexivity.
 Defined.
 
 Proposition triangular_L {C D F G} (ψ : [adjoint: F,G as C to D]) : leftIdFunctor ∘n ((counit ψ ⋆f F) ∘n assocInvFunctor ∘n (F f⋆ unit ψ)) == @identity [C,D] F ∘ rightIdFunctor in [C,D].
@@ -316,14 +309,11 @@ Proof.
       identity ∘ ([adj⁻¹: identity] ∘ fmap F [adj: identity])
      =⟨ ltac: (rewrite (adj_inv_natural_L ψ (d:=F A)); reflexivity) ⟩
       identity ∘ [adj⁻¹: identity ∘ [adj:identity] ]
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite (@left_id_of C); reflexivity) ⟩
       identity ∘ [adj⁻¹: [adj:identity] ]
-     =⟨ _ ⟩
+     =⟨ ltac: (rewrite (adj_isomorphic ψ (c:=A)); reflexivity) ⟩
       identity ∘ identity
      `end).
-
-  - rewrite (@left_id_of C); reflexivity.
-  - rewrite (adj_isomorphic ψ); reflexivity.
 Defined.
 
 

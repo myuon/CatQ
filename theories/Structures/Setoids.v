@@ -94,9 +94,18 @@ Definition inj {S S'} (f : Mapoid S S') : Prop :=
   forall (s₁ s₂ : S), f s₁ == f s₂ → s₁ == s₂.
 
 (* Reasoning *)
-Notation "`begin p" := p (at level 20, right associativity).
-Notation "a =⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ p pr) (at level 30, right associativity).
-Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
-Notation "a ↑⟨ p ⟩ pr" := (@Equivalence_Transitive _ _ _ a _ _ (@Equivalence_Symmetric p) pr) (at level 30, right associativity).
-Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).
+Definition Rtrans {A : Setoid} (a : A) {b c} (pr : b == c of A) (p : a == b of A) : a == c of A.
+  rewrite p.
+  exact pr.
+Defined.
 
+Definition Rtrans_sym {A : Setoid} (a : A) {b c} (pr : b == c of A) (p : b == a of A) : a == c of A.
+  rewrite <- p.
+  exact pr.
+Defined.
+
+Notation "`begin p" := p (at level 20, right associativity).
+Notation "a =⟨ p ⟩ pr" := (@Rtrans _ a _ _ pr p) (at level 30, right associativity).
+Notation "a ↓⟨ p ⟩ pr" := (a =⟨ p ⟩ pr) (at level 30, right associativity).
+Notation "a ↑⟨ p ⟩ pr" := (@Rtrans_sym _ a _ _ pr p) (at level 30, right associativity).
+Notation "a `end" := (@Equivalence_Reflexive _ _ _ a) (at level 30).

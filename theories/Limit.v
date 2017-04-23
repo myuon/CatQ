@@ -142,7 +142,7 @@ Next Obligation.
   refine
     (`begin
       fmap F f ∘ (sproduct_proj (spr J F) a ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F))
-     =⟨ ltac: (rewrite <- assoc_of; reflexivity) ⟩
+     =⟨ _ ⟩
       (fmap F f ∘ sproduct_proj (spr J F) a) ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)
      =⟨ _ ⟩
       (sproduct_proj (spr arrow (fun arr => F (codarr arr))) (an_arrow f) ∘ ⟨sproduct: (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) of _⟩) ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)
@@ -156,7 +156,8 @@ Next Obligation.
       (sproduct_proj (spr J F) b ∘ equalizing_map _) ∘ fmap (Δ[J](_)) f
      `end).
 
-  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) (an_arrow f)).
+  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => sproduct_proj (spr J F) (codarr arr)) (an_arrow f)).
+    rewrite right_id_of.
     reflexivity.
   - rewrite assoc_of.
     reflexivity.
@@ -167,8 +168,9 @@ Next Obligation.
     reflexivity.
   - rewrite assoc_of.
     reflexivity.
-  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => sproduct_proj (spr J F) (codarr arr)) (an_arrow f)).
-    rewrite right_id_of.
+  - rewrite (@sproduct_mediating_prop _ arrow _ (spr arrow (fun arr => F (codarr arr))) _ (fun arr => fmap F (from_arrow arr) ∘ sproduct_proj (spr J F) (domarr arr)) (an_arrow f)).
+    reflexivity.
+  - rewrite assoc_of.
     reflexivity.
 Defined.
 Next Obligation.
@@ -190,7 +192,7 @@ Next Obligation.
     refine
       (`begin
         f b
-       =⟨ ltac: (rewrite <- right_id_of; reflexivity) ⟩
+       ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
         f b ∘ fmap (Δ[J](d)) f0
        =⟨ ltac: (rewrite <- naturality_of; reflexivity) ⟩
         fmap F f0 ∘ f a

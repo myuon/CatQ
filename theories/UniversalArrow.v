@@ -23,7 +23,7 @@ Structure UniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) :=
  
 Program Definition Build_UniversalArrow_from_Type {C D : Category} (c : C) (G : Functor D C) (UA : UniversalArrow_Type c G) : UniversalArrow c G :=
   {|
-    initial := [comma_pair: (ua_map UA) from tt to (ua_object UA)];
+    initial := [comma_pair: (ua_map UA) as tt to (ua_object UA)];
   |}.
 Next Obligation.
   destruct (ua_UMP UA (d:=ctgt x) (f:=cedge x)).
@@ -95,7 +95,7 @@ Structure CouniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) :=
 
 Program Definition Build_CouniversalArrow_from_Type {C D : Category} (c : C) (G : Functor D C) (UA : CouniversalArrow_Type c G) : CouniversalArrow c G :=
   {|
-    terminal := [comma_pair: (coua_map UA) from (coua_object UA) to tt];
+    terminal := [comma_pair: (coua_map UA) as (coua_object UA) to tt];
   |}.
 Next Obligation.
   destruct (coua_UMP UA (d:=csrc x) (f:=cedge x)).
