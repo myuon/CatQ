@@ -239,6 +239,7 @@ Next Obligation.
   reflexivity.
 Defined.
 
+(*
 Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
   comma_pairmap_π_morphism f ≈ f in K ↓ L.
 Proof.
@@ -250,6 +251,7 @@ Proof.
   - reflexivity.
   - reflexivity.
 Qed.
+*)
 
 Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
   : Nat (K ∘f comma_π₁ K L) (L ∘f comma_π₂ K L) := [Nat: fun a => cedge a].
@@ -313,22 +315,25 @@ Section CommaUniversality.
 
   Lemma mediating_π₁ : forall {E P P'} η, comma_π₁ K L ∘f @mediating E P P' η ==f P.
   Proof.
+    unfold eqFunctor.
     intros.
-    constructor.
+    exists (fun x => eq_refl).
+    rewrite extend_eq.
     reflexivity.
   Qed.
     
   Lemma mediating_π₂ : forall {E P P'} η, comma_π₂ K L ∘f @mediating E P P' η ==f P'.
   Proof.
+    unfold eqFunctor.
     intros.
-    constructor.
+    exists (fun x => eq_refl).
+    rewrite extend_eq.
     reflexivity.
   Qed.
 
-(*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
+      ∃! H from E to (K ↓ L) in Cat, ∃ (eq : (comma_π₁ K L ∘f H) ==f P /\ (comma_π₂ K L ∘f H) ==f P'),
       (L f⋆ nat_of_from_eqf eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
       == η ∘n (K f⋆ nat_of_from_eqf eq₁) ∘n assocFunctor in [E,C].
   Proof.
@@ -464,7 +469,6 @@ Section CommaUniversality.
         reflexivity.
       + rewrite right_id_of.
         reflexivity.
- *)
   
 End CommaUniversality.
 
