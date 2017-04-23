@@ -13,7 +13,7 @@ Set Universe Polymorphism.
 Program Definition One : Category :=
   Build_Category_from_Type
     {|
-      cat_object := unit;
+      cat_object := [setoid: unit];
       cat_hom := fun _ _ => unit;
       cat_hom_equal := fun _ _ _ _ => True;
       cat_identity := fun _ => tt;
@@ -31,7 +31,7 @@ Defined.
 
 Program Definition Product (C D : Category) : Category :=
   {|
-    object := object C * object D;
+    object := object C ** object D;
     morphism := fun a b => @morphism C (fst a) (fst b) ** @morphism D (snd a) (snd b);
     identity := fun _ => Spair identity identity;
     compose := fun _ _ _ => {| mapping := fun gf => Spair (fst (fst gf) ∘ fst (snd gf)) (snd (fst gf) ∘ snd (snd gf)); |};

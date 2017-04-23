@@ -142,7 +142,7 @@ Qed.
 Program Definition Comma {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Category :=
   Build_Category_from_Type
     {|
-      cat_object := comma_pair K L;
+      cat_object := [setoid: comma_pair K L with fun a b => cedge a == cedge b in C];
       cat_hom := comma_morphism;
       cat_hom_equal := fun _ _ => comma_morphism_eq;
       cat_identity := comma_id;

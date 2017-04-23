@@ -14,7 +14,7 @@ Set Universe Polymorphism.
 Program Definition FunCat (C D : Category) : Category :=
   Build_Category_from_Type
     {|
-      cat_object := Functor C D;
+      cat_object := [setoid: Functor C D];
       cat_hom := Nat;
       cat_hom_equal := fun _ _ α β => forall A, component α A == component β A;
       cat_identity := idNat;

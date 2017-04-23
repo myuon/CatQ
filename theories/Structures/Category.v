@@ -15,7 +15,7 @@ Set Universe Polymorphism.
 
 (* Category *)
 Class Is_Category
-      (object: Type)
+      (object: Setoid)
       (morphism: object → object → Setoid)
       (identity: forall {x}, carrier (morphism x x))
       (compose: forall {a b c}, morphism b c ** morphism a b -⇒ morphism a c) :=
@@ -31,7 +31,7 @@ Class Is_Category
 
 Structure Category :=
   {
-    object :> Type;
+    object :> Setoid;
     morphism : object → object → Setoid;
     identity : forall {x}, carrier (morphism x x);
     compose : forall {a b c}, morphism b c ** morphism a b -⇒ morphism a c;
@@ -72,7 +72,14 @@ Instance comp_proper {C : Category} {a b c : C} :
 Proof.
   unfold comp, Proper, respectful.
   intros.
-  rewrite H, H0.
+
+  assert ((|x,x0|) == (|y,y0|)).
+  { simpl.
+    split.
+    assumption.
+    assumption. }
+
+  rewrite H1.
   reflexivity.
 Qed.
 
@@ -83,7 +90,8 @@ Lemma assoc_of (C : Category) :
     (h ∘ g) ∘ f == h ∘ (g ∘ f).
 Proof.
   intros.
-  setoid_rewrite associativity.
+  unfold comp.
+  rewrite associativity.
   reflexivity.
 Qed.
 
@@ -119,7 +127,7 @@ Qed.
 
 Structure Category_Type :=
   {
-    cat_object : Type;
+    cat_object : Setoid;
     cat_hom : cat_object → cat_object → Type;
     cat_identity : forall {x}, cat_hom x x;
     cat_comp : forall {a b c}, cat_hom b c → cat_hom a b → cat_hom a c;
@@ -223,7 +231,7 @@ Definition opposite_hom_to {C : Category} {a b : opposite C} : @hom C a b → @h
 
 Program Definition Setoids : Category :=
   Build_Category_from_Type {|
-      cat_object := Setoid;
+      cat_object := [setoid: Setoid];
       cat_hom := fun X Y => Mapoid X Y;
       cat_hom_equal := fun _ _ f g => forall x, f x == g x;
       cat_identity := fun _ => {| mapping := fun x => x |};
@@ -231,7 +239,8 @@ Program Definition Setoids : Category :=
     |}.
 Next Obligation.
   unfold Proper, respectful.
-  intros. exact H0.
+  intros.
+  exact H0.
 Defined.
 Next Obligation.
   unfold Proper, respectful.

@@ -23,7 +23,8 @@ Next Obligation.
   destruct ab.
   simpl.
   simpl in c, c0.
-  unfold Func.flip in c.
+  simpl in c3, c4.
+  unfold Func.flip in c3.
   rewrite H.
   reflexivity.
 Defined.

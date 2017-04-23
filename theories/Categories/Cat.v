@@ -13,7 +13,7 @@ Set Universe Polymorphism.
 Program Definition Cat : Category :=
   Build_Category_from_Type
     {|
-      cat_object := Category;
+      cat_object := [setoid: Category];
       cat_hom := Functor;
       cat_hom_equal := fun _ _ F G => (F ==f G : Prop);
       cat_identity := @idFunctor;

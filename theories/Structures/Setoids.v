@@ -7,6 +7,18 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
+Instance eq_equiv : forall {A}, Equivalence (@eq A).
+Proof.
+  intro.
+  constructor.
+  - auto.
+  - auto.
+  - unfold Transitive.
+    intros.
+    rewrite H,H0.
+    reflexivity.
+Qed.
+
 (* Setoid *)
 
 Structure Setoid :=
@@ -21,7 +33,7 @@ Notation "f == g 'of' X" := (@equality X f g) (at level 70, g at next level).
 Infix "==" := equality (at level 70, only parsing).
 Notation "[setoid: A 'with' eql 'by' prf ]" := (@Build_Setoid A eql prf).
 Notation "[setoid: A 'with' eql ]" := [setoid: A with eql by _].
-Notation "[setoid: A ]" := [setoid: A with eq].
+Notation "[setoid: A ]" := [setoid: A with @eq A by eq_equiv].
 
 Structure Mapoid (S S' : Setoid) :=
   {

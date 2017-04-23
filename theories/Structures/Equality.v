@@ -14,7 +14,7 @@ Notation "s ∙ t" := (eq_trans s t) (at level 40).
 Notation "~ s" := (eq_sym s).
 
 Section EqFunctor.
-  Program Definition extend {C : Category} {a b c d : C} (ac: a = c) (bd: b = d) : morphism a b -⇒ morphism c d
+  Program Definition extend {C : Category} {a b c d : C} (ac: a == c) (bd: b == d) : morphism a b -⇒ morphism c d
     := [mapoid: fun f => eq_rect a (λ k, k ⟶ d in C) (eq_rect b (λ k, a ⟶ k in C) f d bd) c ac].
   Next Obligation.
     solve_proper.
