@@ -239,6 +239,7 @@ Next Obligation.
   reflexivity.
 Defined.
 
+(*
 Lemma comma_pairmap_π {C D₁ D₂} {K : Functor D₁ C} {L : Functor D₂ C} {a b : K ↓ L} {f : a ⟶ b} :
   comma_pairmap_π_morphism f ≈ f in K ↓ L.
 Proof.
@@ -250,6 +251,7 @@ Proof.
   - reflexivity.
   - reflexivity.
 Qed.
+*)
 
 Program Definition comma_nat {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C)
   : Nat (K ∘f comma_π₁ K L) (L ∘f comma_π₂ K L) := [Nat: fun a => cedge a].
@@ -313,22 +315,28 @@ Section CommaUniversality.
 
   Lemma mediating_π₁ : forall {E P P'} η, comma_π₁ K L ∘f @mediating E P P' η ==f P.
   Proof.
+    unfold eqFunctor.
     intros.
-    constructor.
+    exists (fun x => eq_refl).
+    intros.
+    rewrite extend_eq.
     reflexivity.
   Qed.
     
   Lemma mediating_π₂ : forall {E P P'} η, comma_π₂ K L ∘f @mediating E P P' η ==f P'.
   Proof.
+    unfold eqFunctor.
     intros.
-    constructor.
+    exists (fun x => eq_refl).
+    intros.
+    rewrite extend_eq.
     reflexivity.
   Qed.
 
-(*
+  (*
   Theorem universality :
     forall (E : Category) (P : Functor E D₁) (P' : Functor E D₂) (η : Nat (K ∘f P) (L ∘f P')),
-      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : (comma_π₂ K L ∘f H) ==f P'),
+      ∃! H from E to (K ↓ L) in Cat, ∃ (eq₁ : (comma_π₁ K L ∘f H) ==f P), ∃ (eq₂ : comma_π₂ K L ∘f H ==f P'),
       (L f⋆ nat_of_from_eqf eq₂) ∘n assocFunctor ∘n (comma_nat K L ⋆f H)
       == η ∘n (K f⋆ nat_of_from_eqf eq₁) ∘n assocFunctor in [E,C].
   Proof.
@@ -340,60 +348,43 @@ Section CommaUniversality.
       exists (mediating_π₂ η).
       simpl.
       intro.
+      unfold eq_to_hom.
 
       refine
         (`begin
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity)) ∘ identity) ∘ η A
+          (fmap L ((extend eq_refl (⟨exist: mediating_π₂ η ⟩ A)) identity) ∘ identity) ∘ η A
          =⟨ _ ⟩
-          (fmap L (hom_from_heqdom (mediating_π₂ η identity))) ∘ η A
+          fmap L identity ∘ η A
          =⟨ _ ⟩
-          (fmap L (fmap P' identity)) ∘ η A
-         =⟨ naturality_of η ⟩
-          η A ∘ fmap K (fmap P identity)
+          η A ∘ fmap K identity
          =⟨ _ ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity)))
-         ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
-          (η A ∘ fmap K (hom_from_heqdom (mediating_π₁ η identity))) ∘ identity
+          η A ∘ fmap K (extend eq_refl (⟨exist: mediating_π₁ η ⟩ A) identity)
+         ↑⟨ right_id_of ⟩
+          (η A ∘ fmap K (extend eq_refl (⟨exist: mediating_π₁ η ⟩ A) identity)) ∘ identity
          `end).
 
-      + generalize (mediating_π₁ η (@identity _ A)).
-        intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
-        rewrite fmap_identity.
-        assert (identity == eq_rect_r (λ a : D₁, a ⟶ P A in D₁) identity e0).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
-          reflexivity.
-        }
-
-        rewrite <- H.
+      + rewrite fmap_preserve_extend.
+        rewrite extend_eq.
         reflexivity.
-      + generalize (mediating_π₂ η (@identity _ A)); intro.
-        unfold hom_from_heqdom.
-        destruct (Heq_eq h).
-        destruct x.
+      + rewrite fmap_identity.
         rewrite fmap_identity.
-        assert (eq_rect_r (λ a : D₂, a ⟶ P' A in D₂) identity e0 == identity).
-        {
-          unfold eq_rect_r.
-          rewrite <- eq_rect_eq.
-          reflexivity.
-        }
-
-        rewrite H.
+        rewrite left_id_of.
+        rewrite right_id_of.
         reflexivity.
-      + rewrite right_id_of.
+      + rewrite fmap_preserve_extend.
+        rewrite extend_eq.
+        rewrite right_id_of.
         reflexivity.
 
     - intros.
       simpl.
-      intro; intros.
+      unfold eqFunctor.
 
-      unfold mediating.
-      unfold fmap; simpl.
+      assert (forall x, mediating η x = g x).
+      { unfold mediating; intro.
+        unfold fmap; simpl.
+        
+      }
       fold (fmap P f).
       fold (fmap P' f).
 
@@ -464,7 +455,7 @@ Section CommaUniversality.
         reflexivity.
       + rewrite right_id_of.
         reflexivity.
- *)
+   *)
   
 End CommaUniversality.
 

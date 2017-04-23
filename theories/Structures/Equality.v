@@ -10,196 +10,134 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-Section Heq.
-  Inductive Heq_hom {C : Category} {a b : C} (f : hom a b) : forall {c d}, hom c d → Prop :=
-  | mk_Heq_hom : forall {g : hom a b}, f == g → Heq_hom f g.
+Notation "s ∙ t" := (eq_trans s t) (at level 40).
+Notation "~ s" := (eq_sym s).
 
+Section EqFunctor.
   Program Definition extend {C : Category} {a b c d : C} (ac: a = c) (bd: b = d) : morphism a b -⇒ morphism c d
     := [mapoid: fun f => eq_rect a (λ k, k ⟶ d in C) (eq_rect b (λ k, a ⟶ k in C) f d bd) c ac].
   Next Obligation.
     solve_proper.
   Defined.
 
-  Lemma extend_refl {C : Category} {a b : C} {f : a ⟶ b} : extend eq_refl eq_refl f = f.
+  Lemma extend_eq {C : Category} {a b : C} (p: a = a) (q: b = b) {f : a ⟶ b} : extend p q f == f.
   Proof.
     unfold extend.
     simpl.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
+    reflexivity.
+  Qed.
+  
+  Lemma extend_irrelevance {C : Category} {a b c d : C} (p p': a = c) (q q': b = d) {f : a ⟶ b} : extend p q f == extend p' q' f.
+  Proof.
+    destruct p.
+    destruct q.
+    rewrite extend_eq.
+    rewrite extend_eq.
     reflexivity.
   Qed.
 
-  Axiom Heq_eq : forall {C : Category} {a b c d : C} (f : hom a b) (g : hom c d),
-      Heq_hom f g → { eq : a = c /\ b = d | extend (proj1 eq) (proj2 eq) f == g }.
-End Heq.
-
-Notation "f ≈ g 'in' C" := (@Heq_hom C _ _ f _ _ g) (at level 70, g at next level).
-Infix "≈" := Heq_hom (at level 70, only parsing).
-
-Section Heq_Lemmas.
-  Lemma Heq_eq_same_hom {C : Category} {a b : C} (f : hom a b) (g : hom a b) : f ≈ g → f == g.
+  Lemma extend_trans {C : Category} {a1 b1 a2 b2 a3 b3 : C} (p: a1 = a2) (p': a2 = a3) (q: b1 = b2) (q': b2 = b3) {f : a1 ⟶ b1} : extend p' q' (extend p q f) = extend (p ∙ p') (q ∙ q') f.
   Proof.
-    intros.
-    destruct (Heq_eq H).
-    destruct x.
-    rewrite <- e.
-
-    assert (e0 = eq_refl).
-    { apply proof_irrelevance. }
-    assert (e1 = eq_refl).
-    { apply proof_irrelevance. }
-
-    rewrite H0.
-    rewrite H1.
-
-    assert (proj1 (conj (eq_refl : a = a) (eq_refl : b = b)) = eq_refl).
-    { apply proof_irrelevance. }
-    assert (proj2 (conj (eq_refl : a = a) (eq_refl : b = b)) = eq_refl).
-    { apply proof_irrelevance. }
-
-    rewrite H2, H3.
-    rewrite extend_refl.
+    unfold extend.
+    simpl.
+    destruct p, p', q, q'.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
+    rewrite <- eq_rect_eq.
     reflexivity.
   Qed.
 
-  Lemma Heq_trans_hetero {C : Category} {a1 b1 a2 b2 a3 b3 : C} {f : a1 ⟶ b1} {g : a2 ⟶ b2} {h : a3 ⟶ b3} : f ≈ g → g ≈ h → f ≈ h.
+  Lemma extend_compose_right {C : Category} {a1 b1 a2 b2 c : C} (p: a1 = a2) (q: b1 = b2) {f : a1 ⟶ b1} {g : b2 ⟶ c} : extend p eq_refl (g ∘ extend eq_refl q f) = g ∘ extend p q f.
   Proof.
-    intros.
-    destruct H.
-    destruct H0.
-    constructor.
-    rewrite H.
-    exact H0.
-  Qed.
-
-  Lemma Heq_sym_hetero {C : Category} {a1 b1 a2 b2 : C} {f : a1 ⟶ b1} {g : a2 ⟶ b2} : f ≈ g → g ≈ f.
-  Proof.
-    intros.
-    destruct H.
-    constructor.
-    symmetry.
-    exact H.
-  Qed.
-
-  Lemma Heq_hom_equiv {C : Category} {a b : C} : Equivalence (fun f g => @Heq_hom C a b f a b g).
-  Proof.
-    constructor.
-    - unfold Reflexive.
-      intros.
-      constructor.
-      reflexivity.
-    - unfold Symmetric.
-      intros.
-      destruct H.
-      symmetry in H.
-      constructor.
-      exact H.
-    - unfold Transitive.
-      intros.
-      destruct H.
-      destruct H0.
-      constructor.
-      rewrite H, H0.
-      reflexivity.
-  Qed.
-End Heq_Lemmas.
-
-Section Hom_From_Eq.
-  Definition hom_from_eq {C : Category} {a b : C} (ab: a = b) : {f : a ⟶ b | f ≈ @identity _ b}.
-    rewrite ab.
-    exists identity.
-    constructor.
-    reflexivity.
-  Defined.
-
-  Lemma hom_from_eq_refl {C : Category} {a : C} : proj1_sig (@hom_from_eq C a a eq_refl) = identity.
-  Proof.
-    unfold hom_from_eq.
+    destruct p, q.
     simpl.
     reflexivity.
   Qed.
 
-  Definition hom_from_heqdom {C : Category} {a b c d : C} {f : a ⟶ b} {g : c ⟶ d} :
-    f ≈ g → a ⟶ c.
+  Lemma extend_compose_left {C : Category} {a1 b1 a2 b2 c : C} (p: a1 = a2) (q: b1 = b2) {f : a1 ⟶ b1} {g : c ⟶ a2} : extend eq_refl q (extend p eq_refl f ∘ g) = extend p q f ∘ g.
   Proof.
-    intro.
-    destruct (Heq_eq H).
-    destruct x.
-    rewrite e0.
-    exact identity.
-  Defined.
-
-  Lemma hom_from_heqdom_left {C : Category} {a' a b c d : C} {f : a ⟶ b} {g : c ⟶ d} {h : a' ⟶ a} (fg : f ≈ g)
-    : hom_from_heqdom fg ∘ h ≈ h.
-  Proof.
-    destruct fg.
-    unfold hom_from_heqdom.
-    destruct (Heq_eq (mk_Heq_hom e)).
-    destruct x.
-    constructor.
-
-    assert (e1 = eq_refl).
-    apply proof_irrelevance.
-
-    rewrite H.
-    unfold eq_rect_r.
+    destruct p, q.
     simpl.
-    apply left_id_of.
+    reflexivity.
   Qed.
 
-  Lemma hom_from_heqdom_right {C : Category} {a b c c' d : C} {f : a ⟶ b} {g : c ⟶ d} {h : c ⟶ c'} (fg : f ≈ g)
-    : h ∘ hom_from_heqdom fg ≈ h.
+  Lemma extend_compose_factor {C : Category} {a' a b c c' : C} (p: a = a') (q: c = c') {f : a ⟶ b} {g : b ⟶ c} : extend p q (g ∘ f) = extend eq_refl q g ∘ extend p eq_refl f.
   Proof.
-    destruct fg.
-    unfold hom_from_heqdom.
-    destruct (Heq_eq (mk_Heq_hom e)).
-    destruct x.
-    constructor.
-
-    assert (e1 = eq_refl).
-    apply proof_irrelevance.
-
-    rewrite H.
-    unfold eq_rect_r.
+    destruct p, q.
     simpl.
-    apply right_id_of.
+    reflexivity.
   Qed.
-End Hom_From_Eq.
 
-Section EqFunctor.
+  Lemma extend_id_flip_l {C : Category} {a b : C} (p: a = b) : extend eq_refl p identity == extend (~ p) eq_refl identity.
+  Proof.
+    destruct p.
+    simpl.
+    reflexivity.
+  Qed.
+
+  Lemma extend_id_flip_r {C : Category} {a b : C} (p: a = b) : extend p eq_refl identity == extend eq_refl (~ p) identity.
+  Proof.
+    destruct p.
+    simpl.
+    reflexivity.
+  Qed.
+
+  Lemma fmap_preserve_extend {C D : Category} (F : Functor C D) {a b c d : C} (p: a = c) (q: b = d) {f : a ⟶ b}
+    : fmap F (extend p q f) == extend (ltac: (rewrite p; reflexivity)) (ltac: (rewrite q; reflexivity)) (fmap F f).
+  Proof.
+    destruct p.
+    destruct q.
+    rewrite extend_eq.
+    rewrite extend_eq.
+    reflexivity.
+  Qed.
+
   Definition eqFunctor {C D} (F G : Functor C D) :=
-    ∀ {a b} (f : a ⟶ b), fmap F f ≈ fmap G f.
+    {eq: forall x, F x = G x | forall {a b} (f : a ⟶ b), extend (eq a) (eq b) (fmap F f) == fmap G f }.
 
   Lemma eqFunctor_obj {C D} {F F' : Functor C D} : eqFunctor F F' → forall a, F a = F' a.
   Proof.
     intros.
-    destruct (H a a identity).
-    reflexivity.
+    destruct H.
+    apply x.
   Qed.
 End EqFunctor.
 
 Instance eqFunctor_equiv {C D} : Equivalence (@eqFunctor C D).
 Proof.
   constructor.
-  - unfold Reflexive.
-    intro.
-    constructor.
+  - unfold Reflexive, eqFunctor.
+    intros.
+    exists (fun _ => eq_refl).
+    intros.
+    rewrite extend_eq.
     reflexivity.
   - unfold Symmetric.
     intros.
     unfold eqFunctor.
+    destruct H.
+    exists (fun t => eq_sym (x0 t)).
     intros.
-    unfold eqFunctor in H.
-    destruct (H a b f).
-    constructor.
-    symmetry.
-    exact H0.
+    rewrite <- e.
+    rewrite extend_trans.
+    rewrite extend_eq.
+    reflexivity.
   - unfold Transitive.
     intros.
     unfold eqFunctor.
     intros.
-    destruct (H0 a b f).
-    destruct (H a b f).
-    constructor.
-    rewrite H2, H1.
+    destruct H0.
+    destruct H.
+    exists (fun t => eq_trans (x1 t) (x0 t)).
+    intros.
+    rewrite <- e.
+    rewrite <- e0.
+    rewrite extend_trans.
     reflexivity.
 Defined.
 
@@ -207,26 +145,118 @@ Notation "F ==f G" := (eqFunctor F G) (at level 40).
 
 Section Nat_Eqf.
   Definition nat_eqf {C D} (F G : Functor C D) :=
-    {η : Nat F G | forall {a}, η a ≈ @identity _ (F a)}.
+    {η : Nat F G | ∃ (eq : forall x, F x = G x), forall {a}, extend (eq a) eq_refl (η a) == identity}.
 End Nat_Eqf.
 
 Notation "F ==n G" := (nat_eqf F G) (at level 40).
 
 Section Eqf_And_EqfNat.
+  Definition eq_to_hom {C : Category} {a b : C} (p : a = b) : a ⟶ b := extend eq_refl p (@identity _ a).
+  
   Program Definition nat_of_from_eqf {C D} (F G : Functor C D) : F ==f G → Nat F G
-    := fun FG => [Nat: fun a => hom_from_heqdom (FG a a identity)].
+    := fun FG => [Nat: fun a => eq_to_hom (proj1_sig FG a)].
   Next Obligation.
     constructor.
     intros.
-    apply Heq_eq_same_hom.
-    generalize (hom_from_heqdom_left (h:=fmap F f) (FG b b identity)); intro.
-    generalize (hom_from_heqdom_right (h:=fmap G f) (FG a a identity)); intro.
-    apply Heq_sym_hetero.
-    apply (Heq_trans_hetero H).
-    apply Heq_sym_hetero.
-    apply (Heq_trans_hetero H0).
-    apply Heq_sym_hetero.
-    exact (FG a b f).
+    destruct FG.
+    simpl.
+    unfold eq_to_hom.
+    generalize (e a a identity); intro.
+    rewrite fmap_identity in H.
+    rewrite fmap_identity in H.
+    generalize (e b b identity); intro.
+    rewrite fmap_identity in H0.
+    rewrite fmap_identity in H0.
+
+    generalize (e a b f); intro.
+
+    assert (extend (~ (x a)) (~ (x a)) identity == identity).
+    {
+      rewrite <- H.
+      rewrite extend_trans.
+      rewrite extend_eq.
+      reflexivity.
+    }
+
+    refine
+      (`begin
+        fmap G f ∘ extend eq_refl (x a) identity
+       =⟨ ltac: (rewrite extend_id_flip_l; reflexivity) ⟩
+        fmap G f ∘ extend (~ x a) eq_refl identity
+       ↑⟨ ltac: (rewrite extend_eq; reflexivity) ⟩
+        extend eq_refl eq_refl (fmap G f) ∘ extend (~ x a) eq_refl identity
+       =⟨ ltac: (rewrite extend_compose_factor; reflexivity) ⟩
+        extend (~ x a) eq_refl (fmap G f ∘ identity)
+       =⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
+        extend (~ x a) eq_refl (fmap G f)
+       ↑⟨ ltac: (rewrite H1; reflexivity) ⟩
+        extend (~ x a) eq_refl (extend (x a) (x b) (fmap F f))
+       =⟨ ltac: (rewrite extend_trans; reflexivity) ⟩
+        extend (x a ∙ ~ x a) (x b ∙ eq_refl) (fmap F f)
+       =⟨ ltac: (rewrite eq_trans_sym_inv_r, eq_trans_refl_r; reflexivity) ⟩
+        extend eq_refl (x b) (fmap F f)
+       ↑⟨ ltac: (rewrite left_id_of; reflexivity) ⟩
+        extend eq_refl (x b) (identity ∘ fmap F f)
+       ↑⟨ ltac: (rewrite extend_eq; reflexivity) ⟩
+        extend eq_refl (x b) (extend eq_refl eq_refl identity ∘ fmap F f)
+       =⟨ ltac: (rewrite (extend_compose_left eq_refl (x b) (f:=identity) (g:=fmap F f)); reflexivity) ⟩
+        extend eq_refl (x b) identity ∘ fmap F f
+       `end).
+  Defined.
+    
+  Program Definition eqf_to_eqn {C D} (F G : Functor C D) : F ==f G → F ==n G
+    := fun FG => nat_of_from_eqf FG.
+  Next Obligation.
+    destruct FG.
+    exists x.
+    unfold eq_to_hom.
+    simpl.
+    intro.
+
+    assert (extend (x a) (x a) identity = eq_rect (F a) (λ k : D, k ⟶ G a in D) (eq_rect (F a) (λ k : D, F a ⟶ k in D) identity (G a) (x a)) (G a) (x a)).
+    reflexivity.
+
+    rewrite <- H.
+    apply id_unique.
+    split.
+    - intros.
+      refine
+        (`begin
+          g ∘ extend (x a) (x a) identity
+         =⟨ ltac: (rewrite <- extend_compose_right; reflexivity) ⟩
+          extend (x a) eq_refl (g ∘ extend eq_refl (x a) identity)
+         =⟨ ltac: (rewrite extend_id_flip_l; reflexivity) ⟩
+          extend (x a) eq_refl (g ∘ extend (~ x a) eq_refl identity)
+         =⟨ ltac: (rewrite extend_compose_factor; reflexivity) ⟩
+          extend eq_refl eq_refl g ∘ extend (x a) eq_refl (extend (~ x a) eq_refl identity)
+         =⟨ ltac: (rewrite extend_trans; reflexivity) ⟩
+          extend eq_refl eq_refl g ∘ extend ((~ x a) ∙ x a) (eq_refl ∙ eq_refl) identity
+         =⟨ ltac: (rewrite eq_trans_sym_inv_l, eq_trans_refl_l; reflexivity) ⟩
+          extend eq_refl eq_refl g ∘ extend eq_refl eq_refl identity
+         =⟨ ltac: (rewrite extend_eq, extend_eq; reflexivity) ⟩
+          g ∘ identity
+         =⟨ right_id_of ⟩
+          g
+         `end).
+    - intros.
+      refine
+        (`begin
+          extend (x a) (x a) identity ∘ g
+         ↑⟨ ltac: (rewrite extend_compose_left; reflexivity) ⟩
+          extend eq_refl (x a) (extend (x a) eq_refl identity ∘ g)
+         =⟨ ltac: (rewrite extend_id_flip_r; reflexivity) ⟩
+          extend eq_refl (x a) (extend eq_refl (~ x a) identity ∘ g)
+         =⟨ ltac: (rewrite extend_compose_factor; reflexivity) ⟩
+          extend eq_refl (x a) (extend eq_refl (~ x a) identity) ∘ extend eq_refl eq_refl g
+         =⟨ ltac: (rewrite extend_trans; reflexivity) ⟩
+          extend (eq_refl ∙ eq_refl) ((~ x a) ∙ x a) identity ∘ extend eq_refl eq_refl g
+         =⟨ ltac: (rewrite eq_trans_sym_inv_l, eq_trans_refl_l; reflexivity) ⟩
+          extend eq_refl eq_refl identity ∘ extend eq_refl eq_refl g
+         =⟨ ltac: (rewrite extend_eq, extend_eq; reflexivity) ⟩
+          identity ∘ g
+         =⟨ left_id_of ⟩
+          g
+         `end).
   Defined.
 End Eqf_And_EqfNat.
 
