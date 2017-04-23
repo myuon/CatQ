@@ -23,41 +23,41 @@ Next Obligation.
   unfold Proper, respectful.
   intros.
   unfold eqFunctor.
-  intros.
-  destruct (H0 _ _ f).
-  destruct (H _ _ (fmap y0 f)).
-
+  destruct H, H0.
+  
   assert (∀ x3 : a, (x ∘f x0) x3 = (y ∘f y0) x3).
   { intro; simpl.
     rewrite x1, x2.
     reflexivity. }
-  exists H1.
+  exists H.
+  intros.
   rewrite (compFunctor_compose y y0 f).
   rewrite (compFunctor_compose x x0 f).
   rewrite <- e0.
   rewrite <- e.
+
   rewrite fmap_preserve_extend.
-  rewrite extend_comp.
+  rewrite extend_trans.
   apply extend_irrelevance.
 Defined.
 Next Obligation.
   unfold eqFunctor.
-  intros.
   exists (fun t => eq_refl).
+  intros.
   rewrite extend_eq.
   reflexivity.
 Defined.
 Next Obligation.
   unfold eqFunctor.
-  intros.
   exists (fun t => eq_refl).
+  intros.
   rewrite extend_eq.
   reflexivity.
 Defined.
 Next Obligation.
   unfold eqFunctor.
-  intros.
   exists (fun t => eq_refl).
+  intros.
   rewrite extend_eq.
   reflexivity.
 Defined.
