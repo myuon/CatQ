@@ -74,8 +74,14 @@ Next Obligation.
     apply funct_compose.
 Defined.
 
+Notation "[fmap: fa 'with' fo 'by' prf1 , prf2 , prf3 ]" := (Build_Functor_from_Type (@Build_Functor_Type _ _ fo fa prf1 prf2 prf3)).
 Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (Build_Functor_from_Type (@Build_Functor_Type C D fo fa _ _ _)).
 Notation "[fmap: fa 'with' fo ]" := [fmap: fa with fo as _ to _ ].
+
+Lemma fmap_of_fmap {C D} {fo : object C → object D} {fa : forall a b, hom a b → hom (fo a) (fo b)} {prf1 prf2 prf3} : forall {a b} (f : a ⟶ b), fmap [fmap: fa with fo by prf1,prf2,prf3] f = fa _ _ f.
+Proof.
+  auto.
+Qed.
 
 Program Definition Destruct_to_Functor_Type : forall {C D}, Functor C D → Functor_Type C D :=
   fun C D functor =>

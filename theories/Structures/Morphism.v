@@ -16,11 +16,11 @@ Definition unique_hom {C : Category} {a b : C} (P : hom a b → Prop) (f : hom a
 Notation "∃ ! f .. g 'from' a 'to' b 'in' C , p" :=
   (sig (unique_hom (C:=C) (a:=a) (b:=b) (fun f => .. (sig (unique_hom (C:=C) (a:=a) (b:=b) (fun g => p))) ..)))
     (at level 200, f binder, right associativity,
-     format "'[' ∃ ! '/ ' f .. g 'from' a 'to' b '/ ' 'in' '/ ' C , '/ ' p ']'").
+     format "'[' ∃ ! '/ ' f .. g 'from' a 'to' b 'in' C , '/ ' p ']'").
 Notation "∃ ! f .. g 'in' C , p" :=
   (sig (unique_hom (C:=C) (fun f => .. (sig (unique_hom (C:=C) (fun g => p))) ..)))
     (at level 200, f binder, right associativity,
-     format "'[' ∃ ! '/ ' f .. g '/ ' 'in' '/ ' C , '/ ' p ']'").
+     format "'[' ∃ ! '/ ' f .. g 'in' C , '/ ' p ']'").
 
 Notation "⟨exist: f ⟩" := (proj1_sig f).
 
@@ -67,7 +67,7 @@ Proof.
   apply (mapoid_apply u iso_on_right).
 Qed.
 
-Notation "A ≃ B 'in' C" := (@isomorphic C A B) (at level 50).
+Notation "A ≃ B 'in' C" := (@isomorphic C A B) (at level 60, B at next level).
 Infix "≃" := isomorphic (at level 60, only parsing).
 
 Definition invertible {C : Category} {x y : C} (f : x ⟶ y) : Type

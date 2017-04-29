@@ -127,3 +127,31 @@ Next Obligation.
   rewrite left_id_of.
   reflexivity.
 Defined.
+
+Program Definition Destruct_CouniversalArrow_Type {C D : Category} (c : C) (G : Functor D C) (UA : CouniversalArrow c G) : CouniversalArrow_Type c G :=
+  {|
+    coua_object := csrc (terminal UA);
+    coua_map := cedge (terminal UA);
+  |}.
+Next Obligation.
+  destruct (is_terminal UA ([comma_pair: (f : _ ⟶ Δ(c) tt)])).
+  exists (esrc x).
+  constructor.
+  - rewrite <- (is_comma_morphism x).
+    simpl.
+    rewrite left_id_of.
+    reflexivity.
+  - intros.
+    destruct u.
+    assert (fmap Δ( c) (identity : ctgt (terminal UA) ⟶ ctgt (terminal UA)) ∘ cedge [comma_pair:f : G d ⟶ Δ( c) tt in C] == cedge (terminal UA) ∘{ C} fmap G g).
+    + simpl.
+      rewrite H.
+      rewrite left_id_of.
+      reflexivity.
+    + generalize (H1 [comma_map: g,(identity : ctgt (terminal UA) ⟶ ctgt _) from [comma_pair: (f : _ ⟶ Δ(c) tt)] to (terminal UA) natural by H2] ltac:(trivial)).
+      intro.
+      rewrite H3.
+      reflexivity.
+Defined.
+
+

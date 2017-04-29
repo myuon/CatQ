@@ -5,7 +5,7 @@ Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
 From CatQ.Categories Require Import FunCat Concrete.
 From CatQ.Functors Require Import Concrete Bifunctor.
-Require Import CatQ.Adjoint.
+Require Import CatQ.Adjoint CatQ.Limit.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -206,4 +206,110 @@ Next Obligation.
       rewrite <- (assoc_of (h:=⟨lan: x ⟩ (F A0))).
       rewrite <- (lan_mediating_prop_at (F_has_kan (fst a0))).
       reflexivity.
-Defined.  
+Defined.
+
+Program Definition const_at_One {J C} {F : Functor One C} : Nat (F ∘f Δ[J](tt : One)) Δ[J](F tt)
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  rewrite right_id_of, left_id_of.
+  unfold const, compFunctor, fmap; simpl.
+
+  assert (fmap F (tt : @hom One tt _) == fmap F identity).
+  reflexivity.
+
+  rewrite H.
+  rewrite fmap_identity.
+  reflexivity.
+Defined.
+
+Program Definition const_at_One_inv {J C} {F : Functor One C} : Nat Δ[J](F tt) (F ∘f Δ[J](tt : One))
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  rewrite right_id_of, left_id_of.
+  unfold const, compFunctor, fmap; simpl.
+
+  assert (fmap F (tt : @hom One tt _) == fmap F identity).
+  reflexivity.
+
+  rewrite H.
+  rewrite fmap_identity.
+  reflexivity.
+Defined.
+
+Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} : Δ[C](tt : One)†F ≃ Colimit F in Types
+  := [iso: fun lan => [colimit: lan_functor lan tt , (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D]) ]
+      with fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => of_colim_obj colim]
+                       with [Nat: fun a => of_colim_map colim a ] ] ].
+Next Obligation.
+  destruct (is_lan lan (const_at_One_inv (F:=Δ(d)) ∘n (f : Nat F _))).
+  destruct u.
+  exists (x tt).
+  constructor.
+  - intro.
+    simpl in H.
+    generalize (H A); intro.
+    rewrite left_id_of.
+    rewrite <- H1.
+    rewrite left_id_of.
+    reflexivity.
+  - intros.
+    apply (H0 (One_lift (g : _ ⟶ Δ(d) tt in D))).
+    simpl.
+    intro.
+    generalize (H1 A); intro.
+    rewrite left_id_of in H2.
+    rewrite H2.
+    rewrite left_id_of.
+    reflexivity.
+Defined.
+Next Obligation.
+  unfold Proper, respectful.
+  reflexivity.
+Defined.
+Next Obligation.
+  reflexivity.
+Defined.
+Next Obligation.
+  rewrite right_id_of.
+  reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  intros.
+  rewrite (@compFunctor_compose _ _ _ _ Δ[C](tt : One)).
+  rewrite fmap_of_fmap.
+  rewrite <- (naturality_of (of_colim_map colim)).
+  reflexivity.
+Defined.
+Next Obligation.
+  generalize ()
+
+Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} (lan : Δ[C](tt : One)†F) : Colimit F
+  := [colimit: lan_functor lan tt , (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D]) ].
+Next Obligation.
+  destruct (is_lan lan (const_at_One_inv (F:=Δ(d)) ∘n (f : Nat F _))).
+  destruct u.
+  exists (x tt).
+  constructor.
+  - intro.
+    simpl in H.
+    generalize (H A); intro.
+    rewrite left_id_of.
+    rewrite <- H1.
+    rewrite left_id_of.
+    reflexivity.
+  - intros.
+    apply (H0 (One_lift (g : _ ⟶ Δ(d) tt in D))).
+    simpl.
+    intro.
+    generalize (H1 A); intro.
+    rewrite left_id_of in H2.
+    rewrite H2.
+    rewrite left_id_of.
+    reflexivity.
+Defined.
+

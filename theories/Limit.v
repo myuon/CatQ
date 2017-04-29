@@ -18,6 +18,9 @@ Definition Limit {C J : Category} (T : [ J , C ]) := CouniversalArrow T Δ.
 Notation "[limit: L , π 'of' T ]" := (Build_CouniversalArrow_from_Type (c:=T) {| coua_object := L; coua_map := π; |}).
 Notation "[limit: L , π ]" := [limit: L , π of _].
 
+Definition of_lim_obj {C J T} (lim: @Limit C J T) : C := coua_object (Destruct_CouniversalArrow_Type lim).
+Definition of_lim_map {C J T} (lim: @Limit C J T) : Δ[J](of_lim_obj lim) ⟶ T in [J,C] := coua_map (Destruct_CouniversalArrow_Type lim).
+
 Definition is_complete (C : Category) :=
   forall {J} (F : Functor J C), Limit F.
 
@@ -25,6 +28,9 @@ Definition Colimit {C J : Category} (T : [ J , C ]) := UniversalArrow T Δ.
 
 Notation "[colimit: L , π 'of' T ]" := (Build_UniversalArrow_from_Type (c:=T) {| ua_object := L; ua_map := π; |}).
 Notation "[colimit: L , π ]" := [colimit: L , π of _].
+
+Definition of_colim_obj {C J T} (colim: @Colimit C J T) : C := ua_object (Destruct_UniversalArrow_Type colim).
+Definition of_colim_map {C J T} (colim: @Colimit C J T) : T ⟶ Δ[J](of_colim_obj colim) in [J,C] := ua_map (Destruct_UniversalArrow_Type colim).
 
 Definition is_cocomplete (C : Category) :=
   forall {J} (F : Functor J C), Colimit F.
@@ -95,8 +101,6 @@ Proof.
   intros.
   exact (lim_Sets_is (T:=F)).
 Defined.
-
-Ltac assume := fun f term => generalize term; intro f.
 
 Inductive arrow {C : Category} : Type :=
 | an_arrow: forall {a b : C} (f : a ⟶ b), arrow.
@@ -210,13 +214,13 @@ Next Obligation.
     rewrite (equalizer_mediating_unique (p:=limit_from_spr_eq_Eql spr eql F) (k:=equalizing_map (limit_from_spr_eq_Eql spr eql F) ∘ g)).
     + apply equalizer_pointwise_equal.
       rewrite (equalizer_mediating_prop).
-      assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+      generalize (is_equalizer (limit_from_spr_eq_Eql spr eql F)); intro ieql.
       destruct ieql.
       rewrite <- assoc_of.
       rewrite equalize_parallel.
       apply assoc_of.
 
-      assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+      generalize (is_equalizer (limit_from_spr_eq_Eql spr eql F)); intro ieql.
       destruct ieql.
       rewrite <- assoc_of.
       rewrite equalize_parallel.
@@ -233,7 +237,7 @@ Next Obligation.
       exact (H0 i).
       Unshelve.
 
-  assume ieql (is_equalizer (limit_from_spr_eq_Eql spr eql F)).
+  generalize (is_equalizer (limit_from_spr_eq_Eql spr eql F)); intro ieql.
   destruct ieql.
   rewrite <- assoc_of.
   rewrite equalize_parallel.

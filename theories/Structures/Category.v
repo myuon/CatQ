@@ -265,6 +265,27 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Program Definition Types : Category :=
+  Build_Category_from_Type {|
+      cat_object := Type;
+      cat_hom := fun X Y => X → Y;
+      cat_hom_equal := fun _ _ f g => forall x, f x = g x;
+      cat_identity := fun _ => fun x => x;
+      cat_comp := fun _ _ _ g f => fun x => g (f x);
+    |}.
+Next Obligation.
+  constructor.
+  - auto.
+  - auto.
+  - unfold Transitive.
+    intros.
+    rewrite (H x0).
+    exact (H0 x0).
+Defined.
+Next Obligation.
+  solve_proper.
+Defined.
+
 Lemma mapoid_apply {S S'} (f g : @hom Setoids S S') (a : S) :
   (f == g) → (f a == g a).
 Proof.

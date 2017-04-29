@@ -89,4 +89,6 @@ Defined.
 
 Definition Δ {C J : Category} : Functor C [J,C] := const_lift.
 
+Notation "Δ( f 'as' a 'to' b )" := (fmap Δ (f : a ⟶ b)).
+
   

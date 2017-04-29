@@ -296,6 +296,7 @@ Next Obligation.
       `end).
 Defined.
 
+Module CommaUniversality.
 Section CommaUniversality.
   Context {C D₁ D₂ : Category}.
   Context (K : Functor D₁ C) (L : Functor D₂ C).
@@ -475,5 +476,5 @@ Section CommaUniversality.
       reflexivity.
   Qed.
 End CommaUniversality.
-
+End CommaUniversality.
   

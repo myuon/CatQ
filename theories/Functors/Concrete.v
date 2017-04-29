@@ -35,6 +35,25 @@ Definition const_one {C : Category} (a : C) : Functor One C := const a.
 Notation "Δ[ D ]( a )" := (@const _ D a).
 Notation "Δ( a )" := (const_one a).
 
+Program Definition One_lift {D} {F G : Functor One D} (h : F tt ⟶ G tt in D) : Nat F G
+  := [Nat: fun t => match t with
+                   | tt => h
+                   end ].
+Next Obligation.
+  constructor.
+  intros.
+  destruct a, b.
+
+  assert (f == identity).
+  destruct f.
+  reflexivity.
+
+  rewrite H.
+  rewrite fmap_identity, fmap_identity.
+  rewrite right_id_of, left_id_of.
+  reflexivity.
+Defined.
+
 Program Definition op_trf {C D} (F : Functor (opposite C) D) : Functor C (opposite D) :=
   [fmap: fun a b f => opposite_hom_to (fmap F (opposite_hom_to f)) with fun a => opposite_obj_to (F a) as C to opposite D].
 Next Obligation.
