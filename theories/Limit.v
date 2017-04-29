@@ -13,34 +13,77 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-Definition Limit {C J : Category} (T : [ J , C ]) := CouniversalArrow T Δ.
+Definition Cone {J C} (vertex : object C) (T : Functor J C) := Nat Δ[J](vertex) T.
 
-Notation "[limit: L , π 'of' T ]" := (Build_CouniversalArrow_from_Type (c:=T) {| coua_object := L; coua_map := π; |}).
-Notation "[limit: L , π ]" := [limit: L , π of _].
+Structure Limit {J C : Category} (T : Functor J C) :=
+  {
+    lim_object : C;
+    lim_cone : Cone lim_object T;
+    is_limit : forall {v} (cone : Cone v T), ∃! (h : v ⟶ lim_object) in C, lim_cone ∘n Δ(h as _ to _) == cone in [J,C];
+  }.
 
-Definition of_lim_obj {C J T} (lim: @Limit C J T) : C := coua_object (Destruct_CouniversalArrow_Type lim).
-Definition of_lim_map {C J T} (lim: @Limit C J T) : Δ[J](of_lim_obj lim) ⟶ T in [J,C] := coua_map (Destruct_CouniversalArrow_Type lim).
+Notation "[limit: L 'with' π 'of' T ]" := (@Build_Limit _ _ T L π _).
+Notation "[limit: L 'with' π ]" := [limit: L with π of _].
 
-Definition is_complete (C : Category) :=
-  forall {J} (F : Functor J C), Limit F.
+Section Section_Limit_By_CoUA.
+  Definition CoUA_Limit {J C : Category} (T : [J,C]) := CoUniversalArrow T Δ.
 
-Definition Colimit {C J : Category} (T : [ J , C ]) := UniversalArrow T Δ.
+  Program Definition Limit_as_CoUA {J C} (T : Functor J C): Limit T ≃ CoUA_Limit T in Types
+    := [iso: fun lim => [couniversal: lim_object lim with (lim_cone lim : @hom [J,C] _ _) ]
+        with fun UA => [limit: coua_object UA with coua_map UA ] ].
+  Next Obligation.
+    apply (is_limit lim f).
+  Defined.
+  Next Obligation.
+    apply (is_coua UA).
+  Defined.
+  Next Obligation.
+    constructor.
+    - intro; destruct x; auto.
+    - intro; destruct x; auto.
+  Defined.
+End Section_Limit_By_CoUA.
 
-Notation "[colimit: L , π 'of' T ]" := (Build_UniversalArrow_from_Type (c:=T) {| ua_object := L; ua_map := π; |}).
-Notation "[colimit: L , π ]" := [colimit: L , π of _].
+Definition is_complete (C : Category) := forall {J} (F : Functor J C), Limit F.
 
-Definition of_colim_obj {C J T} (colim: @Colimit C J T) : C := ua_object (Destruct_UniversalArrow_Type colim).
-Definition of_colim_map {C J T} (colim: @Colimit C J T) : T ⟶ Δ[J](of_colim_obj colim) in [J,C] := ua_map (Destruct_UniversalArrow_Type colim).
+Definition Cocone {J C} (vertex : object C) (T : Functor J C) := Nat T Δ[J](vertex).
 
-Definition is_cocomplete (C : Category) :=
-  forall {J} (F : Functor J C), Colimit F.
+Structure Colimit {J C : Category} (T : Functor J C) :=
+  {
+    colim_object : C;
+    colim_cone : Cocone colim_object T;
+    is_colimit : forall {v} (cocone : Cocone v T), ∃! (h : colim_object ⟶ v) in C, Δ(h as _ to _) ∘n colim_cone == cocone in [J,C];
+  }.
+
+Notation "[colimit: L 'with' π 'of' T ]" := (@Build_Colimit _ _ T L π _).
+Notation "[colimit: L 'with' π ]" := [colimit: L with π of _].
+
+Section Section_Colimit_By_UA.
+  Definition UA_Colimit {J C : Category} (T : [J,C]) := UniversalArrow T Δ.
+
+  Program Definition Colimit_as_UA {J C} (T : Functor J C): Colimit T ≃ UA_Colimit T in Types
+    := [iso: fun colim => [universal: colim_object colim with (colim_cone colim : @hom [J,C] _ _)]
+        with fun UA => [colimit: ua_object UA with ua_map UA] ].
+  Next Obligation.
+    apply (is_colimit colim f).
+  Defined.
+  Next Obligation.
+    apply (is_ua UA).
+  Defined.
+  Next Obligation.
+    constructor.
+    - intro; destruct x; auto.
+    - intro; destruct x; auto.
+  Defined.
+End Section_Colimit_By_UA.
+
+Definition is_cocomplete (C : Category) := forall {J} (F : Functor J C), Colimit F.
 
 Program Definition lim_Sets_is {J : Category} {T : [J,Setoids]} : Limit T :=
-  Build_CouniversalArrow_from_Type
-    {|
-      coua_object := (morphism (Δ SOne) T : Setoids);
-      coua_map := {| component := fun j => {| mapping := fun α => α j tt |}; |} : Δ (@morphism [J,Setoids] (Δ SOne) T : Setoids) ⟶ T;
-    |}.
+  {|
+    lim_object := (morphism (Δ SOne) T : Setoids);
+    lim_cone := [Nat: fun j => [mapoid: fun α => α j tt] ] : Δ (@morphism [J,Setoids] (Δ SOne) T : Setoids) ⟶ T;
+  |}.
 Next Obligation.
   unfold Proper, respectful; simpl.
   intros.
@@ -52,18 +95,16 @@ Next Obligation.
   refine
     (`begin
       fmap T f (x a tt)
-     =⟨ _ ⟩
+     =⟨ Setoids_comp _ ⟩
       ((fmap T f) ∘ (x a)) tt
      =⟨ mapoid_apply (tt : SOne) (naturality_of x) ⟩
       ((x b) ∘ (fmap (Δ[J](SOne)) f)) tt
-     =⟨ _ ⟩
+     =⟨ Setoids_comp _ ⟩
       x b tt
       `end).
-  reflexivity.
-  reflexivity.
 Defined.
 Next Obligation.
-  destruct f as [compf propf].
+  destruct cone as [compf propf].
   simpl.
   simpl in compf.
   refine (exist _ ({| mapping := fun d => {| component := fun j => {| mapping := fun k => compf j d |} : Δ SOne j ⟶ T j |} : Δ SOne ⟶ T |}) _).
@@ -137,7 +178,7 @@ Program Definition limit_from_spr_eq
         {C : Category} (spr : has_sproduct C) (eql : has_equalizer C) : is_complete C :=
   fun J (F : [J,C]) =>
     [limit:
-       equalizer (limit_from_spr_eq_Eql spr eql F) ,
+       equalizer (limit_from_spr_eq_Eql spr eql F) with
        [Nat: fun j => sproduct_proj (spr J F) j ∘ equalizing_map (limit_from_spr_eq_Eql spr eql F)] : Δ[J](_) ⟶ F in [J,C] of F].
 Next Obligation.
   constructor.
@@ -178,7 +219,7 @@ Next Obligation.
     reflexivity.
 Defined.
 Next Obligation.
-  assert (⟨sproduct: fun i => (f i : d ⟶ F i) of spr J F⟩ [equalize] (⟨sproduct: fun arr => sproduct_proj (spr J F) (codarr arr) of _⟩, ⟨sproduct: fun arr => fmap F (from_arrow arr) ∘ sproduct_proj _ (domarr arr) of spr arrow (fun arr => F (codarr arr))⟩)).
+  assert (⟨sproduct: fun i => (cone i : v ⟶ F i) of spr J F⟩ [equalize] (⟨sproduct: fun arr => sproduct_proj (spr J F) (codarr arr) of _⟩, ⟨sproduct: fun arr => fmap F (from_arrow arr) ∘ sproduct_proj _ (domarr arr) of spr arrow (fun arr => F (codarr arr))⟩)).
   {
     apply (sproduct_pointwise_equal).
     intro.
@@ -195,15 +236,15 @@ Next Obligation.
 
     refine
       (`begin
-        f b
+        cone b
        ↑⟨ ltac: (rewrite right_id_of; reflexivity) ⟩
-        f b ∘ fmap (Δ[J](d)) f0
+        cone b ∘ fmap (Δ[J](v)) f
        =⟨ ltac: (rewrite <- naturality_of; reflexivity) ⟩
-        fmap F f0 ∘ f a
+        fmap F f ∘ cone a
        `end).
   }
 
-  refine (exist _ ⟨equalizer: ⟨sproduct: fun i => (f i : d ⟶ F i) of spr J F⟩ equalize by H of limit_from_spr_eq_Eql spr eql F⟩ _).
+  refine (exist _ ⟨equalizer: ⟨sproduct: fun i => (cone i : v ⟶ F i) of spr J F⟩ equalize by H of limit_from_spr_eq_Eql spr eql F⟩ _).
   constructor.
   - intro.
     rewrite assoc_of.

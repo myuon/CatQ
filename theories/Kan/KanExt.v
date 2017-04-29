@@ -241,11 +241,12 @@ Next Obligation.
 Defined.
 
 Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} : Δ[C](tt : One)†F ≃ Colimit F in Types
-  := [iso: fun lan => [colimit: lan_functor lan tt , (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D]) ]
-      with fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => of_colim_obj colim]
-                       with [Nat: fun a => of_colim_map colim a ] ] ].
+  := [iso: fun lan => [colimit: lan_functor lan tt
+                     with (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D])]
+      with fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => colim_object colim]
+                       with [Nat: fun a => colim_cone colim a] ] ].
 Next Obligation.
-  destruct (is_lan lan (const_at_One_inv (F:=Δ(d)) ∘n (f : Nat F _))).
+  destruct (is_lan lan (const_at_One_inv (F:=Δ(v)) ∘n (cocone : Nat F _))).
   destruct u.
   exists (x tt).
   constructor.
@@ -257,7 +258,7 @@ Next Obligation.
     rewrite left_id_of.
     reflexivity.
   - intros.
-    apply (H0 (One_lift (g : _ ⟶ Δ(d) tt in D))).
+    apply (H0 (One_lift (g : _ ⟶ Δ(v) tt in D))).
     simpl.
     intro.
     generalize (H1 A); intro.
@@ -282,34 +283,39 @@ Next Obligation.
   intros.
   rewrite (@compFunctor_compose _ _ _ _ Δ[C](tt : One)).
   rewrite fmap_of_fmap.
-  rewrite <- (naturality_of (of_colim_map colim)).
+  rewrite <- (naturality_of (colim_cone colim)).
   reflexivity.
 Defined.
 Next Obligation.
-  generalize ()
-
-Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} (lan : Δ[C](tt : One)†F) : Colimit F
-  := [colimit: lan_functor lan tt , (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D]) ].
-Next Obligation.
-  destruct (is_lan lan (const_at_One_inv (F:=Δ(d)) ∘n (f : Nat F _))).
-  destruct u.
-  exists (x tt).
+  destruct colim.
+  destruct (is_colimit (S tt) (const_at_One ∘n θ : F ⟶ Δ[C](S tt) in [C,D])).
+  exists (One_lift (x : _ tt ⟶ S tt in D) : _ ⟶ S in [One,D]).
+  simpl.
   constructor.
   - intro.
-    simpl in H.
-    generalize (H A); intro.
-    rewrite left_id_of.
-    rewrite <- H1.
-    rewrite left_id_of.
-    reflexivity.
+    destruct u.
+    refine
+      (`begin
+        θ A
+       ↑⟨ left_id_of ⟩
+        const_at_One A ∘ θ A
+       =⟨ hom_refl ⟩
+        (const_at_One ∘n θ) A
+       ↑⟨ H A ⟩
+        (fmap Δ x ∘n colim_cone) A
+       =⟨ hom_refl ⟩
+        (One_lift (x : Δ(_) tt ⟶ _)) tt ∘ colim_cone A
+       `end).
   - intros.
-    apply (H0 (One_lift (g : _ ⟶ Δ(d) tt in D))).
+    destruct u.
+    simpl; intro.
+    destruct A.
+    eapply H1.
     simpl.
+    simpl in H0.
     intro.
-    generalize (H1 A); intro.
-    rewrite left_id_of in H2.
-    rewrite H2.
+    rewrite <- (H A).
     rewrite left_id_of.
     reflexivity.
-Defined.
+Qed.
 

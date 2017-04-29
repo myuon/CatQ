@@ -11,7 +11,7 @@ Unset Printing Implicit Defensive.
 Set Universe Polymorphism.
 
 Program Definition One : Category :=
-  Build_Category_from_Type
+  to_Category
     {|
       cat_object := unit;
       cat_hom := fun _ _ => unit;

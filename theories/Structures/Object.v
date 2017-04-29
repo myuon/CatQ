@@ -18,7 +18,7 @@ Structure Terminal {C : Category} :=
 
 Definition has_terminal (C : Category) := @Terminal C.
 
-Notation "[terminal: T 'by' prf ]" := (@Build_Terminal T prf).
+Notation "[terminal: T 'by' prf ]" := (@Build_Terminal _ T prf).
 Notation "[terminal: T ]" := [terminal: T by _].
 Notation "⟨terminal: x 'of' p ⟩" := (proj1_sig (is_terminal p x)).
 
@@ -162,6 +162,10 @@ Structure Initial {C : Category} :=
     initial : C;
     is_initial : forall x, ∃! (f : initial ⟶ x) in C, True;
   }.
+
+Notation "[initial: I 'by' prf ]" := (@Build_Initial _ I prf).
+Notation "[initial: I ]" := [initial: I by _].
+Notation "⟨initial: x 'of' p ⟩" := (proj1_sig (is_initial p x)).
 
 Definition has_initial (C : Category) := @Initial C.
 

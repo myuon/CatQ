@@ -10,6 +10,8 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
+Notation "A ⇋ B" := (prod (A → B) (B → A)) (at level 30).
+
 Definition unique_hom {C : Category} {a b : C} (P : hom a b → Prop) (f : hom a b)
   := P f /\ forall (g : hom a b), P g → f == g.
 

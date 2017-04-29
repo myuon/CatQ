@@ -57,7 +57,7 @@ Next Obligation.
   refine
     (`begin
       (fmap F f) (fmap F x Fa)
-     =⟨ _ ⟩
+     ↑⟨ Setoids_comp Fa ⟩
       (fmap F f ∘ fmap F x) Fa
      =⟨ _ ⟩
       fmap F (f ∘{opposite C} (x ∘{opposite C} identity)) Fa
@@ -69,7 +69,6 @@ Next Obligation.
     rewrite <- fmap_compose.
     rewrite right_id_of.
     reflexivity.
-  - reflexivity.
 Defined.
 Next Obligation.
   unfold Proper, respectful.
@@ -90,11 +89,11 @@ Proof.
     refine
       (`begin
         fmap F x0 ((x a) identity)
-       =⟨ ltac: (apply Setoids_comp_apply; reflexivity) ⟩
+       =⟨ ltac: (apply Setoids_comp; reflexivity) ⟩
         (fmap F x0 ∘ x a) identity
        =⟨ mapoid_apply identity (naturality_of x) ⟩
         (x A ∘ fmap (homFunctor[-,a]) x0) identity
-       =⟨ ltac: (apply Setoids_comp_apply; reflexivity) ⟩
+       =⟨ ltac: (apply Setoids_comp; reflexivity) ⟩
         (x A) (fmap (homFunctor[-,a]) x0 identity)
        =⟨ mapoid_cong (x A) hom_refl ⟩
         (x A) ((identity ∘ identity) ∘ x0)
@@ -121,9 +120,10 @@ Proof.
 Qed.
 
 Program Definition yF {C : Category} {F : PSh[C]} : Functor (opposite C) Setoids :=
-  [fmap: fun a b f => [mapoid: fun yaF => yaF ∘ fmap yoneda (opposite_hom f)]
+  [fmap: fun a b f => [mapoid: fun yaF => yaF ∘ fmap yoneda (opposite_hom f) by _]
    with fun a => (morphism (yoneda (opposite_obj a)) F : object Setoids)].
 Next Obligation.
+  unfold opposite_obj, opposite_hom.
   solve_proper.
 Defined.
 Next Obligation.
@@ -161,11 +161,11 @@ Next Obligation.
   refine
     (`begin
       fmap F f (x a identity)
-     =⟨ ltac: (apply Setoids_comp_apply) ⟩
+     =⟨ ltac: (apply Setoids_comp) ⟩
       (fmap F f ∘ x a) identity
      =⟨ ltac: (apply mapoid_apply; apply naturality_of) ⟩
       (x b ∘ fmap (homFunctor[-,opposite_obj a]) f) identity
-     =⟨ ltac: (apply Setoids_comp_apply) ⟩
+     =⟨ ltac: (apply Setoids_comp) ⟩
       (x b) (fmap (homFunctor[-,opposite_obj a]) f identity)
      =⟨ mapoid_cong (x b) hom_refl ⟩
       x b ((identity ∘{C} identity) ∘{C} opposite_hom f)

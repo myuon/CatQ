@@ -12,11 +12,7 @@ Unset Printing Implicit Defensive.
 Set Universe Polymorphism.
 
 Program Definition const {C D : Category} (a : C) : Functor D C :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun _ => a;
-      funct_map := fun _ _ _ => identity;
-    |}.
+  [fmap: fun _ _ _ => identity with fun _ => a ].
 Next Obligation.
   unfold Proper, respectful.
   intros.
