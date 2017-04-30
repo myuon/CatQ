@@ -5,7 +5,7 @@ Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
 From CatQ.Categories Require Import FunCat Comma.
 From CatQ.Functors Require Import Concrete.
-Require Import CatQ.UniversalArrow CatQ.Limit.
+Require Import CatQ.UniversalArrow CatQ.Limit CatQ.Equality.
 Require Import CatQ.Kan.KanExt.
 
 Set Implicit Arguments.
@@ -14,41 +14,82 @@ Unset Printing Implicit Defensive.
 
 Set Universe Polymorphism.
 
-(*
 Program Definition Lan_of_eq {C D U} {F F' : Functor C D} {E : Functor C U} : F ==f F' → (F†E) ⇋ (F'†E) :=
   fun eqF =>
     pair (fun lan => [lan: lan_functor lan with (lan_functor lan f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n lan_unit lan])
          (fun lan' => [lan: lan_functor lan' with (lan_functor lan' f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n lan_unit lan']).
 Next Obligation.
-  assert (F' ==f F).
-  { symmetry; assumption. }
-
-  exists (proj1_sig (is_lan lan ((S f⋆ proj1_sig (eqf_to_eqn H)) ∘n θ))).
+  exists (proj1_sig (is_lan lan ((S f⋆ proj1_sig (eqf_to_eqn (symmetry eqF))) ∘n θ))).
   constructor.
   - intro.
     refine
       (`begin
         θ A
        =⟨ _ ⟩
-        ((S f⋆ (proj1_sig (eqf_to_eqn eqF) ∘n proj1_sig (eqf_to_eqn H))) ∘n θ) A
+        ((S f⋆ (proj1_sig (eqf_to_eqn eqF) ∘n proj1_sig (eqf_to_eqn (symmetry eqF)))) ∘n θ) A
        =⟨ _ ⟩
-        (((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n (S f⋆ proj1_sig (eqf_to_eqn H))) ∘n θ) A
+        (((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n (S f⋆ proj1_sig (eqf_to_eqn (symmetry eqF)))) ∘n θ) A
        =⟨ assoc_of ⟩
-        ((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n ((S f⋆ proj1_sig (eqf_to_eqn H)) ∘n θ)) A
+        ((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n ((S f⋆ proj1_sig (eqf_to_eqn (symmetry eqF))) ∘n θ)) A
        =⟨ _ ⟩
-        ((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n ((⟨lan: (S f⋆ proj1_sig (eqf_to_eqn H)) ∘n θ of lan⟩ ⋆f F) ∘n lan_unit lan)) A
+        ((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n ((⟨lan: (S f⋆ proj1_sig (eqf_to_eqn (symmetry eqF))) ∘n θ of lan⟩ ⋆f F) ∘n lan_unit lan)) A
        ↑⟨ assoc_of ⟩
-        (((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n (⟨lan: (S f⋆ proj1_sig (eqf_to_eqn H)) ∘n θ of lan⟩ ⋆f F)) ∘n lan_unit lan) A
+        (((S f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n (⟨lan: (S f⋆ proj1_sig (eqf_to_eqn (symmetry eqF))) ∘n θ of lan⟩ ⋆f F)) ∘n lan_unit lan) A
        =⟨ _ ⟩
-        (((⟨lan: (S f⋆ ⟨exist: eqf_to_eqn H ⟩) ∘n θ ⟩ ⋆f F') ∘n (lan_functor lan f⋆ proj1_sig (eqf_to_eqn eqF))) ∘n lan_unit lan) A
+        (((⟨lan: (S f⋆ ⟨exist: eqf_to_eqn (symmetry eqF) ⟩) ∘n θ ⟩ ⋆f F') ∘n (lan_functor lan f⋆ proj1_sig (eqf_to_eqn eqF))) ∘n lan_unit lan) A
        =⟨ assoc_of ⟩
-        ((⟨lan: (S f⋆ ⟨exist: eqf_to_eqn H ⟩) ∘n θ ⟩ ⋆f F') ∘n ((lan_functor lan f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n lan_unit lan)) A
+        ((⟨lan: (S f⋆ ⟨exist: eqf_to_eqn (symmetry eqF) ⟩) ∘n θ ⟩ ⋆f F') ∘n ((lan_functor lan f⋆ proj1_sig (eqf_to_eqn eqF)) ∘n lan_unit lan)) A
        `end).
+
     + simpl.
-    is_lan :
-      forall (S : Functor D U) (θ : Nat E (S ∘f F)),
-        ∃! (τ : Nat lan_functor S) in [D,U], θ == (τ ⋆f F) ∘n lan_unit in [C,U];
- *)
+      unfold eq_to_hom.
+      rewrite fmap_preserve_extend, fmap_identity.
+      rewrite fmap_preserve_extend, fmap_identity.
+      rewrite <- extend_compose_left.
+      rewrite extend_eq.
+      rewrite left_id_of.
+      rewrite extend_id_flip_l.
+      rewrite <- extend_compose_right, extend_eq.
+      rewrite right_id_of.
+      destruct (⟨exist: eqF⟩).
+      reflexivity.
+    + generalize (lan_mediating_prop_at lan (θ := (S f⋆ ⟨exist: eqf_to_eqn (symmetry eqF) ⟩) ∘n θ) (A:=A)).
+      simpl.
+      intro.
+      rewrite <- H.
+      reflexivity.
+    + generalize (fstar_distr (S:=S) (α := ⟨exist: eqf_to_eqn eqF⟩) (β := ⟨exist: eqf_to_eqn (symmetry eqF)⟩)).
+      simpl.
+      intro.
+      rewrite (H A).
+      reflexivity.
+    + generalize (eqn_sym_inv_r eqF).
+      simpl.
+      intro.
+      rewrite (H A).
+      rewrite fmap_identity, left_id_of.
+      reflexivity.
+
+  - intros.
+    symmetry.
+    apply lan_mediating_unique.
+    intro; simpl.
+    rewrite (H A).
+    unfold eq_to_hom.
+    rewrite fmap_preserve_extend, fmap_identity.
+    rewrite fmap_preserve_extend, fmap_identity.
+    rewrite <- extend_compose_left.
+    rewrite extend_eq, left_id_of.
+    rewrite <- extend_compose_left.
+    rewrite extend_eq, left_id_of.
+    rewrite extend_compose_flip_l.
+    rewrite extend_eq.
+    rewrite extend_compose_left.
+    rewrite fobj_eq_preserve_sym.
+    rewrite (eq_sym_of_eqf eqF).
+    rewrite nat_extend.
+    reflexivity.
+Defined.    
 
 (*
 Section pointwise.
