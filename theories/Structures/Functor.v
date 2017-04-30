@@ -54,42 +54,50 @@ Proof.
   solve_proper.
 Defined.
 
-Structure Functor_Type (fdom fcod : Category) :=
-  {
-    funct_obj : fdom → fcod;
-    funct_map : forall {a b}, hom a b → hom (funct_obj a) (funct_obj b);
-    funct_map_proper : forall {a b}, Proper ((@equality _) ==> (@equality _)) (@funct_map a b);
-    funct_identity : forall {a}, funct_map (@identity fdom a) == @identity fcod (funct_obj a);
-    funct_compose : forall {a b c} {f : hom a b} {g : hom b c}, funct_map (g ∘ f) == funct_map g ∘ funct_map f;
-  }.
+Section Section_Functor_Type.
+  Structure Functor_Type (fdom fcod : Category) :=
+    {
+      funct_obj : fdom → fcod;
+      funct_map : forall {a b}, hom a b → hom (funct_obj a) (funct_obj b);
+      funct_map_proper : forall {a b}, Proper ((@equality _) ==> (@equality _)) (@funct_map a b);
+      funct_identity : forall {a}, funct_map (@identity fdom a) == @identity fcod (funct_obj a);
+      funct_compose : forall {a b c} {f : hom a b} {g : hom b c}, funct_map (g ∘ f) == funct_map g ∘ funct_map f;
+    }.
 
-Program Definition Build_Functor_from_Type : forall {C D}, Functor_Type C D → Functor C D :=
-  fun C D ftype =>
-    [fmorphism: fun _ _ => [mapoid: funct_map ftype by funct_map_proper ftype] with funct_obj ftype].
-Next Obligation.
-  apply Build_Is_Functor.
-  - simpl. intro.
-    apply funct_identity.
-  - simpl. intros.
-    apply funct_compose.
-Defined.
+  Program Definition to_Functor : forall {C D}, Functor_Type C D → Functor C D :=
+    fun C D ftype =>
+      [fmorphism: fun _ _ => [mapoid: funct_map ftype by funct_map_proper ftype] with funct_obj ftype].
+  Next Obligation.
+    apply Build_Is_Functor.
+    - simpl. intro.
+      apply funct_identity.
+    - simpl. intros.
+      apply funct_compose.
+  Defined.
 
-Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (Build_Functor_from_Type (@Build_Functor_Type C D fo fa _ _ _)).
+  Program Definition to_Functor_Type : forall {C D}, Functor C D → Functor_Type C D :=
+    fun C D functor =>
+      {|
+        funct_obj := fobj functor;
+        funct_map := fun _ _ => fmap functor;
+        funct_map_proper := fun _ _ => is_mapoid (fmorphism functor);
+      |}.
+  Next Obligation.
+    apply fmorphism_identity.
+  Defined.
+  Next Obligation.
+    apply fmorphism_compose.
+  Defined.
+End Section_Functor_Type.
+  
+Notation "[fmap: fa 'with' fo 'by' prf1 , prf2 , prf3 ]" := (to_Functor (@Build_Functor_Type _ _ fo fa prf1 prf2 prf3)).
+Notation "[fmap: fa 'with' fo 'as' C 'to' D ]" := (to_Functor (@Build_Functor_Type C D fo fa _ _ _)).
 Notation "[fmap: fa 'with' fo ]" := [fmap: fa with fo as _ to _ ].
 
-Program Definition Destruct_to_Functor_Type : forall {C D}, Functor C D → Functor_Type C D :=
-  fun C D functor =>
-    {|
-      funct_obj := fobj functor;
-      funct_map := fun _ _ => fmap functor;
-      funct_map_proper := fun _ _ => is_mapoid (fmorphism functor);
-    |}.
-Next Obligation.
-  apply fmorphism_identity.
-Defined.
-Next Obligation.
-  apply fmorphism_compose.
-Defined.
+Lemma fmap_of_fmap {C D} {fo : object C → object D} {fa : forall a b, hom a b → hom (fo a) (fo b)} {prf1 prf2 prf3} : forall {a b} (f : a ⟶ b), fmap [fmap: fa with fo by prf1,prf2,prf3] f = fa _ _ f.
+Proof.
+  auto.
+Qed.
 
 Program Definition idFunctor {C : Category} : Functor C C :=
   [fmap: fun _ _ f => f with fun a => a as C to C].

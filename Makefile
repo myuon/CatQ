@@ -107,13 +107,14 @@ VFILES:=theories/Structures/Setoids.v\
   theories/Structures/Nat.v\
   theories/Structures/Object.v\
   theories/Structures/Morphism.v\
-  theories/Structures/Equality.v\
+  theories/Structures/Extend.v\
   theories/Structures/Structures.v\
   theories/Categories/Concrete.v\
   theories/Functors/Concrete.v\
   theories/Categories/FunCat.v\
   theories/Categories/Cat.v\
   theories/Functors/Bifunctor.v\
+  theories/Equality.v\
   theories/Yoneda.v\
   theories/Categories/Comma.v\
   theories/UniversalArrow.v\

@@ -147,7 +147,7 @@ Proof.
 Qed.
 
 Program Definition Comma {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Category :=
-  Build_Category_from_Type
+  to_Category
     {|
       cat_object := comma_pair K L;
       cat_hom := comma_morphism;
@@ -230,11 +230,7 @@ Proof.
 Qed.
 
 Program Definition comma_π₁ {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Functor (K ↓ L) D₁ :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun (a : object (K ↓ L)) => csrc a;
-      funct_map := fun _ _ f => esrc f;
-    |}.
+  [fmap: fun _ _ f => esrc f with fun (a : object (K ↓ L)) => csrc a].
 Next Obligation.
   reflexivity.
 Defined.
@@ -243,11 +239,7 @@ Next Obligation.
 Defined.
 
 Program Definition comma_π₂ {C D₁ D₂} (K : Functor D₁ C) (L : Functor D₂ C) : Functor (K ↓ L) D₂ :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun (a : object (K ↓ L)) => ctgt a;
-      funct_map := fun _ _ f => etgt f;
-    |}.
+  [fmap: fun _ _ f => etgt f with fun (a : object (K ↓ L)) => ctgt a].
 Next Obligation.
   reflexivity.
 Defined.
@@ -296,6 +288,7 @@ Next Obligation.
       `end).
 Defined.
 
+Module CommaUniversality.
 Section CommaUniversality.
   Context {C D₁ D₂ : Category}.
   Context (K : Functor D₁ C) (L : Functor D₂ C).
@@ -375,28 +368,17 @@ Section CommaUniversality.
       refine
         (`begin
           (fmap L ((extend eq_refl (⟨exist: mediating_π₂ η ⟩ A)) identity) ∘ identity) ∘ η A
-         =⟨ _ ⟩
+         =⟨ ltac: (rewrite fmap_preserve_extend, extend_eq, right_id_of; reflexivity) ⟩
           fmap L identity ∘ η A
-         =⟨ _ ⟩
+         =⟨ ltac: (rewrite fmap_identity, left_id_of; reflexivity) ⟩
+          η A
+         ↑⟨ ltac: (rewrite fmap_identity, right_id_of; reflexivity) ⟩
           η A ∘ fmap K identity
-         =⟨ _ ⟩
+         =⟨ ltac: (rewrite fmap_preserve_extend, extend_eq; reflexivity) ⟩
           η A ∘ fmap K (extend eq_refl (⟨exist: mediating_π₁ η ⟩ A) identity)
          ↑⟨ right_id_of ⟩
           (η A ∘ fmap K (extend eq_refl (⟨exist: mediating_π₁ η ⟩ A) identity)) ∘ identity
          `end).
-
-      + rewrite fmap_preserve_extend.
-        rewrite extend_eq.
-        reflexivity.
-      + rewrite fmap_identity.
-        rewrite fmap_identity.
-        rewrite left_id_of.
-        rewrite right_id_of.
-        reflexivity.
-      + rewrite fmap_preserve_extend.
-        rewrite extend_eq.
-        rewrite right_id_of.
-        reflexivity.
 
     - intros.
       simpl.
@@ -475,5 +457,5 @@ Section CommaUniversality.
       reflexivity.
   Qed.
 End CommaUniversality.
-
+End CommaUniversality.
   

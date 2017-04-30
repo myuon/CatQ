@@ -12,7 +12,7 @@ Unset Printing Implicit Defensive.
 Set Universe Polymorphism.
 
 Program Definition FunCat (C D : Category) : Category :=
-  Build_Category_from_Type
+  to_Category
     {|
       cat_object := Functor C D;
       cat_hom := Nat;
@@ -51,15 +51,8 @@ Notation "[ C , D ]" := (FunCat C D).
 Notation "PSh[ C ]" := (FunCat (opposite C) Setoids).
 
 Program Definition const_lift {C J : Category} : Functor C [J,C] :=
-  Build_Functor_from_Type
-    {|
-      funct_obj := fun a => (Δ[J](a) : object ([J,C]));
-      funct_map :=
-        fun a b f =>
-          {|
-            component := fun x => (f : hom (Δ[J](a) x) (Δ[J](b) x));
-          |};
-    |}.
+  [fmap: fun a b f => [Nat: fun x => (f : hom (Δ[J](a) x) (Δ[J](b) x))]
+   with fun a => (Δ[J](a) : object ([J,C]))].
 Next Obligation.
   constructor.
   intros.
@@ -88,5 +81,7 @@ Next Obligation.
 Defined.
 
 Definition Δ {C J : Category} : Functor C [J,C] := const_lift.
+
+Notation "Δ( f 'as' a 'to' b )" := (fmap Δ (f : a ⟶ b)).
 
   

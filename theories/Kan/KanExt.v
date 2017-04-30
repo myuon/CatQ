@@ -5,7 +5,7 @@ Add LoadPath "../../theories" as CatQ.
 From CatQ.Structures Require Import Structures.
 From CatQ.Categories Require Import FunCat Concrete.
 From CatQ.Functors Require Import Concrete Bifunctor.
-Require Import CatQ.Adjoint.
+Require Import CatQ.Adjoint CatQ.Limit.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -206,4 +206,147 @@ Next Obligation.
       rewrite <- (assoc_of (h:=⟨lan: x ⟩ (F A0))).
       rewrite <- (lan_mediating_prop_at (F_has_kan (fst a0))).
       reflexivity.
-Defined.  
+Defined.
+
+Program Definition const_at_One {J C} {F : Functor One C} : Nat (F ∘f Δ[J](tt : One)) Δ[J](F tt)
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  rewrite right_id_of, left_id_of.
+  unfold compFunctor.
+  rewrite fmap_of_fmap.
+  rewrite fmap_identity.
+  reflexivity.
+
+  
+(*
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap Δ[J](F tt) f ∘ extend (~ fobj_eq (fobj_in_One e a)) eq_refl identity
+     =⟨ hom_refl ⟩
+      identity ∘ extend (~ fobj_eq (fobj_in_One e a)) eq_refl identity
+     =⟨ _ ⟩
+      extend (fobj_eq (fobj_in_One e a) ∙ ~ fobj_eq (fobj_in_One e a)) (fobj_eq (fobj_in_One e b) ∙ eq_refl) (identity ∘ fmap F (fmap e f))
+     =⟨ ltac: (rewrite eq_trans_sym_inv_r, eq_trans_refl_r; reflexivity) ⟩
+      extend eq_refl (fobj_eq (fobj_in_One e b)) (identity ∘ fmap F (fmap e f))
+     =⟨ ltac: (rewrite <- extend_compose_left; reflexivity) ⟩
+      extend eq_refl (fobj_eq (fobj_in_One e b)) identity ∘ fmap F (fmap e f)
+     =⟨ ltac: (rewrite extend_id_flip_l; reflexivity) ⟩
+      extend (~ fobj_eq (fobj_in_One e b)) eq_refl identity ∘ fmap (F ∘f e) f
+     `end).
+
+  rewrite left_id_of.
+  rewrite left_id_of.
+  rewrite <- extend_trans.
+  rewrite <- fmap_preserve_extend.
+
+  assert (forall a b (f : a ⟶ b), (extend (fobj_in_One e a) (fobj_in_One e b)) (fmap e f) == identity).
+  {
+    intros.
+    destruct (fmap e f0).
+    reflexivity.
+  }
+
+  rewrite H.
+  rewrite fmap_identity.
+  reflexivity.
+ *)
+Defined.
+
+Program Definition const_at_One_inv {J C} {F : Functor One C} : Nat Δ[J](F tt) (F ∘f Δ[J](tt : One))
+  := [Nat: fun a => identity].
+Next Obligation.
+  constructor.
+  intros.
+  rewrite right_id_of, left_id_of.
+  unfold compFunctor.
+  rewrite fmap_of_fmap.
+  rewrite fmap_identity.
+  reflexivity.
+Defined.
+
+Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} : (Δ[C](tt : One)†F) ⇋ Colimit F
+  := pair (fun lan => [colimit: lan_functor lan tt
+                     with (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D])])
+          (fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => colim_object colim]
+                       with [Nat: fun a => colim_cone colim a] ]).
+Next Obligation.
+  destruct (is_lan lan (const_at_One_inv (F:=Δ(v)) ∘n (cocone : Nat F _))).
+  destruct u.
+  exists (x tt).
+  constructor.
+  - intro.
+    simpl in H.
+    generalize (H A); intro.
+    rewrite left_id_of.
+    rewrite <- H1.
+    rewrite left_id_of.
+    reflexivity.
+  - intros.
+    apply (H0 (One_lift (g : _ ⟶ Δ(v) tt in D))).
+    simpl.
+    intro.
+    generalize (H1 A); intro.
+    rewrite left_id_of in H2.
+    rewrite H2.
+    rewrite left_id_of.
+    reflexivity.
+Defined.
+Next Obligation.
+  unfold Proper, respectful.
+  reflexivity.
+Defined.
+Next Obligation.
+  reflexivity.
+Defined.
+Next Obligation.
+  rewrite right_id_of.
+  reflexivity.
+Defined.
+Next Obligation.
+  constructor.
+  intros.
+  rewrite (@compFunctor_compose _ _ _ _ Δ[C](tt : One)).
+  rewrite fmap_of_fmap.
+  rewrite <- (naturality_of (colim_cone colim)).
+  reflexivity.
+Defined.
+Next Obligation.
+  destruct colim.
+  destruct (is_colimit (S tt) (const_at_One ∘n θ : F ⟶ Δ[C](S tt) in [C,D])).
+  exists (One_lift (x : _ tt ⟶ S tt in D) : _ ⟶ S in [One,D]).
+  simpl.
+  constructor.
+  - intro.
+    destruct u.
+    refine
+      (`begin
+        θ A
+       ↑⟨ left_id_of ⟩
+        const_at_One A ∘ θ A
+       =⟨ hom_refl ⟩
+        (const_at_One ∘n θ) A
+       ↑⟨ H A ⟩
+        (fmap Δ x ∘n colim_cone) A
+       =⟨ hom_refl ⟩
+        (One_lift (x : Δ(_) tt ⟶ _)) tt ∘ colim_cone A
+       `end).
+  - intros.
+    destruct u.
+    simpl; intro.
+    destruct A.
+    eapply H1.
+    simpl.
+    simpl in H0.
+    intro.
+    rewrite <- (H A).
+    rewrite left_id_of.
+    reflexivity.
+Defined.
+
+
+
