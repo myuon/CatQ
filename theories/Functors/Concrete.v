@@ -50,6 +50,17 @@ Next Obligation.
   reflexivity.
 Defined.
 
+Lemma functor_to_One_unique {C} {F : Functor C One} : F ==f Δ[C](tt : One).
+Proof.
+  assert (forall x, F x = tt).
+  { intro; destruct (F x); exact eq_refl. }
+
+  exists H.
+  intros.
+  destruct (fmap F f).
+  reflexivity.
+Qed.
+
 Program Definition op_trf {C D} (F : Functor (opposite C) D) : Functor C (opposite D) :=
   [fmap: fun a b f => opposite_hom_to (fmap F (opposite_hom_to f)) with fun a => opposite_obj_to (F a) as C to opposite D].
 Next Obligation.

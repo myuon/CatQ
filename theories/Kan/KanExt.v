@@ -214,14 +214,47 @@ Next Obligation.
   constructor.
   intros.
   rewrite right_id_of, left_id_of.
-  unfold const, compFunctor, fmap; simpl.
-
-  assert (fmap F (tt : @hom One tt _) == fmap F identity).
+  unfold compFunctor.
+  rewrite fmap_of_fmap.
+  rewrite fmap_identity.
   reflexivity.
+
+  
+(*
+  constructor.
+  intros.
+
+  refine
+    (`begin
+      fmap Δ[J](F tt) f ∘ extend (~ fobj_eq (fobj_in_One e a)) eq_refl identity
+     =⟨ hom_refl ⟩
+      identity ∘ extend (~ fobj_eq (fobj_in_One e a)) eq_refl identity
+     =⟨ _ ⟩
+      extend (fobj_eq (fobj_in_One e a) ∙ ~ fobj_eq (fobj_in_One e a)) (fobj_eq (fobj_in_One e b) ∙ eq_refl) (identity ∘ fmap F (fmap e f))
+     =⟨ ltac: (rewrite eq_trans_sym_inv_r, eq_trans_refl_r; reflexivity) ⟩
+      extend eq_refl (fobj_eq (fobj_in_One e b)) (identity ∘ fmap F (fmap e f))
+     =⟨ ltac: (rewrite <- extend_compose_left; reflexivity) ⟩
+      extend eq_refl (fobj_eq (fobj_in_One e b)) identity ∘ fmap F (fmap e f)
+     =⟨ ltac: (rewrite extend_id_flip_l; reflexivity) ⟩
+      extend (~ fobj_eq (fobj_in_One e b)) eq_refl identity ∘ fmap (F ∘f e) f
+     `end).
+
+  rewrite left_id_of.
+  rewrite left_id_of.
+  rewrite <- extend_trans.
+  rewrite <- fmap_preserve_extend.
+
+  assert (forall a b (f : a ⟶ b), (extend (fobj_in_One e a) (fobj_in_One e b)) (fmap e f) == identity).
+  {
+    intros.
+    destruct (fmap e f0).
+    reflexivity.
+  }
 
   rewrite H.
   rewrite fmap_identity.
   reflexivity.
+ *)
 Defined.
 
 Program Definition const_at_One_inv {J C} {F : Functor One C} : Nat Δ[J](F tt) (F ∘f Δ[J](tt : One))
@@ -230,21 +263,17 @@ Next Obligation.
   constructor.
   intros.
   rewrite right_id_of, left_id_of.
-  unfold const, compFunctor, fmap; simpl.
-
-  assert (fmap F (tt : @hom One tt _) == fmap F identity).
-  reflexivity.
-
-  rewrite H.
+  unfold compFunctor.
+  rewrite fmap_of_fmap.
   rewrite fmap_identity.
   reflexivity.
 Defined.
 
-Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} : Δ[C](tt : One)†F ≃ Colimit F in Types
-  := [iso: fun lan => [colimit: lan_functor lan tt
-                     with (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D])]
-      with fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => colim_object colim]
-                       with [Nat: fun a => colim_cone colim a] ] ].
+Program Definition colim_as_Lan_along_One {C D} {F : Functor C D} : (Δ[C](tt : One)†F) ⇋ Colimit F
+  := pair (fun lan => [colimit: lan_functor lan tt
+                     with (const_at_One ∘n lan_unit lan : @hom [C,D] _ _) of (F : [C,D])])
+          (fun colim => [lan: [fmap: fun _ _ tt => identity with fun tt => colim_object colim]
+                       with [Nat: fun a => colim_cone colim a] ]).
 Next Obligation.
   destruct (is_lan lan (const_at_One_inv (F:=Δ(v)) ∘n (cocone : Nat F _))).
   destruct u.
@@ -317,5 +346,7 @@ Next Obligation.
     rewrite <- (H A).
     rewrite left_id_of.
     reflexivity.
-Qed.
+Defined.
+
+
 
